@@ -113,8 +113,7 @@ class AuthRepo {
     try {
       response = await DioServices().putMethod(
         WebService().editProfileApi,
-        bodyMap,
-        await DioServices().getDefaultHeader(),
+        bodyMap, await DioServices().getDefaultHeader()
       );
       print("response:-- $response");
     } catch (e) {

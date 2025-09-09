@@ -124,13 +124,26 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 16),
 
             // Trip Options
-            Row(
+          /*  Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 tripButton("One Way", Icons.repeat),
                 tripButton("Round Trip", Icons.repeat),
                 tripButton("OutStation", Icons.add_road),
               ],
+            ),*/
+            SizedBox(
+              height: 60,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  tripButton("One Way", Icons.repeat),
+                  const SizedBox(width: 10),
+                  tripButton("Round Trip", Icons.repeat),
+                  const SizedBox(width: 10),
+                  tripButton("OutStation", Icons.add_road),
+                ],
+              ),
             ),
 
             const SizedBox(height: 16),
@@ -270,7 +283,7 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
         decoration: BoxDecoration(
           color: isSelected ? Colors.green : Colors.white,
           borderRadius: BorderRadius.circular(30),

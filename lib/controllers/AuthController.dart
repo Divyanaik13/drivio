@@ -19,7 +19,13 @@ class AuthController extends GetxController{
     var response;
     try{
       response = await _authRepo.signUpRepo(fullname, mobileNumber, email, referral);
+      print("sign up response :-- $response");
       CommonFunctions().hideLoader();
+      if(response.data["success"] == 0){
+        CommonFunctions().alertDialog("Alert", response.data["message"], "Ok", (){
+          Get.offAllNamed(RouteHelper().getLoginScreen(),arguments: mobileNumber);
+        });
+      }
     }catch(e){
       print("Error sign up api :-- $e");
       CommonFunctions().hideLoader();
@@ -33,6 +39,7 @@ class AuthController extends GetxController{
     var response;
     try{
       response = await _authRepo.verifyOtpRepo(mobileNumber, otp, type);
+      print("verify otp response :-- $response");
       CommonFunctions().hideLoader();
       if (response.statusCode == 200) {
         print("verify otp api success");
@@ -61,8 +68,10 @@ class AuthController extends GetxController{
     try{
       response = await _authRepo.loginRepo(mobileNumber);
       CommonFunctions().hideLoader();
-      if (response.statusCode == 200) {
-       print("login api success");
+      if(response.data["success"] == 0){
+        CommonFunctions().alertDialog("Alert", response.data["message"], "Ok", (){
+          Get.offAllNamed(RouteHelper().getSignUpScreen(),arguments: mobileNumber);
+        });
       }
     }catch(e){
       print("Error login api :-- $e");
@@ -76,8 +85,9 @@ class AuthController extends GetxController{
     var response;
     try{
       response = await _authRepo.logoutRepo();
+      print("logout api response :-- $response");
       CommonFunctions().hideLoader();
-      if (response != null && response['success'] == 1) {
+      if (response != null && response.data['success'] == 1) {
         print("Logout success");
 
         await LocalStorage.clearUserData();

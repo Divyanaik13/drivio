@@ -31,6 +31,9 @@ class _LoginScreenState extends State<LoginScreen>{
   @override
   void initState() {
     super.initState();
+    if(Get.arguments != null){
+      numberController.text = Get.arguments;
+    }
     numberController.addListener(() {
       if (_numberError.value != "") {
           _numberError.value = "";
@@ -119,7 +122,7 @@ class _LoginScreenState extends State<LoginScreen>{
                               ).then((response){
                                 final verifyData = response.data;
                                 if(verifyData["success"] == 1){
-                                  Get.toNamed(RouteHelper().getHomeScreen());
+                                  Get.offAllNamed(RouteHelper().getHomeScreen());
                                 }
                               });
                             },

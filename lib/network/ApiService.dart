@@ -92,10 +92,10 @@ class DioServices extends GetxService {
       try {
         response = await dio.post(
           WebService().baseUrl + endPoint,
-          data: body,  // ✅ send as raw JSON
+          data: body,
           options: DIO.Options(
             headers: {
-              "Content-Type": "application/json",  // ✅ important
+              "Content-Type": "application/json",
               ...?header,
             },
           ),
@@ -123,15 +123,22 @@ class DioServices extends GetxService {
 
   //For put Method
   Future<DIO.Response> putMethod(
-      String endPoint, Map<String, dynamic> body, header) async {
-    DIO.FormData formData = DIO.FormData.fromMap(body);
+      String endPoint,
+      Map<String, dynamic>? body,
+      Map<String, dynamic>? header,) async {
+  //  DIO.FormData formData = DIO.FormData.fromMap(body);
     var response;
     if (await checkNetwork()) {
       try {
         response = await dio.put(
           WebService().baseUrl + endPoint,
-          data: formData,
-          options: DIO.Options(headers: header),
+          data: body,
+          options: DIO.Options(
+            headers: {
+              "Content-Type": "application/json",
+              ...?header,
+            },
+          ),
         );
 
         return returnResponse(response);
@@ -144,7 +151,7 @@ class DioServices extends GetxService {
             log("Error:-- ${e.message}");
           }
         } else {
-          log("NO Dio Error: $e");
+          log("No Dio Error: $e");
         }
       }
     } else {
@@ -184,7 +191,7 @@ class DioServices extends GetxService {
   }
 
   //For delete Method
-  Future<DIO.Response> deleteData(
+ /* Future<DIO.Response> deleteData(
       String endPoint, dynamic headerBody, dynamic data) async {
     var response;
     if (await checkNetwork()) {
@@ -207,7 +214,37 @@ class DioServices extends GetxService {
       print("no internet");
     }
     return returnResponse(response);
+  }*/
+  Future<Map<String, dynamic>> deleteData(
+      String endPoint, dynamic headerBody, dynamic data) async {
+    var response;
+    if (await checkNetwork()) {
+      try {
+        response = await dio.delete(
+          WebService().baseUrl + endPoint,
+          data: data,
+          options: Options(headers: headerBody),
+        );
+
+        return response.data;
+      } on DioException catch (e) {
+        print("Error: ${e.message}");
+        return {
+          "success": 0,
+          "message": e.message ?? "Server error",
+          "error": e.response?.data ?? {},
+        };
+      }
+    } else {
+      print("no internet");
+      return {
+        "success": 0,
+        "message": "No internet connection",
+        "error": {}
+      };
+    }
   }
+
 
   //For multipart method
   Future<dynamic> multipartPostMethod1(String endPoint, String keyName,

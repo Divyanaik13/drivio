@@ -108,7 +108,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _checkLoginStatus() async {
-    await Future.delayed(const Duration(seconds: 5));
+    await Future.delayed(const Duration(seconds: 3));
 
     if (authToken != null && authToken!.isNotEmpty) {
       Get.offAll(() => const HomeScreen());
@@ -132,7 +132,7 @@ class _SplashScreenState extends State<SplashScreen> {
               padding: EdgeInsets.only(right: 30.w),
               child: Image.asset(AssetsImages().splashIcon, height: 50),
             ),
-            Image.asset(AssetsImages().drivioIcon, height: 60),
+            Image.asset(AssetsImages().drivioIcon, height: 50),
           ],
         ),
       ),

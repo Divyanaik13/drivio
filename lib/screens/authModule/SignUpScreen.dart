@@ -34,6 +34,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   void initState() {
     super.initState();
+    if(Get.arguments != null){
+      mobileController.text = Get.arguments;
+    }else{
+
+    }
     mobileController.addListener(() {
       if (_numberError.value != "") {
         _numberError.value = "";
@@ -218,12 +223,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               ).then((response){
                                     final verifyData = response.data;
                                  if(verifyData["success"] == 1){
-                                   Get.toNamed(RouteHelper().getHomeScreen());
+                                   Get.offAllNamed(RouteHelper().getHomeScreen());
                                  }
                               });
                             },
                             () {
-                              print("Resend OTP clicked");
+                             // resend otp tab
                             },
                           );
                         }
