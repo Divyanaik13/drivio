@@ -35,7 +35,7 @@ class LocalStorage {
   }
 }
 
-/*import 'package:get_storage/get_storage.dart';
+import 'package:get_storage/get_storage.dart';
 
 class LocalStorage {
   static final LocalStorage _function = LocalStorage._internal();
@@ -49,11 +49,12 @@ class LocalStorage {
 
  /// keys
   String authToken = "token";
-  String fullname = "fullname";
+  String userId = "id";
+  String fullName = "fullname";
   String email = "email";
   String mobileNumber = "mobileNumber";
   String referral = "referral";
-  String referralCount = "referralCount";
+  String myCoins = "myCoins";
 
   //For Storing String value
   void setStringValue(String key, String value){
@@ -95,8 +96,6 @@ class LocalStorage {
   //For Clear the GetStorage
   void clearLocalStorage(){
     localStorage.erase();
-    //StripeDioServices().cardList.clear();
-    //ConstStrings().tabIndex.value = 0;
     print("clearLocalStorage");
   }
-}*/
+}

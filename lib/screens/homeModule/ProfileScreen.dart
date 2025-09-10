@@ -171,6 +171,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     "+91 ${mobileNumberController.text}",
                                     style: const TextStyle(color: Colors.grey),
                                   ),
+                            const SizedBox(height: 5),
                             isEditing.value
                                 ? TextField(
                                     controller: emailController,

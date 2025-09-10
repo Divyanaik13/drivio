@@ -123,15 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 16),
 
-            // Trip Options
-          /*  Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                tripButton("One Way", Icons.repeat),
-                tripButton("Round Trip", Icons.repeat),
-                tripButton("OutStation", Icons.add_road),
-              ],
-            ),*/
+            /// Trip Options
             SizedBox(
               height: 60,
               child: ListView(
@@ -148,7 +140,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 16),
 
-            // Map Dummy (Just Container)
             SizedBox(
               height: 400,
               width: double.infinity,

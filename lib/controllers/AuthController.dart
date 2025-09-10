@@ -46,7 +46,8 @@ class AuthController extends GetxController{
       CommonFunctions().hideLoader();
       if (response.statusCode == 200) {
         print("verify otp api success");
-        final data = response.data;
+      /*  final data = response.data;
+        print("verify data:-- $data");
         if (data != null &&
             data["success"] == 1 &&
             data["data"] != null &&
@@ -54,8 +55,27 @@ class AuthController extends GetxController{
 
           // Save to LocalStorage
           await LocalStorage.saveUserData(data["data"], data["token"]);
+          Get.offAllNamed(RouteHelper().getHomeScreen());
           print("save update profile data :-- ${data["data"]}");
-        }
+        }*/
+        var data = response.data["data"];
+        var authToken = data["token"];
+
+        var user = data["user"];
+        var userId = user["id"];
+        var fullName = user["fullname"];
+        var email = user["email"];
+        var mobileNumber = user["mobileNumber"];
+        var referral = user["referral"];
+        var myCoins = user["myCoins"];
+
+        LocalStorage().setStringValue(ls.authToken, token);
+        LocalStorage().setStringValue(ls.userId, id);
+        LocalStorage().setStringValue(ls.fullName, fullname);
+        LocalStorage().setStringValue(ls.email, email);
+        LocalStorage().setStringValue(ls.mobileNumber, mobileNumber);
+        LocalStorage().setStringValue(ls.referral, referral);
+        LocalStorage().setStringValue(ls.myCoins, myCoins);
       }
     }catch(e){
       print("Error verify otp api :-- $e");
@@ -93,7 +113,7 @@ class AuthController extends GetxController{
       if (response != null && response.data['success'] == 1) {
         print("Logout success");
 
-        await LocalStorage.clearUserData();
+        await ls.clearLocalStorage();
 
         Get.offAllNamed(RouteHelper().getLoginScreen());
       }

@@ -25,7 +25,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       "title2": " Our Driver",
       "subtitle1": "Get a professional driver anytime, anywhere—",
       "subtitle2": "\ntap, ride, relax.",
-      "image": AssetsImages().driverImage1,
+      "image": AssetsImages().driverImage3,
     },
     {
       "title1": "Safe & Verified ",
@@ -39,7 +39,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       "title2": " Your Way",
       "subtitle1": "Pay only for what you use—hourly, daily per trip.",
       "subtitle2": "\nSimple, flexible, transparent pricing.",
-      "image": AssetsImages().driverImage3,
+      "image": AssetsImages().driverImage1,
     },
   ];
 

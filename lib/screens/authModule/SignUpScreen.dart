@@ -220,12 +220,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               authController.verifyOtpApi(
                                   mobileController.text.trim(),
                                   authController.otpTextController.text.trim(), "signup"
-                              ).then((response){
+                              )/*.then((response){
                                     final verifyData = response.data;
-                                 if(verifyData["success"] == 1){
-                                   Get.offAllNamed(RouteHelper().getHomeScreen());
-                                 }
-                              });
+
+                              })*/;
                             },
                             () {
                              // resend otp tab
