@@ -38,7 +38,7 @@ class ProfileController extends GetxController {
       if (response != null && response['success'] == 1) {
         print("delete success");
 
-        await LocalStorage.clearUserData();
+        LocalStorage().clearLocalStorage();
 
         Get.offAllNamed(RouteHelper().getLoginScreen());
       }
@@ -48,6 +48,4 @@ class ProfileController extends GetxController {
     }
     return response;
   }
-
-
 }

@@ -1,6 +1,9 @@
+import 'package:drivio_sarthi/utils/AssetsImages.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
+import 'package:sizer/sizer.dart';
+import '../../utils/ConstColors.dart';
 import 'ProfileScreen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -13,13 +16,31 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   TextEditingController searchController = TextEditingController();
   String selectedTrip = "One Way";
-  bool isMapLoading = true;
-  GoogleMapController? mapController;
+
+  /// For google map
+  var isMapLoading = true.obs;
+  GoogleMapController? _mapController;
+  var sourceLat = 0.0.obs;
+  var sourceLong = 0.0.obs;
+  var destinationLat = 0.0.obs;
+  var destinationLong = 0.0.obs;
+  Rxn<LatLng> sourceLocation = Rxn<LatLng>();
+  Rxn<LatLng> destinationLocation = Rxn<LatLng>();
+  var markers = <Marker>{}.obs;
+  var polylines = <Polyline>{}.obs;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    sourceLocation.value = LatLng(22.705313624334096, 75.90907346989012);
+    destinationLocation.value = LatLng(22.738078356773574, 75.89032710201927);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xfff5f5f5),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -29,14 +50,35 @@ class _HomeScreenState extends State<HomeScreen> {
               height: 50,
             ),
             Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("Hello!", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                RichText(
+                  text: TextSpan(
+                    text: "Book",
+                    style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black),
+                    children: [
+                      TextSpan(
+                        text: " Driver",
+                        style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w500,
+                            color: ConstColors().themeColor),
+                      ),
+                    ],
+                  ),
+                ),
                 Row(
                   children: [
                     Stack(
                       children: [
-                        const Icon(Icons.notifications_none, color: Colors.black, size: 35,),
+                        const Icon(
+                          Icons.notifications_none,
+                          color: Colors.black,
+                          size: 35,
+                        ),
                         Positioned(
                           right: 6,
                           top: 3,
@@ -53,79 +95,89 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(width: 10),
                     InkWell(
-                      onTap: (){
+                      onTap: () {
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                          MaterialPageRoute(
+                              builder: (_) => const ProfileScreen()),
                         );
-                        //
                       },
                       child: const CircleAvatar(
                         backgroundImage: NetworkImage(
                             "https://randomuser.me/api/portraits/men/1.jpg"),
                       ),
                     ),
-                    const SizedBox(width: 15),
                   ],
                 ),
-
               ],
             ),
-            const Text("Ramesh",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green)),
             const SizedBox(height: 4),
             Row(
               children: [
-                const Text("Sit back, relax, we’ll ",
+                const Text("103, Kesar Bagh Road, Indore",
                     style: TextStyle(color: Colors.black54)),
-                const Text(" drive.",
-                    style: TextStyle(color: Colors.green)),
               ],
             ),
-
             const SizedBox(height: 16),
-
-            // Search Bar
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: TextField(
-                    controller: searchController,
-                    decoration: InputDecoration(
-                      hintText: "Search here",
-                      prefixIcon: const Icon(Icons.location_on_outlined),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
+                Row(
+                  children: [
+                    Icon(Icons.location_on, size: 16),
+                    SizedBox(width: 4),
+                    Text("Nearest available drivers",
+                        style: TextStyle(
+                            color: ConstColors().blackColor,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15)),
+                  ],
+                ),
+                Text("10 km",
+                    style: TextStyle(
+                        color: ConstColors().blackColor,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 30.h,
+              width: double.infinity,
+              child: Stack(
+                children: [
+                  // Google Map
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: GoogleMap(
+                      initialCameraPosition: CameraPosition(
+                        target: LatLng(
+                          (sourceLat.value + destinationLat.value.toDouble()) /
+                              2,
+                          (sourceLong.value +
+                                  destinationLong.value.toDouble()) /
+                              2,
+                        ),
+                        zoom: 12.0,
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                      mapType: MapType.normal,
+                      onMapCreated: (controller) => onMapCreated(
+                        controller,
+                        sourceLocation.value!,
+                        destinationLocation.value!,
+                      ),
+                      markers: markers,
+                      polylines: polylines,
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                CircleAvatar(
-                  backgroundColor: Colors.green,
-                  child: IconButton(
-                    icon: const Icon(Icons.tune, color: Colors.white),
-                    onPressed: () {},
-                  ),
-                )
-              ],
+                ],
+              ),
             ),
-
-            const SizedBox(height: 10),
-            const Row(
-              children: [
-                Icon(Icons.location_on, size: 16),
-                SizedBox(width: 4),
-                Text("Nearest available drivers"),
-              ],
-            ),
-
             const SizedBox(height: 16),
 
             /// Trip Options
             SizedBox(
-              height: 60,
+              height: 50,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: [
@@ -140,126 +192,188 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 16),
 
-            SizedBox(
-              height: 400,
-              width: double.infinity,
-              child: Stack(
-                children: [
-                  // Google Map
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: GoogleMap(
-                      initialCameraPosition: const CameraPosition(
-                        target: LatLng(22.7196, 75.8577), // Indore coordinates
-                        zoom: 12,
-                      ),
-                      myLocationEnabled: true,
-                      myLocationButtonEnabled: true,
-                      zoomControlsEnabled: false,
-                      onMapCreated: (GoogleMapController controller) {
-                        mapController = controller;
-                        setState(() {
-                          isMapLoading = false;
-                        });
-                      },
-                    ),
-                  ),
-                  if (isMapLoading)
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          const Center(
-                            child: CircularProgressIndicator(color: Colors.green),
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
-            ),
-
-
-            const SizedBox(height: 16),
-
-            // Driver Card
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.green.shade50,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Image.network(
-                      "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?cs=srgb&dl=pexels-italo-melo-881954-2379004.jpg&fm=jpg",
-                      height: 100,
-                      width: 90,
-                      fit: BoxFit.cover,
+                  // Title
+                  const Text(
+                    "Start Booking",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Row(
-                          children: [
-                            Icon(Icons.directions_car, size: 18),
-                            SizedBox(width: 6),
-                            Text("Shyam Singh",
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: const [
-                            Icon(Icons.star, color: Colors.amber, size: 16),
-                            Text(" 4.8 (120 rides) "),
-                            Text("· 2.2 KM Away"),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        const Text("5 yrs experience · Verified license"),
-                        const SizedBox(height: 4),
-                        const Text("₹250/hour  |  Available",
-                            style: TextStyle(color: Colors.green)),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            const Text("Schedule"),
-                            const SizedBox(width: 8),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
+                  const SizedBox(height: 12),
+
+                  // Search bar with clock button
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          height: 45,
+                          decoration: BoxDecoration(
+                            color: const Color(0xfff2f2f2),
+                            borderRadius: BorderRadius.circular(25),
+                            border: Border.all(color: Colors.black, width: 1),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(Icons.search, color: Colors.grey, size: 26),
+                              SizedBox(width: 8),
+                              Text(
+                                "Find driver from?",
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 16,
+                                ),
                               ),
-                              onPressed: () {},
-                              child: const Text("Hire Now"),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Container(
+                        //height: 50,
+
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.access_time,
+                          color: Colors.white,
+                          size: 35,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // My Location
+                  Row(
+                    children: [
+                      const Icon(Icons.my_location, color: Colors.black),
+                      const SizedBox(width: 8),
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: "My Location ",
+                              style: TextStyle(color: Colors.red, fontSize: 16),
+                            ),
+                            TextSpan(
+                              text: "103, Kesar Bagh Road, Indore",
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 16),
                             ),
                           ],
-                        )
-                      ],
-                    ),
-                  )
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Recent Location
+                  const Row(
+                    children: [
+                      Icon(Icons.access_time, color: Colors.black),
+                      SizedBox(width: 8),
+                      Text(
+                        "Pheneix Citadel , Indore",
+                        style: TextStyle(color: Colors.grey, fontSize: 16),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
+
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title Row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Services",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        "See all",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.red,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Horizontal List
+                  SizedBox(
+                    height: 130,
+                    child: ListView(
+                      shrinkWrap: true,
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        serviceItem(AssetsImages().walletIcon, "Vip Card"),
+                        serviceItem(AssetsImages().handIcon, "Refer & Earn"),
+                        serviceItem(AssetsImages().rupees, "Mv Coins"),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            )
           ],
         ),
       ),
 
       // Bottom Nav
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor:Colors.green.shade50,
+        backgroundColor: Color(0xfff5f5f5),
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.grey,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined, size: 30,), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.directions_car, size: 30,), label: "My Drive"),
-          BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet_outlined, size: 30,), label: "Wallet"),
+          BottomNavigationBarItem(
+              icon: Icon(
+                Icons.home_outlined,
+                size: 30,
+              ),
+              label: "Home"),
+          BottomNavigationBarItem(
+              icon: Icon(
+                Icons.directions_car,
+                size: 30,
+              ),
+              label: "My Drive"),
+          BottomNavigationBarItem(
+              icon: Icon(
+                Icons.account_balance_wallet_outlined,
+                size: 30,
+              ),
+              label: "Wallet"),
         ],
       ),
     );
@@ -276,7 +390,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.green : Colors.white,
+          color: isSelected ? ConstColors().themeColor : Colors.white,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(color: Colors.black12),
         ),
@@ -286,16 +400,107 @@ class _HomeScreenState extends State<HomeScreen> {
               icon,
               color: isSelected ? Colors.white : Colors.black,
             ),
-            SizedBox(width: 10,),
+            SizedBox(
+              width: 10,
+            ),
             Text(
               text,
               style: TextStyle(
                   color: isSelected ? Colors.white : Colors.black,
-                  fontWeight: FontWeight.w500, fontSize: 14),
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Widget serviceItem(String image, String title) {
+    return Container(
+      // margin: const EdgeInsets.only(right: 16),
+      height: 110,
+      child: Column(
+        children: [
+          Container(
+            width: 25.w,
+            padding: EdgeInsets.all(15),
+            margin: EdgeInsets.symmetric(horizontal: 5),
+            decoration: BoxDecoration(
+                color: Colors.grey,
+                borderRadius: BorderRadius.all(Radius.circular(20))),
+            child: Image.asset(image, color: ConstColors().themeColor),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 13,
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// For showing map
+  void onMapCreated(
+      GoogleMapController controller, LatLng source, LatLng destination) {
+    _mapController = controller;
+
+    final bounds = LatLngBounds(
+      southwest: LatLng(
+        source.latitude <= destination.latitude
+            ? source.latitude
+            : destination.latitude,
+        source.longitude <= destination.longitude
+            ? source.longitude
+            : destination.longitude,
+      ),
+      northeast: LatLng(
+        source.latitude >= destination.latitude
+            ? source.latitude
+            : destination.latitude,
+        source.longitude >= destination.longitude
+            ? source.longitude
+            : destination.longitude,
+      ),
+    );
+
+    _mapController?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+  }
+
+  /// For showing map
+  void _addMarker() {
+    setState(() {
+      markers.addAll([
+        Marker(
+          markerId: const MarkerId('source'),
+          position: sourceLocation.value!,
+          infoWindow: const InfoWindow(title: 'Pickup Location'),
+          icon:
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+        ),
+        Marker(
+          markerId: const MarkerId('destination'),
+          position: destinationLocation.value!,
+          infoWindow: const InfoWindow(title: 'Delivery Location'),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+        ),
+      ]);
+
+      polylines.add(
+        Polyline(
+          polylineId: const PolylineId('route'),
+          visible: true,
+          points: [sourceLocation.value!, destinationLocation.value!],
+          width: 5,
+          color: ConstColors().blackColor,
+          patterns: [PatternItem.dot, PatternItem.gap(5)],
+        ),
+      );
+    });
   }
 }

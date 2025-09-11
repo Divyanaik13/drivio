@@ -1,4 +1,3 @@
-
 import 'package:another_telephony/telephony.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
@@ -43,6 +42,7 @@ class AuthController extends GetxController{
     try{
       response = await _authRepo.verifyOtpRepo(mobileNumber, otp, type);
       print("verify otp response :-- $response");
+      print("verify otp :-- $otp");
       CommonFunctions().hideLoader();
       if (response.statusCode == 200) {
         print("verify otp api success");
@@ -59,23 +59,32 @@ class AuthController extends GetxController{
           print("save update profile data :-- ${data["data"]}");
         }*/
         var data = response.data["data"];
-        var authToken = data["token"];
+        print("data :-- $data");
+        var authToken = response.data["token"].toString()??"";
+        var userId = data["id"].toString()??"";
+        var fullName = data["fullname"].toString()??"";
+        var email = data["email"].toString()??"";
+        var mobileNumber = data["mobileNumber"].toString()??"";
+        var referral = data["referral"].toString()??"";
+        var myCoins = data["myCoins"].toString()??"";
 
-        var user = data["user"];
-        var userId = user["id"];
-        var fullName = user["fullname"];
-        var email = user["email"];
-        var mobileNumber = user["mobileNumber"];
-        var referral = user["referral"];
-        var myCoins = user["myCoins"];
+        print("authToken :-- $authToken");
+        print("userId :-- $userId");
+        print("fullName :-- $fullName");
+        print("email :-- $email");
+        print("mobileNumber :-- $mobileNumber");
+        print("referral :-- $referral");
 
-        LocalStorage().setStringValue(ls.authToken, token);
-        LocalStorage().setStringValue(ls.userId, id);
-        LocalStorage().setStringValue(ls.fullName, fullname);
+        LocalStorage().setStringValue(ls.authToken, authToken);
+        LocalStorage().setStringValue(ls.userId, userId);
+        LocalStorage().setStringValue(ls.fullName, fullName);
         LocalStorage().setStringValue(ls.email, email);
         LocalStorage().setStringValue(ls.mobileNumber, mobileNumber);
         LocalStorage().setStringValue(ls.referral, referral);
         LocalStorage().setStringValue(ls.myCoins, myCoins);
+
+        print("verify otp data save :-- ${ LocalStorage().getStringValue(ls.authToken)}");
+        Get.offAllNamed(RouteHelper().getHomeScreen());
       }
     }catch(e){
       print("Error verify otp api :-- $e");
@@ -113,7 +122,7 @@ class AuthController extends GetxController{
       if (response != null && response.data['success'] == 1) {
         print("Logout success");
 
-        await ls.clearLocalStorage();
+        await LocalStorage().clearLocalStorage;
 
         Get.offAllNamed(RouteHelper().getLoginScreen());
       }

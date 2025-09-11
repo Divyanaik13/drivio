@@ -13,4 +13,7 @@ class AssetsImages{
   String splashIcon = "assets/images/mingcute_steering-wheel-fill.png";
   String drivioIcon = "assets/images/Drivio.png";
   String referralCodeIcon = "assets/images/reffarelCode.png";
+  String walletIcon = "assets/images/solar_card-bold.png";
+  String handIcon = "assets/images/streamline-flex-color_coin-share.png";
+  String rupees = "assets/images/Vector.png";
 }

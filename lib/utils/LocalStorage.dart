@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class LocalStorage {
+/*class LocalStorage {
   static const String _userKey = "user_data";
   static const String _tokenKey = "auth_token";
 
@@ -33,7 +33,7 @@ class LocalStorage {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
   }
-}
+}*/
 
 import 'package:get_storage/get_storage.dart';
 

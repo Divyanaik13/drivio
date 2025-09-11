@@ -2,9 +2,7 @@ import 'package:drivio_sarthi/utils/AssetsImages.dart';
 import 'package:drivio_sarthi/utils/ConstColors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:sizer/sizer.dart';
-
 import '../../utils/CommonFunctions.dart';
 import '../../utils/RouteHelper.dart';
 
@@ -56,7 +54,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
               children: [
                 TextButton(
                   onPressed: () {
-                    Get.toNamed(RouteHelper().getLoginScreen());
+                    Get.offAllNamed(RouteHelper().getLoginScreen());
                   },
                   child: Text(
                     "Skip",

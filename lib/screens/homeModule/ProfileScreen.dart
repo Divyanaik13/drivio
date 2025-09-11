@@ -18,6 +18,9 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   var authController = Get.find<AuthController>();
   var profileController = Get.find<ProfileController>();
+
+  LocalStorage ls = LocalStorage();
+
   TextEditingController fullnameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController mobileNumberController = TextEditingController();
@@ -32,14 +35,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadUserData() async {
-    final user = await LocalStorage.getUserData();
-    if (user != null) {
-      userId.value = user["id"].toString();
-      fullnameController.text = user["fullname"] ?? "";
-      emailController.text = user["email"] ?? "";
-      mobileNumberController.text = user["mobileNumber"] ?? "";
-      print("user :-- $user");
-    }
+      userId.value = ls.getStringValue(ls.userId);
+      fullnameController.text = ls.getStringValue(ls.fullName);
+      emailController.text = ls.getStringValue(ls.email);
+      mobileNumberController.text = ls.getStringValue(ls.mobileNumber);
+      print("userId.value :-- ${userId.value}");
+      print("fullnameController.text :-- ${fullnameController.text}");
+      print("emailController.text :-- ${emailController.text}");
+      print("mobileNumberController.text :-- ${mobileNumberController.text}");
     isLoading.value = false;
   }
 

@@ -19,10 +19,6 @@
         android:icon="@mipmap/ic_launcher">
 
         <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="YOUR_GOOGLE_MAPS_API_KEY_HERE"/>
-
-        <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
@@ -57,6 +53,10 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDmEeWXsbwUrtmexrqxp5peHjSCckwatAo"/>
     </application>
 
     <!-- Required for text processing -->

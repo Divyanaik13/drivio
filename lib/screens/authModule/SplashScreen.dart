@@ -90,6 +90,8 @@ class _SplashScreenState extends State<SplashScreen> {
   String? authToken;
   final Telephony telephony = Telephony.instance;
 
+  LocalStorage ls = LocalStorage();
+
   @override
   void initState() {
     super.initState();
@@ -98,7 +100,8 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _initToken() async {
-    authToken = await LocalStorage.getToken();
+    authToken = await LocalStorage().getStringValue(ls.authToken);
+    print("splash auth token :-- $authToken");
     _checkLoginStatus();
   }
 
@@ -110,7 +113,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _checkLoginStatus() async {
     await Future.delayed(const Duration(seconds: 3));
 
-    if (authToken != null && authToken!.isNotEmpty) {
+    if (authToken != "" && authToken!.isNotEmpty) {
       Get.offAll(() => const HomeScreen());
     } else {
       Get.offAllNamed(RouteHelper().getOnBoardingScreen());

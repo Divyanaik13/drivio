@@ -119,12 +119,12 @@ class _LoginScreenState extends State<LoginScreen>{
                               authController.verifyOtpApi(
                                   numberController.text.trim(),
                                   authController.otpTextController.text.trim(), "login"
-                              ).then((response){
+                              );/*.then((response){
                                 final verifyData = response.data;
                                 if(verifyData["success"] == 1){
                                   Get.offAllNamed(RouteHelper().getHomeScreen());
                                 }
-                              });
+                              });*/
                             },
                               () {
                               print("Resend OTP clicked");
