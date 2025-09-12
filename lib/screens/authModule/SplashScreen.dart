@@ -87,7 +87,7 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  String? authToken;
+ var authToken = "".obs;
   final Telephony telephony = Telephony.instance;
 
   LocalStorage ls = LocalStorage();
@@ -100,7 +100,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _initToken() async {
-    authToken = await LocalStorage().getStringValue(ls.authToken);
+    authToken.value = ls.getStringValue(ls.authToken);
     print("splash auth token :-- $authToken");
     _checkLoginStatus();
   }
@@ -113,8 +113,8 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _checkLoginStatus() async {
     await Future.delayed(const Duration(seconds: 3));
 
-    if (authToken != "" && authToken!.isNotEmpty) {
-      Get.offAll(() => const HomeScreen());
+    if (authToken.value != "" && authToken.value.isNotEmpty) {
+      Get.offAllNamed(RouteHelper().getHomeScreen());
     } else {
       Get.offAllNamed(RouteHelper().getOnBoardingScreen());
     }

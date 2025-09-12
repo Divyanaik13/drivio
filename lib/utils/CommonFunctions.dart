@@ -1,7 +1,10 @@
+import 'package:drivio_sarthi/utils/AssetsImages.dart';
 import 'package:drivio_sarthi/utils/ConstColors.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sizer/sizer.dart';
 import 'package:sms_autofill/sms_autofill.dart';
@@ -21,8 +24,12 @@ class CommonFunctions {
   var isListeningForCode = false.obs;
   var appSignature = "".obs;
   var otpCode = "".obs;
+  DateTime? selectedDate;
+  DateTime? selectedTime;
+
 
   final TextEditingController otpController = TextEditingController();
+  TextEditingController dateTimeController = TextEditingController();
 
   Future successDialog(String text, buttonTxt, Function() buttonTap) {
     return Get.defaultDialog(
@@ -230,7 +237,6 @@ class CommonFunctions {
                 if (code != null && code.length == 4) {
                   authController.otpCode.value = code;
                   authController.otpTextController.text = code;
-                  onOtpSubmit(code);
                 }
               })),
 
@@ -265,4 +271,73 @@ class CommonFunctions {
     );
      await authController.stopOtpListener();
   }
+
+
+  Future<void> dateTimePicker(DateTime _myDateTime) async {
+    DateTime? pickedDate = await showDatePicker(
+      context: Get.context!,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+              colorScheme: ColorScheme.light(
+                  brightness: Brightness.light,
+                  primary: ConstColors().themeColor ?? Color(0xFFFF4300)),
+              datePickerTheme: DatePickerThemeData(
+                headerBackgroundColor:
+                ConstColors().themeColor ?? Color(0xFFFF4300),
+                headerForegroundColor: Colors.white,
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.zero),
+              )),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      TimeOfDay? pickedTime = await showTimePicker(
+        context: Get.context!,
+        initialTime: TimeOfDay.now(),
+        builder: (context, child) {
+          return Theme(
+            data: ThemeData.light().copyWith(
+              colorScheme: ColorScheme.light(
+                brightness: Brightness.light,
+                primary: ConstColors().themeColor ?? const Color(0xFFFF4300),
+                onPrimary: Colors.white,
+                onSurface: Colors.black,
+              ),
+              timePickerTheme: TimePickerThemeData(
+                dialHandColor: ConstColors().themeColor ?? const Color(0xFFFF4300),
+                dialBackgroundColor: Colors.grey.shade200,
+                entryModeIconColor: ConstColors().themeColor ?? const Color(0xFFFF4300),
+                helpTextStyle: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            child: child!,
+          );
+        },
+      );
+
+      if (pickedTime != null) {
+        final selectedDateTime = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+
+        print("Selected DateTime: $selectedDateTime");
+          _myDateTime = selectedDateTime;
+      }
+    }
+    debugPrint("selected date is $_myDateTime");
+  }
+
 }

@@ -121,4 +121,21 @@ class AuthRepo {
     }
     return response;
   }
+
+
+
+  /// referral code repo function
+  Future<dynamic> referralCodeRepo(String referralCode) async {
+    var response;
+    try {
+      response = await DioServices().getMethod(
+        "${WebService().getReferCodeApi}?referralCode=$referralCode",
+        await DioServices().getDefaultHeader(),
+      );
+      print("response referralCode repo :-- $response");
+    } catch (e) {
+      print("error referralCode repo :-- $e");
+    }
+    return response;
+  }
 }

@@ -14,4 +14,5 @@ class WebService{
   var logoutApi = "/logout";
   var editProfileApi = "/updateUser";
   var deleteUserApi = "/deleteUser";
+  var getReferCodeApi = "/getReferCode";
 }

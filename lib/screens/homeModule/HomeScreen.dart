@@ -1,4 +1,5 @@
 import 'package:drivio_sarthi/utils/AssetsImages.dart';
+import 'package:drivio_sarthi/utils/CommonFunctions.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -16,6 +17,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   TextEditingController searchController = TextEditingController();
   String selectedTrip = "One Way";
+  var dateTime = DateTime.now().obs;
 
   /// For google map
   var isMapLoading = true.obs;
@@ -239,17 +241,20 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      Container(
-                        //height: 50,
-
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.access_time,
-                          color: Colors.white,
-                          size: 35,
+                      InkWell(
+                        onTap: (){
+                          CommonFunctions().dateTimePicker(dateTime.value);
+                        },
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.access_time,
+                            color: Colors.white,
+                            size: 35,
+                          ),
                         ),
                       ),
                     ],
@@ -339,7 +344,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         serviceItem(AssetsImages().walletIcon, "Vip Card"),
                         serviceItem(AssetsImages().handIcon, "Refer & Earn"),
-                        serviceItem(AssetsImages().rupees, "Mv Coins"),
+                        serviceItem(AssetsImages().rupeesIcon, "Mv Coins"),
                       ],
                     ),
                   ),
@@ -425,11 +430,11 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             width: 25.w,
             padding: EdgeInsets.all(15),
-            margin: EdgeInsets.symmetric(horizontal: 5),
+            margin: EdgeInsets.symmetric(horizontal: 7),
             decoration: BoxDecoration(
-                color: Colors.grey,
+                color: Color(0xFFDDE3E3),
                 borderRadius: BorderRadius.all(Radius.circular(20))),
-            child: Image.asset(image, color: ConstColors().themeColor),
+            child: Image.asset(image, height: 60,width: 50,),
           ),
           const SizedBox(height: 5),
           Text(
