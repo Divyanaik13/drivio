@@ -71,6 +71,7 @@ class _SplashScreenState extends State<SplashScreen> {
 */
 import 'dart:async';
 import 'package:another_telephony/telephony.dart';
+import 'package:drivio_sarthi/temp_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:drivio_sarthi/screens/homeModule/HomeScreen.dart';
 import 'package:drivio_sarthi/utils/LocalStorage.dart';
@@ -78,6 +79,7 @@ import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
 import '../../utils/AssetsImages.dart';
 import '../../utils/RouteHelper.dart';
+import '../vip card/vip_card_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -95,6 +97,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    _checkLoginStatus();
     _initToken();
     requestSmsPermission();
   }
@@ -113,11 +116,16 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _checkLoginStatus() async {
     await Future.delayed(const Duration(seconds: 3));
 
-    if (authToken != "" && authToken!.isNotEmpty) {
-      Get.offAll(() => const HomeScreen());
-    } else {
-      Get.offAllNamed(RouteHelper().getOnBoardingScreen());
-    }
+    // if (authToken != "" && authToken!.isNotEmpty) {
+    //   Get.offAll(() => const HomeScreen());
+    // } else {
+    //   Get.offAllNamed(RouteHelper().getOnBoardingScreen());
+    // }
+
+    Get.offAll(() => VipCardScreen());
+    // Get.offAll(() => const HomeScreen());
+
+
   }
 
   @override

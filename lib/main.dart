@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
         initialBinding: BindingClass(),
         builder: (context, child) {
           final mediaQuery =
-          MediaQuery.of(context).copyWith(textScaleFactor: 1.0);
+          MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(1.0));
           return MediaQuery(
             data: mediaQuery,
             child: EasyLoading.init()(context, child),
