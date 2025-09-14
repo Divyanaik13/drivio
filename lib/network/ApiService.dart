@@ -23,7 +23,8 @@ class DioServices extends GetxService {
   LocalStorage sp = LocalStorage();
   static var client = http.Client();
 
-  //For getMethod
+
+  // For getMethod
   Future<DIO.Response> getMethod(String endPoint, dynamic header) async {
     var response;
     if (await checkNetwork()) {
