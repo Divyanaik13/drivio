@@ -1,12 +1,13 @@
 import 'package:drivio_sarthi/utils/AssetsImages.dart';
 import 'package:drivio_sarthi/utils/CommonFunctions.dart';
+import 'package:drivio_sarthi/utils/RouteHelper.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sizer/sizer.dart';
 import '../../utils/ConstColors.dart';
-import 'ProfileScreen.dart';
+import '../profileModule/ProfileScreen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -223,26 +224,31 @@ class _HomeScreenState extends State<HomeScreen> {
                   Row(
                     children: [
                       Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          height: 45,
-                          decoration: BoxDecoration(
-                            color: const Color(0xfff2f2f2),
-                            borderRadius: BorderRadius.circular(25),
-                            border: Border.all(color: Colors.black, width: 1),
-                          ),
-                          child: const Row(
-                            children: [
-                              Icon(Icons.search, color: Colors.grey, size: 26),
-                              SizedBox(width: 8),
-                              Text(
-                                "Find driver from?",
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 16,
+                        child: InkWell(
+                          onTap: (){
+                            Get.toNamed(RouteHelper().getOneWayTripScreen());
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            height: 45,
+                            decoration: BoxDecoration(
+                              color: const Color(0xfff2f2f2),
+                              borderRadius: BorderRadius.circular(25),
+                              border: Border.all(color: Colors.black, width: 1),
+                            ),
+                            child: const Row(
+                              children: [
+                                Icon(Icons.search, color: Colors.grey, size: 26),
+                                SizedBox(width: 8),
+                                Text(
+                                  "Find driver from?",
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 16,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),

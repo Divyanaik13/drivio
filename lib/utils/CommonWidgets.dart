@@ -7,6 +7,8 @@ import 'CommonFunctions.dart';
 import 'ConstColors.dart';
 
 class CommonWidgets {
+
+
   static Widget customTextField({
     required TextEditingController controller,
     TextInputType? keyboardType,

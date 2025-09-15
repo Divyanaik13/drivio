@@ -89,6 +89,7 @@ class AuthController extends GetxController{
     var response;
     try{
       response = await _authRepo.loginRepo(mobileNumber);
+
       CommonFunctions().hideLoader();
       if(response.data["success"] == 0){
         CommonFunctions().alertDialog("Alert", response.data["message"], "Ok", (){
