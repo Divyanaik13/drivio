@@ -81,11 +81,13 @@ class AuthRepo {
   /// logout repo function
   Future<dynamic> logoutRepo() async {
     var response;
+    var header = await DioServices().getAllHeaders();
     try {
       response = await DioServices().getMethod(
         WebService().logoutApi,
-        await DioServices().getDefaultHeader(),
+        header,
       );
+      print("response logout repo header :-- $header");
       print("response logout repo :-- $response");
     } catch (e) {
       print("error logout repo :-- $e");

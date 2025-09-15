@@ -41,7 +41,7 @@ class ProfileController extends GetxController {
       LocalStorage().setStringValue(ls.email, editEmail);
       LocalStorage().setStringValue(ls.mobileNumber, number);
 
-      print("edit profile data save :-- ${ LocalStorage().getStringValue(ls.authToken)}");
+      print("edit profile data save :-- ${LocalStorage().getStringValue(ls.authToken)}");
     } catch (e) {
       print("update Profile Api error :-- $e");
     }

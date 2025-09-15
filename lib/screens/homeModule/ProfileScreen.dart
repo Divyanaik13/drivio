@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../controllers/AuthController.dart';
 import '../../controllers/profileController.dart';
+import '../../utils/ConstColors.dart';
 import '../../utils/LocalStorage.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -67,7 +68,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
+              icon: Icon(Icons.delete, color: ConstColors().themeColor),
               onPressed: () {
                 print("before delete api call");
                 CommonFunctions().alertDialog(
@@ -153,8 +154,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   },
                                   child: Text(
                                     isEditing.value ? "Update" : "Edit",
-                                    style: const TextStyle(
-                                      color: Colors.green,
+                                    style: TextStyle(
+                                      color: ConstColors().themeColor,
                                       fontWeight: FontWeight.w600,
                                       fontSize: 14,
                                     ),

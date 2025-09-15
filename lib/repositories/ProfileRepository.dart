@@ -15,9 +15,11 @@ class ProfileRepo{
     };
     print("update Profile Repo bodyMap :-- $bodyMap");
     try{
+      var header = await DioServices().getAllHeaders();
       response = await DioServices().putMethod(
           "${WebService().editProfileApi}?id=$id",
-          bodyMap, await DioServices().getAllHeaders());
+          bodyMap, header);
+      print("edit profile header :-- $header");
       print("url :-- ${WebService().editProfileApi}?id=$id");
       print("update Profile Repo response :-- $response");
     }catch(e){
@@ -29,9 +31,11 @@ class ProfileRepo{
   /// Delete user repo function
   Future<Map<String, dynamic>> deleteUserRepo(String id) async {
     var response;
+    var header = await DioServices().getAllHeaders();
     try {
       response = await DioServices().deleteData("${WebService().deleteUserApi}?id=$id",
-          await DioServices().getAllHeaders(), null);
+          header, null);
+      print("delete header :-- $header");
       print("delete user repo response:-- $response");
       return response;
     } catch (e) {

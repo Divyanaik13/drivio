@@ -133,7 +133,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ],
                         ),
                         const SizedBox(height: 20),
-                        Obx((){
+                        Obx(() {
                           return CommonWidgets.customTextField(
                             controller: referralController,
                             keyboardType: TextInputType.text,
@@ -142,7 +142,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 AssetsImages().referralCodeIcon,
                                 height: 22,
                                 width: 22),
-                             validator: authController.validateReferral,
+                            validator: authController.validateReferral,
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(
                                   RegExp(r'^[a-zA-Z0-9]*$')),
@@ -150,14 +150,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ],
                             onChanged: (event) {
                               debounce.run(() {
-                                authController
-                                    .referralCodeApi(referralController.text,_formKey);
+                                authController.referralCodeApi(
+                                    referralController.text, _formKey);
                               });
                             },
-                            suffixIcon:authController.isReferral.value? Icons.check_circle:null,
+                            suffixIcon: authController.isReferral.value
+                                ? Icons.check_circle
+                                : null,
                           );
                         }),
-
                       ],
                     ),
                   ),
@@ -230,27 +231,31 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             mobileController.text.trim(),
                             (otp) {
                               print("OTP submitted: $otp");
-                              if (authController
-                                  .otpTextController.text.isEmpty) {
-                                CommonFunctions().alertDialog(
-                                    "Alert", "Please enter OTP", "Ok", () {
-                                  Get.back();
-                                });
-                              } else if (authController
-                                      .otpTextController.text.length <
-                                  4) {
-                                CommonFunctions().alertDialog(
-                                    "Alert", "Please enter correct OTP", "Ok",
-                                    () {
-                                  Get.back();
-                                });
-                              } else {
-                                authController.verifyOtpApi(
-                                    mobileController.text.trim(),
-                                    authController.otpTextController.text
-                                        .trim(),
-                                    "signup");
-                              }
+                              // if (authController
+                              //     .otpTextController.text.isEmpty) {
+                              //   CommonFunctions().alertDialog(
+                              //       "Alert", "Please enter OTP", "Ok", () {
+                              //     Get.back();
+                              //   });
+                              // } else if (authController
+                              //         .otpTextController.text.length <
+                              //     4) {
+                              //   CommonFunctions().alertDialog(
+                              //       "Alert", "Please enter correct OTP", "Ok",
+                              //       () {
+                              //     Get.back();
+                              //   });
+                              // } else {
+                              //   authController.verifyOtpApi(
+                              //       mobileController.text.trim(),
+                              //       authController.otpTextController.text
+                              //           .trim(),
+                              //       "signup");
+                              // }
+                              authController.verifyOtpApi(
+                                  mobileController.text.trim(),
+                                  authController.otpTextController.text.trim(),
+                                  "signup");
                             },
                             () {
                               // resend otp tab

@@ -47,18 +47,6 @@ class AuthController extends GetxController{
       CommonFunctions().hideLoader();
       if (response.statusCode == 200) {
         print("verify otp api success");
-      /*  final data = response.data;
-        print("verify data:-- $data");
-        if (data != null &&
-            data["success"] == 1 &&
-            data["data"] != null &&
-            data["token"] != null) {
-
-          // Save to LocalStorage
-          await LocalStorage.saveUserData(data["data"], data["token"]);
-          Get.offAllNamed(RouteHelper().getHomeScreen());
-          print("save update profile data :-- ${data["data"]}");
-        }*/
         var data = response.data["data"];
         print("data :-- $data");
         print("verify token :-- ${response.data["token"]}");

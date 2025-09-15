@@ -407,7 +407,7 @@ class DioServices extends GetxService {
   // Get all headers
   Future<Map<String, String>> getAllHeaders() async {
     Map<String, String> allHeaders = {
-     // "access-token": LocalStorage().getStringValue(sp.authToken),
+      "Authorization": "Bearer ${LocalStorage().getStringValue(sp.authToken)}",
      // "device-token": LocalStorage().getStringValue(sp.deviceToken),
     //  "device-type": Platform.isAndroid ? "android" : "ios",
     //  "device-id": await CommonFunctions().getDeviceId(name: true) ?? "",
