@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
           fontFamily: 'Poppins',
           colorScheme: ColorScheme.fromSeed(seedColor: ConstColors().themeColor),
         ),
-        initialRoute: RouteHelper().getSplashScreen(),
+        initialRoute: RouteHelper().getHomeScreen(),
         getPages: RouteHelper().pageList,
         initialBinding: BindingClass(),
         builder: (context, child) {

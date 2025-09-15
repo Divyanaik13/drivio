@@ -123,21 +123,6 @@ class AuthController extends GetxController{
     return response;
   }
 
-  /// update profile api function
-  Future<dynamic> updateProfileApi(String id, fullname, email, mobileNumber)async{
-    CommonFunctions().showLoader();
-    var response;
-    try{
-      response = await _authRepo.updateProfileRepo(id, fullname, email, mobileNumber);
-      print("update profile api");
-    }catch(e){
-      print("update profile api error :-- $e");
-      CommonFunctions().hideLoader();
-    }
-    return response;
-
-  }
-
 
   /// Referral code
   Future<dynamic> referralCodeApi(String referralCode,GlobalKey<FormState> formKey)async{

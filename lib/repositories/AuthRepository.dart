@@ -95,36 +95,6 @@ class AuthRepo {
     return response;
   }
 
-  /// Update profile repo function
-  Future<dynamic> updateProfileRepo(
-    String id,
-    String fullname,
-    String email,
-    String mobileNumber,
-  ) async {
-    var response;
-
-    Map<String, dynamic> bodyMap = {
-      "id" : id,
-      "fullname" : fullname,
-      "email" : email,
-      "mobileNumber" : mobileNumber,
-    };
-    print("update profile body :-- $bodyMap");
-
-    try {
-      response = await DioServices().putMethod(
-        WebService().editProfileApi,
-        bodyMap, await DioServices().getDefaultHeader()
-      );
-      print("response:-- $response");
-    } catch (e) {
-      print("update profile repo error :-- $e");
-    }
-    return response;
-  }
-
-
 
   /// referral code repo function
   Future<dynamic> referralCodeRepo(String referralCode) async {

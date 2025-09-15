@@ -1,6 +1,7 @@
 import 'package:drivio_sarthi/utils/AssetsImages.dart';
 import 'package:drivio_sarthi/utils/CommonFunctions.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sizer/sizer.dart';
@@ -28,8 +29,10 @@ class _HomeScreenState extends State<HomeScreen> {
   var destinationLong = 0.0.obs;
   Rxn<LatLng> sourceLocation = Rxn<LatLng>();
   Rxn<LatLng> destinationLocation = Rxn<LatLng>();
+  Rxn<LatLng> currentLocation = Rxn<LatLng>();
   var markers = <Marker>{}.obs;
   var polylines = <Polyline>{}.obs;
+
 
   @override
   void initState() {
@@ -37,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     sourceLocation.value = LatLng(22.705313624334096, 75.90907346989012);
     destinationLocation.value = LatLng(22.738078356773574, 75.89032710201927);
+    _getCurrentLocation();
   }
 
   @override
@@ -163,6 +167,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         zoom: 12.0,
                       ),
                       mapType: MapType.normal,
+                      myLocationEnabled: true,
+                      myLocationButtonEnabled: true,
                       onMapCreated: (controller) => onMapCreated(
                         controller,
                         sourceLocation.value!,
@@ -423,7 +429,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget serviceItem(String image, String title) {
     return Container(
-      // margin: const EdgeInsets.only(right: 16),
       height: 110,
       child: Column(
         children: [
@@ -448,6 +453,41 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _getCurrentLocation() async {
+    LocationPermission permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      CommonFunctions().alertDialog("Alert", "Location permission denied", "Ok", (){
+        Get.back();
+      });
+      return;
+    }
+
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    currentLocation.value = LatLng(position.latitude, position.longitude);
+
+    markers.add(
+      Marker(
+        markerId: const MarkerId("currentLocation"),
+        position: currentLocation.value!,
+        infoWindow: const InfoWindow(title: "My Location"),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+      ),
+    );
+
+    // move camera if map already created
+    _mapController?.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(target: currentLocation.value!, zoom: 15),
+      ),
+    );
+
+    setState(() {});
   }
 
   /// For showing map
