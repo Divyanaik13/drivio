@@ -17,7 +17,7 @@ void main() async{
 void configLoading() {
   EasyLoading.instance
     ..maskType = EasyLoadingMaskType
-        .black // Prevents interaction with widgets underneath
+        .black
     ..indicatorType = EasyLoadingIndicatorType.fadingCircle
     ..displayDuration = const Duration(milliseconds: 2000)
     ..indicatorType = EasyLoadingIndicatorType.fadingCircle
@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
           fontFamily: 'Poppins',
           colorScheme: ColorScheme.fromSeed(seedColor: ConstColors().themeColor),
         ),
-        initialRoute: RouteHelper().getHomeScreen(),
+        initialRoute: RouteHelper().getSplashScreen(),
         getPages: RouteHelper().pageList,
         initialBinding: BindingClass(),
         builder: (context, child) {

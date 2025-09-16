@@ -124,7 +124,6 @@ class AuthController extends GetxController{
     return response;
   }
 
-
   /// Referral code
   Future<dynamic> referralCodeApi(String referralCode,GlobalKey<FormState> formKey)async{
   //  CommonFunctions().showLoader();

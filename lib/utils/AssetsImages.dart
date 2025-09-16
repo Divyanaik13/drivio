@@ -18,4 +18,5 @@ class AssetsImages{
   String rupeesIcon = "assets/images/Vector.png";
   String greenTickIcon = "assets/images/greenTick.png";
   String crossIcon = "assets/images/cross_icon.png";
+  String homeScreenImage = "assets/images/homeScreenImage.png";
 }

@@ -31,9 +31,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Rxn<LatLng> sourceLocation = Rxn<LatLng>();
   Rxn<LatLng> destinationLocation = Rxn<LatLng>();
   Rxn<LatLng> currentLocation = Rxn<LatLng>();
-  var markers = <Marker>{}.obs;
-  var polylines = <Polyline>{}.obs;
-
+  final Set<Marker> markers = {};
+  final Set<Polyline> polylines = {};
 
   @override
   void initState() {
@@ -159,18 +158,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: GoogleMap(
                       initialCameraPosition: CameraPosition(
                         target: LatLng(
-                          (sourceLat.value + destinationLat.value.toDouble()) /
-                              2,
-                          (sourceLong.value +
-                                  destinationLong.value.toDouble()) /
-                              2,
+                          (sourceLat.value + destinationLat.value.toDouble()) / 2,
+                          (sourceLong.value + destinationLong.value.toDouble()) / 2,
                         ),
                         zoom: 12.0,
                       ),
                       mapType: MapType.normal,
                       myLocationEnabled: true,
                       myLocationButtonEnabled: true,
-                      onMapCreated: (controller) => onMapCreated(
+                      onMapCreated: (controller) => _onMapCreated(
                         controller,
                         sourceLocation.value!,
                         destinationLocation.value!,
@@ -362,7 +358,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-            )
+            ),
+           /* const SizedBox(height: 16),
+            SizedBox(
+              height: 100,
+              width: 100,
+              child: ListView.builder(
+                  itemCount: 1,
+                  shrinkWrap: true,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (context, index) =>
+                Image.asset(AssetsImages().homeScreenImage, height: 100, width: 200,)
+                ),
+            )*/
           ],
         ),
       ),
@@ -461,13 +469,19 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+ /// For showing current location
   Future<void> _getCurrentLocation() async {
     LocationPermission permission = await Geolocator.requestPermission();
     if (permission == LocationPermission.denied ||
         permission == LocationPermission.deniedForever) {
-      CommonFunctions().alertDialog("Alert", "Location permission denied", "Ok", (){
-        Get.back();
-      });
+      CommonFunctions().alertDialog(
+        "Alert",
+        "Location permission denied",
+        "Ok",
+            () {
+          Get.back();
+        },
+      );
       return;
     }
 
@@ -477,81 +491,63 @@ class _HomeScreenState extends State<HomeScreen> {
 
     currentLocation.value = LatLng(position.latitude, position.longitude);
 
-    markers.add(
-      Marker(
-        markerId: const MarkerId("currentLocation"),
-        position: currentLocation.value!,
-        infoWindow: const InfoWindow(title: "My Location"),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-      ),
-    );
+    if (mounted) {
+      setState(() {
+        markers.add(
+          Marker(
+            markerId: const MarkerId("currentLocation"),
+            position: currentLocation.value!,
+            infoWindow: const InfoWindow(title: "My Location"),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueGreen,
+            ),
+          ),
+        );
+      });
 
-    // move camera if map already created
-    _mapController?.animateCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(target: currentLocation.value!, zoom: 15),
-      ),
-    );
-
-    setState(() {});
-  }
-
-  /// For showing map
-  void onMapCreated(
-      GoogleMapController controller, LatLng source, LatLng destination) {
-    _mapController = controller;
-
-    final bounds = LatLngBounds(
-      southwest: LatLng(
-        source.latitude <= destination.latitude
-            ? source.latitude
-            : destination.latitude,
-        source.longitude <= destination.longitude
-            ? source.longitude
-            : destination.longitude,
-      ),
-      northeast: LatLng(
-        source.latitude >= destination.latitude
-            ? source.latitude
-            : destination.latitude,
-        source.longitude >= destination.longitude
-            ? source.longitude
-            : destination.longitude,
-      ),
-    );
-
-    _mapController?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
-  }
-
-  /// For showing map
-  void _addMarker() {
-    setState(() {
-      markers.addAll([
-        Marker(
-          markerId: const MarkerId('source'),
-          position: sourceLocation.value!,
-          infoWindow: const InfoWindow(title: 'Pickup Location'),
-          icon:
-              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-        ),
-        Marker(
-          markerId: const MarkerId('destination'),
-          position: destinationLocation.value!,
-          infoWindow: const InfoWindow(title: 'Delivery Location'),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-        ),
-      ]);
-
-      polylines.add(
-        Polyline(
-          polylineId: const PolylineId('route'),
-          visible: true,
-          points: [sourceLocation.value!, destinationLocation.value!],
-          width: 5,
-          color: ConstColors().blackColor,
-          patterns: [PatternItem.dot, PatternItem.gap(5)],
+      // Move camera if controller available
+      _mapController?.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(target: currentLocation.value!, zoom: 15),
         ),
       );
-    });
+    }
+  }
+  /// For showing map
+  void _onMapCreated(GoogleMapController controller, LatLng source, LatLng destination) {
+    _mapController = controller;
+
+    if (sourceLocation.value != null && destinationLocation.value != null) {
+      final bounds = LatLngBounds(
+        southwest: LatLng(
+          sourceLocation.value!.latitude <= destinationLocation.value!.latitude
+              ? sourceLocation.value!.latitude
+              : destinationLocation.value!.latitude,
+          sourceLocation.value!.longitude <=
+              destinationLocation.value!.longitude
+              ? sourceLocation.value!.longitude
+              : destinationLocation.value!.longitude,
+        ),
+        northeast: LatLng(
+          sourceLocation.value!.latitude >= destinationLocation.value!.latitude
+              ? sourceLocation.value!.latitude
+              : destinationLocation.value!.latitude,
+          sourceLocation.value!.longitude >=
+              destinationLocation.value!.longitude
+              ? sourceLocation.value!.longitude
+              : destinationLocation.value!.longitude,
+        ),
+      );
+
+      _mapController?.animateCamera(
+        CameraUpdate.newLatLngBounds(bounds, 50),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _mapController?.dispose();
+    super.dispose();
   }
 }

@@ -38,4 +38,5 @@ class ConstStrings{
   String alertTxt = "Alert";
   String noInternetTxt = "No internet";
   String okTxt = "Ok";
+  String oneWayTripTxt = "One way trip ↻";
 }
