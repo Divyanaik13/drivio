@@ -1,9 +1,12 @@
 import 'package:drivio_sarthi/utils/ConstColors.dart';
+import 'package:drivio_sarthi/utils/ConstStrings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart';
+import 'package:sizer/sizer.dart';
 
 import '../../utils/CommonFunctions.dart';
 
@@ -15,9 +18,11 @@ class OneWayTripDetailScreen extends StatefulWidget {
 }
 
 class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
-  TextEditingController fromController = TextEditingController();
-  TextEditingController toController = TextEditingController();
+  TextEditingController sourceController = TextEditingController();
+  TextEditingController destinationController = TextEditingController();
   String selectedHour = "2 hr";
+  String? selectedDateTime;
+  double? tripDistance;
 
   GoogleMapController? _mapController;
   Rxn<LatLng> sourceLocation = Rxn<LatLng>();
@@ -30,12 +35,35 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
   @override
   void initState() {
     super.initState();
+    final args = Get.arguments;
+    if (args != null) {
+      double sourceLat = args["sourceLatitude"];
+      double sourceLong = args["sourceLongitude"];
+      double destinationLat = args["destinationLatitude"];
+      double destinationLong = args["destinationLongitude"];
+      String sourceLoc = args["sourceLocation"];
+      String destinationLoc = args["destinationLocation"];
+      String tempDateTime = args["dateTime"];
 
-    /// Default pickup & drop
-    sourceLocation.value = const LatLng(22.705313624334096, 75.90907346989012); // Lig square indore
-    destinationLocation.value = const LatLng(22.738078356773574, 75.89032710201927); // Phoenix mall indore
+      DateTime parsedDate = DateTime.parse(tempDateTime);
+      selectedDateTime = DateFormat("d MMM, h:mm a").format(parsedDate);
 
-    _getCurrentLocation();
+      sourceLocation.value = LatLng(sourceLat, sourceLong);
+      destinationLocation.value = LatLng(destinationLat, destinationLong);
+
+      sourceController.text = sourceLoc;
+      destinationController.text = destinationLoc;
+
+      tripDistance =
+          calculateDistance(sourceLocation.value!, destinationLocation.value!);
+    } else {
+      /// Default pickup & drop
+      sourceLocation.value = const LatLng(
+          22.705313624334096, 75.90907346989012); // Lig square indore
+      destinationLocation.value = const LatLng(
+          22.738078356773574, 75.89032710201927); // Phoenix mall indore
+    }
+
   }
 
   @override
@@ -93,11 +121,11 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 10, vertical: 20),
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(15)
-                      ),
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(15)),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -106,7 +134,8 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                               SizedBox(height: 15),
                               Icon(Icons.circle, color: Colors.red, size: 14),
                               SizedBox(height: 15),
-                              Icon(Icons.more_vert, size: 20, color: Colors.black),
+                              Icon(Icons.more_vert,
+                                  size: 20, color: Colors.black),
                               SizedBox(height: 15),
                               Icon(Icons.circle, color: Colors.green, size: 14),
                             ],
@@ -115,9 +144,11 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                           Expanded(
                             child: Column(
                               children: [
-                                _customTextField("Lig square indore", fromController),
+                                _customTextField(
+                                    "Lig square indore", sourceController),
                                 const SizedBox(height: 12),
-                                _customTextField("Phoenix -mall indore", toController),
+                                _customTextField("Phoenix -mall indore",
+                                    destinationController),
                               ],
                             ),
                           )
@@ -125,124 +156,186 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
+
                     /// Today's vehicle
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
+                      children: [
                         Text(
                           "Today's vehicle",
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                              fontSize: 15.sp,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.grey),
                         ),
                         Row(
                           children: [
-                            Icon(Icons.access_time, size: 18, color: Colors.red),
+                            Icon(Icons.access_time,
+                                size: 18, color: Colors.red),
                             SizedBox(width: 5),
-                            Text("2 sept, 5:00 am",
+                            Text(selectedDateTime!,
                                 style: TextStyle(
-                                    fontSize: 13, fontWeight: FontWeight.w400)),
+                                    fontSize: 14.5.sp,
+                                    fontWeight: FontWeight.w400)),
                           ],
                         ),
                       ],
                     ),
                     const SizedBox(height: 10),
-                    const Text("Distance 20km",
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400)),
+                    Text("Distance ${tripDistance?.toStringAsFixed(1)} km",
+                        style: TextStyle(
+                            fontSize: 15.sp,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.grey)),
                     const SizedBox(height: 12),
 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
-                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                          decoration:BoxDecoration(
+                          width: 45.w,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 15),
+                          decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
                             border: Border.all(color: Colors.black),
                             color: Colors.white,
                           ),
                           child: Row(
                             children: [
-                              Icon(Icons.directions_car, color: ConstColors().themeColor,),
-                              SizedBox(width: 10,),
-                              Text("Xuv 700")
+                              Icon(
+                                Icons.directions_car,
+                                color: ConstColors().themeColor,
+                                size: 18.5.sp
+                              ),
+                              SizedBox(
+                                width: 3.w,
+                              ),
+                              Text("Xuv 700",  style: TextStyle(
+                                  fontSize: 14.5.sp,
+                                  fontWeight: FontWeight.w700,
+                                  )),
                             ],
                           ),
                         ),
                         Container(
-                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                          decoration:BoxDecoration(
+                          width: 45.w,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 15),
+                          decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
                             border: Border.all(color: Colors.black26),
                             color: Colors.white,
                           ),
                           child: Row(
                             children: [
-                              Icon(Icons.format_line_spacing, color: ConstColors().themeColor,),
-                              SizedBox(width: 10,),
-                              Text("Manual")
+                              Icon(
+                                Icons.format_line_spacing,
+                                color: ConstColors().themeColor,
+                                size: 18.5.sp
+                              ),
+                              SizedBox(
+                                width: 3.w,
+                              ),
+                              Text("Manual", style: TextStyle(
+                                  fontSize: 14.5.sp,
+                                  fontWeight: FontWeight.w700,
+                                  )),
                             ],
                           ),
                         ),
-                        
                       ],
                     ),
 
                     const SizedBox(height: 20),
 
                     /// Pay as you go
-                    const Text("Pay as you go",
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                     Text("Pay as you go",
+                        style: TextStyle(
+                            fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.grey)),
                     const SizedBox(height: 10),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      width: 100.w,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(15)),
-                      child: Wrap(
-                        spacing: 10,
-                        children: ["2 hr", "4 hr", "6 hr", "8 hr"]
-                            .map((e) => ChoiceChip(
-                          label: Text(e),
-                          selected: selectedHour == e,
-                          onSelected: (_) {
-                            setState(() {
-                              selectedHour = e;
-                            });
-                          },
-                          selectedColor: Colors.red,
-                          backgroundColor: Colors.white,
-                          labelStyle: TextStyle(
-                            fontSize: 13,
-                            color: selectedHour == e ? Colors.white : Colors.black,
-                          ),
-                        ))
-                            .toList(),
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(15)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: ["2 hr", "4 hr", "6 hr", "8 hr", ].map((e) {
+                          final isSelected = selectedHour == e;
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedHour = e;
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                              margin: const EdgeInsets.only(right: 8),
+                              decoration: BoxDecoration(
+                                color: isSelected ? Colors.red.shade100 : Colors.grey.shade200,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: isSelected ? Colors.red : Colors.transparent,
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: Text(
+                                e,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: isSelected ? Colors.red : Colors.black,
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+
                       ),
+
                     ),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 10),
 
                     /// Driver Info
                     Container(
-                      padding: const EdgeInsets.all(14),
+                      padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.black12),
+                        borderRadius: BorderRadius.circular(35),
+                        border: Border.all(color: Colors.black),
                         color: Colors.white,
                       ),
                       child: Row(
-                        children: const [
-                          Icon(Icons.verified_user, color: Colors.red, size: 32),
+                        children: [
+                          Icon(Icons.verified_user,
+                              color: Colors.black, size: 20.sp),
                           SizedBox(width: 12),
                           Expanded(
-                            child: Text(
-                              "Drivo\nVerified and Tested Driver",
-                              style: TextStyle(fontSize: 13, height: 1.3),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Drivio",
+                                  style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700),
+                                ),
+                                SizedBox(height: 0.3.h),
+                                Text(
+                                  "Verified and Tested Driver",
+                                  style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w400),
+                                ),
+                              ],
                             ),
                           ),
+
                           Text(
                             "₹100",
                             style: TextStyle(
-                                fontWeight: FontWeight.bold, color: Colors.black),
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black, fontSize: 17.sp),
                           ),
                         ],
                       ),
@@ -253,20 +346,27 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                     /// Offers
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
+                      children:  [
                         Row(
                           children: [
-                            Icon(Icons.local_offer, color: Colors.black),
-                            SizedBox(width: 8),
-                            Text("Offers\nLatest offers",
-                                style: TextStyle(fontSize: 13, height: 1.3)),
+                            Icon(Icons.camera_rounded, color: Colors.black),
+                            SizedBox(width: 18),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Offers",
+                                    style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700)),
+                                Text("Latest offers",
+                                    style: TextStyle(fontSize: 15.sp,  fontWeight: FontWeight.w300, color: Colors.grey)),
+                              ],
+                            ),
                           ],
                         ),
                         Text("Apply now",
                             style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.red,
-                                fontWeight: FontWeight.w500)),
+                                fontSize: 15.sp,
+                                color: ConstColors().themeColor,
+                                fontWeight: FontWeight.w700)),
                       ],
                     ),
 
@@ -337,7 +437,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
           const SizedBox(width: 6),
           Text(text,
               style:
-              const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                  const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -352,7 +452,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
         "Alert",
         "Location permission denied",
         "Ok",
-            () => Get.back(),
+        () => Get.back(),
       );
       return;
     }
@@ -435,6 +535,17 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
     );
 
     setState(() {});
+  }
+
+  /// convert meters to km
+  double calculateDistance(LatLng start, LatLng end) {
+    return Geolocator.distanceBetween(
+          start.latitude,
+          start.longitude,
+          end.latitude,
+          end.longitude,
+        ) /
+        1000;
   }
 
   @override
