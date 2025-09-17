@@ -1,11 +1,12 @@
-import 'package:drivio_sarthi/utils/CommonFunctions.dart';
-import 'package:drivio_sarthi/utils/CommonWidgets.dart';
+import 'package:drivio_sarthi/utils/ConstStrings.dart';
 import 'package:drivio_sarthi/utils/RouteHelper.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
+import 'package:google_places_flutter/google_places_flutter.dart';
 import 'package:sizer/sizer.dart';
+
+import '../../utils/CommonFunctions.dart';
+import '../../utils/ConstColors.dart';
 
 class OneWayTripScreen extends StatefulWidget {
   const OneWayTripScreen({super.key});
@@ -15,8 +16,21 @@ class OneWayTripScreen extends StatefulWidget {
 }
 
 class _OneWayTripScreenState extends State<OneWayTripScreen> {
-  TextEditingController fromController = TextEditingController();
-  TextEditingController toController = TextEditingController();
+  TextEditingController sourceController = TextEditingController();
+  TextEditingController destinationController = TextEditingController();
+  late final FocusNode sourceFocusNode = FocusNode();
+  late final FocusNode destinationFocusNode = FocusNode();
+
+  var sourceLatitude = 0.0.obs;
+  var sourceLongitude = 0.0.obs;
+  var sourceLocation = "".obs;
+  var destinationLatitude = 0.0.obs;
+  var destinationLongitude = 0.0.obs;
+  var destinationLocation = "".obs;
+  var placeId = "".obs;
+  var dateTime = DateTime.now().obs;
+
+  final googlePlaceApi = ConstStrings().placeApiKey;
 
   @override
   Widget build(BuildContext context) {
@@ -41,87 +55,223 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Left side icons
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: const [
-                    SizedBox(height: 15),
-                    Icon(Icons.circle, color: Colors.red, size: 18),
-                    SizedBox(height: 18),
-                    Icon(Icons.more_vert_rounded, color: Colors.black, size: 18),
-                    SizedBox(height: 18),
-                    Icon(Icons.circle, color: Colors.green, size: 18),
-                  ],
-                ),
-                const SizedBox(width: 10),
+        child: GestureDetector(
+          onTap: (){
+            FocusScope.of(context).unfocus();
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Left side icons
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: const [
+                      SizedBox(height: 15),
+                      Icon(Icons.circle, color: Colors.red, size: 18),
+                      SizedBox(height: 18),
+                      Icon(Icons.more_vert_rounded, color: Colors.black, size: 18),
+                      SizedBox(height: 18),
+                      Icon(Icons.circle, color: Colors.green, size: 18),
+                    ],
+                  ),
+                  const SizedBox(width: 10),
 
-                Expanded(
-                  child: Column(
+                  Column(
                     children: [
-                      CommonWidgets.customTextField(
-                        controller: fromController,
-                        keyboardType: TextInputType.name,
-                        hintText: "From where?",
-                        prefixIcon: Icons.location_on_outlined,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
-                          LengthLimitingTextInputFormatter(100),
-                        ],
+                      SizedBox(
+                        width: 80.w,
+                        child: GooglePlaceAutoCompleteTextField(
+                          textEditingController: sourceController,
+                          googleAPIKey: googlePlaceApi,
+                          debounceTime: 400,
+                          isLatLngRequired: true,
+                          inputDecoration: InputDecoration(
+                            hintText: "Where from?",
+                            hintStyle: TextStyle(
+                             fontWeight:  FontWeight.w500,
+                             fontSize:  15.px,
+                              color: Colors.grey,
+                            ),
+                            filled: true,
+                            fillColor: ConstColors().whiteColor,
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide: BorderSide(
+                                    color: ConstColors().whiteColor, width: 2.px)),
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide: BorderSide(
+                                    color: ConstColors().whiteColor, width: 2.px)),
+                            errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide: BorderSide(
+                                    color: ConstColors().whiteColor, width: 2.px)),
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide: BorderSide(
+                                    color: ConstColors().whiteColor, width: 2.px)),
+                            contentPadding: const EdgeInsets.only(left: 10, right: 10),
+                          ),
+                          boxDecoration: BoxDecoration(
+                            color: ConstColors().whiteColor,
+                            border:
+                            Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          getPlaceDetailWithLatLng: (prediction) async {
+                            try {
+                              print("prediction :--  $prediction");
+
+                              sourceLatitude.value = double.parse(
+                                double.parse(prediction.lat!).toStringAsFixed(5),
+                              );
+                              sourceLongitude.value = double.parse(
+                                double.parse(prediction.lng!).toStringAsFixed(5),
+                              );
+                              placeId.value = prediction.placeId!;
+                              sourceController.text = sourceLocation.value;
+                             /* Get.back(result: {
+                                "latitude": latitude.value,
+                                "longitude": longitude.value,
+                                "location": location.value,
+                                "placeId": placeId.value,
+                              });*/
+                            } catch (e, stacktrace) {
+                              print("❌ Error in getPlaceDetailWithLatLng: $e");
+                              print("📌 Stacktrace: $stacktrace");
+                            }
+                          },
+                          itemClick: (prediction) {
+                            sourceLocation.value = prediction.description!;
+                            placeId.value = prediction.placeId!;
+                            sourceController.text = prediction.description!;
+                          },
+                          focusNode: sourceFocusNode,
+                        ),
                       ),
                       const SizedBox(height: 12),
-                      CommonWidgets.customTextField(
-                        controller: toController,
-                        keyboardType: TextInputType.name,
-                        hintText: "To?",
-                        prefixIcon: Icons.location_on_outlined,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
-                          LengthLimitingTextInputFormatter(100),
-                        ],
+                      SizedBox(
+                        width: 80.w,
+                        child: GooglePlaceAutoCompleteTextField(
+                          textEditingController: destinationController,
+                          googleAPIKey: googlePlaceApi,
+                          debounceTime: 400,
+                          isLatLngRequired: true,
+                          inputDecoration: InputDecoration(
+                            hintText: "to?",
+                            hintStyle: TextStyle(
+                              fontWeight:  FontWeight.w500,
+                              fontSize:  15.px,
+                              color: Colors.grey,
+                            ),
+                            filled: true,
+                            fillColor: ConstColors().whiteColor,
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide: BorderSide(
+                                    color: ConstColors().whiteColor, width: 2.px)),
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide: BorderSide(
+                                    color: ConstColors().whiteColor, width: 2.px)),
+                            errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide: BorderSide(
+                                    color: ConstColors().whiteColor, width: 2.px)),
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide: BorderSide(
+                                    color: ConstColors().whiteColor, width: 2.px)),
+                            contentPadding: const EdgeInsets.only(left: 10, right: 10),
+                          ),
+                          boxDecoration: BoxDecoration(
+                            color: ConstColors().whiteColor,
+                            border:
+                            Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          getPlaceDetailWithLatLng: (prediction) async {
+                            try {
+                              print("prediction :--  $prediction");
+
+                              destinationLatitude.value = double.parse(
+                                double.parse(prediction.lat!).toStringAsFixed(5),
+                              );
+                              destinationLongitude.value = double.parse(
+                                double.parse(prediction.lng!).toStringAsFixed(5),
+                              );
+                              placeId.value = prediction.placeId!;
+                              destinationController.text = destinationLocation.value;
+
+                              /// show calender
+                              DateTime? selectedDateTime = await CommonFunctions().dateTimePicker();
+                              print("Select date and time :-- $selectedDateTime");
+                              if (selectedDateTime != null) {
+                                print("Select date and time :-- $selectedDateTime");
+                                /// Navigate to next screen
+                               Get.toNamed(RouteHelper().getOneWayTripDetailScreen(), arguments: {
+                                 "sourceLatitude": sourceLatitude.value,
+                                 "sourceLongitude": sourceLongitude.value,
+                                 "destinationLatitude": destinationLatitude.value,
+                                 "destinationLongitude": destinationLongitude.value,
+                                 "sourceLocation": sourceController.text,
+                                 "destinationLocation": destinationController.text,
+                                 "dateTime": selectedDateTime.toString(),
+                               });
+                              }
+                            } catch (e, stacktrace) {
+                              print("❌ Error in getPlaceDetailWithLatLng: $e");
+                              print("📌 Stacktrace: $stacktrace");
+                            }
+                          },
+                          itemClick: (prediction) {
+                            destinationLocation.value = prediction.description!;
+                            placeId.value = prediction.placeId!;
+                            destinationController.text = prediction.description!;
+                          },
+                          focusNode: destinationFocusNode,
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Text(
-              "Search history",
-              style: TextStyle(
-                fontSize: 15.sp,
-                fontWeight: FontWeight.w700,
-                color: Colors.black,
+                ],
               ),
-            ),
-            const SizedBox(height: 10),
-            InkWell(
-              onTap: (){
-                Get.toNamed(RouteHelper().oneWayTripDetailScreen);
-              },
-              child: Text(
-                "Phoenix - Shopping mall",
+              const SizedBox(height: 20),
+              Text(
+                "Search history",
                 style: TextStyle(
-                  fontSize: 14.sp,
+                  fontSize: 15.sp,
                   fontWeight: FontWeight.w700,
                   color: Colors.black,
                 ),
               ),
-            ),
-            Text(
-              "837 Howard St, india , CA 94103, Indore",
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w400,
-                color: Colors.grey[600],
+              const SizedBox(height: 10),
+              InkWell(
+                onTap: (){
+                  Get.toNamed(RouteHelper().oneWayTripDetailScreen);
+                },
+                child: Text(
+                  "Phoenix - Shopping mall",
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black,
+                  ),
+                ),
               ),
-            ),
-          ],
+              Text(
+                "837 Howard St, india , CA 94103, Indore",
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

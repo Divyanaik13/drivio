@@ -6,6 +6,9 @@ class ConstStrings{
   }
   ConstStrings._internal();
 
+   String placeApiKey = "AIzaSyBWpknhgETEcPdExDw13FsmKIbazhH-BpI";
+
+
   /// Login screen text
   String drivTxt = "Driv";
   String ioTxt = "io";

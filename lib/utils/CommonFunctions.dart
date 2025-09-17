@@ -272,8 +272,7 @@ class CommonFunctions {
      await authController.stopOtpListener();
   }
 
-
-  Future<void> dateTimePicker(DateTime _myDateTime) async {
+  Future<DateTime?> dateTimePicker1() async {
     DateTime? pickedDate = await showDatePicker(
       context: Get.context!,
       initialDate: DateTime.now(),
@@ -334,10 +333,64 @@ class CommonFunctions {
         );
 
         print("Selected DateTime: $selectedDateTime");
-          _myDateTime = selectedDateTime;
+         // _myDateTime = selectedDateTime;
       }
     }
-    debugPrint("selected date is $_myDateTime");
+
+    //debugPrint("selected date is $_myDateTime");
+    return null;
+  }
+
+  Future<DateTime?> dateTimePicker() async {
+    DateTime? pickedDate = await showDatePicker(
+      context: Get.context!,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.light(
+              brightness: Brightness.light,
+              primary: ConstColors().themeColor ?? const Color(0xFFFF4300),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      TimeOfDay? pickedTime = await showTimePicker(
+        context: Get.context!,
+        initialTime: TimeOfDay.now(),
+        builder: (context, child) {
+          return Theme(
+            data: ThemeData.light().copyWith(
+              colorScheme: ColorScheme.light(
+                brightness: Brightness.light,
+                primary: ConstColors().themeColor ?? const Color(0xFFFF4300),
+                onPrimary: Colors.white,
+                onSurface: Colors.black,
+              ),
+            ),
+            child: child!,
+          );
+        },
+      );
+
+      if (pickedTime != null) {
+        return DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+      }
+    }
+
+    return null; // if user cancels
   }
 
 }

@@ -389,7 +389,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
         markerId: const MarkerId("source"),
         position: source,
         infoWindow: const InfoWindow(title: "Pickup"),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
       ),
     );
 
@@ -398,7 +398,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
         markerId: const MarkerId("destination"),
         position: destination,
         infoWindow: const InfoWindow(title: "Drop"),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
       ),
     );
 

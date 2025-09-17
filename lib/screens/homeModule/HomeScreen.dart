@@ -251,7 +251,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(width: 10),
                       InkWell(
                         onTap: (){
-                          CommonFunctions().dateTimePicker(dateTime.value);
+                          CommonFunctions().dateTimePicker();
                         },
                         child: Container(
                           decoration: const BoxDecoration(
