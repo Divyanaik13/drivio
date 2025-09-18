@@ -49,7 +49,7 @@ class DioServices extends GetxService {
   }
 
   //For postMethod
-  Future<DIO.Response> postMethod1(
+/*  Future<DIO.Response> postMethod1(
       String endPoint, Map<String, dynamic>? body, header) async {
     DIO.FormData formData = DIO.FormData.fromMap(body!);
     var response;
@@ -79,7 +79,7 @@ class DioServices extends GetxService {
     }
 
     return returnResponse(response);
-  }
+  }*/
 
   Future<DIO.Response> postMethod(
       String endPoint,

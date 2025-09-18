@@ -124,6 +124,13 @@ class CommonWidgets {
     EasyLoading.dismiss();
   }
 
+  static void keyboardHide() {
+    FocusNode? currentFocus = FocusManager.instance.primaryFocus;
+    if (currentFocus!.hasPrimaryFocus) {
+      currentFocus.unfocus();
+    }
+  }
+
   Widget customBorderButtonWithColorBorder(
       String text, void Function() onTap, Color color) {
     return InkWell(

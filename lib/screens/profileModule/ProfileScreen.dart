@@ -4,8 +4,10 @@ import 'package:drivio_sarthi/utils/RouteHelper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:sizer/sizer.dart';
 import '../../controllers/AuthController.dart';
 import '../../controllers/profileController.dart';
+import '../../utils/AssetsImages.dart';
 import '../../utils/ConstColors.dart';
 import '../../utils/LocalStorage.dart';
 
@@ -99,12 +101,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                    children: [
                    Row(
                     children: [
-                      const CircleAvatar(
-                        radius: 40,
-                        backgroundImage: NetworkImage(
-                          "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?cs=srgb&dl=pexels-italo-melo-881954-2379004.jpg&fm=jpg",
-                        ),
+                      SizedBox(
+
                       ),
+                       Container(
+                         decoration: BoxDecoration(
+                           border: Border.all(color: Colors.grey),
+                           borderRadius: BorderRadius.circular(50),
+                         ),
+                         child: ClipRRect(
+                            borderRadius: BorderRadius.circular(50),
+                            child: Image.asset(AssetsImages().profileImage,height: 11.h,)),
+                       ),
                       const SizedBox(width: 20),
                       Expanded(
                         child: Column(

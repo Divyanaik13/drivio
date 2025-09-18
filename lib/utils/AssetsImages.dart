@@ -19,4 +19,5 @@ class AssetsImages{
   String greenTickIcon = "assets/images/greenTick.png";
   String crossIcon = "assets/images/cross_icon.png";
   String homeScreenImage = "assets/images/homeScreenImage.png";
+  String profileImage = "assets/images/profileImage.png";
 }

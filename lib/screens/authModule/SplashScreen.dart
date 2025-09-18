@@ -16,7 +16,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
- var authToken = "".obs;
   final Telephony telephony = Telephony.instance;
 
   LocalStorage ls = LocalStorage();
@@ -24,14 +23,8 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _initToken();
-   // requestSmsPermission();
-  }
-
-  Future<void> _initToken() async {
-    authToken.value = ls.getStringValue(ls.authToken);
-    print("splash auth token :-- $authToken");
     _checkLoginStatus();
+   // requestSmsPermission();
   }
 
 /*  Future<bool> requestSmsPermission() async {
@@ -39,13 +32,36 @@ class _SplashScreenState extends State<SplashScreen> {
     return granted;
   }*/
 
-  Future<void> _checkLoginStatus() async {
+/*  Future<void> _checkLoginStatus() async {
     await Future.delayed(const Duration(seconds: 3));
+
+    final storage = LocalStorage();
+    bool firstLaunch = storage.getBoolValue(storage.isFirstLaunch);
+    String authToken = storage.getStringValue(storage.authToken);
 
     if (authToken.value != "" && authToken.value.isNotEmpty) {
       Get.offAllNamed(RouteHelper().getHomeScreen());
     } else {
       Get.offAllNamed(RouteHelper().getOnBoardingScreen());
+    }
+  }*/
+  Future<void> _checkLoginStatus() async {
+    await Future.delayed(const Duration(seconds: 3));
+
+    final storage = LocalStorage();
+
+    bool firstLaunch = storage.getBoolValue(storage.isFirstLaunch);
+    String token = storage.getStringValue(storage.authToken);
+    print("firstLaunch ! $firstLaunch");
+    if (!firstLaunch) {
+      // first ever app launch -> onboarding
+      Get.offAllNamed(RouteHelper().getOnBoardingScreen());
+    } else if (token.isNotEmpty) {
+      // already logged in
+      Get.offAllNamed(RouteHelper().getHomeScreen());
+    } else {
+      // logged out
+      Get.offAllNamed(RouteHelper().getLoginScreen());
     }
   }
 

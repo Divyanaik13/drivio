@@ -6,13 +6,14 @@ class WebService{
   }
   WebService._internal();
 
-  var baseUrl = "https://docapi.nuke.co.in/api/user/auth";
+  var baseUrl = "https://docapi.nuke.co.in/api/user";
 
-  var signUpApi = "/register";
-  var loginApi = "/login";
-  var verifyTopApi = "/verify-otp";
-  var logoutApi = "/logout";
-  var editProfileApi = "/updateUser";
-  var deleteUserApi = "/deleteUser";
-  var getReferCodeApi = "/getReferCode";
+  var signUpApi = "/auth/register";
+  var loginApi = "/auth/login";
+  var verifyTopApi = "/auth/verify-otp";
+  var logoutApi = "/auth/logout";
+  var editProfileApi = "/auth/updateUser";
+  var deleteUserApi = "/auth/deleteUser";
+  var getReferCodeApi = "/auth/getReferCode";
+  var getSearchHistoryApi = "/search-history";
 }

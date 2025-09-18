@@ -1,5 +1,6 @@
 import 'package:drivio_sarthi/utils/AssetsImages.dart';
 import 'package:drivio_sarthi/utils/ConstColors.dart';
+import 'package:drivio_sarthi/utils/LocalStorage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
@@ -54,6 +55,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
               children: [
                 TextButton(
                   onPressed: () {
+                    LocalStorage().setBoolValue(LocalStorage().isFirstLaunch, true);
                     Get.offAllNamed(RouteHelper().getLoginScreen());
                   },
                   child: Text(
@@ -88,6 +90,8 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                   child: InkWell(
                       onTap: () {
                         if (_currentIndex == _pages.length - 1) {
+                          LocalStorage().setBoolValue(LocalStorage().isFirstLaunch, true);
+                          Get.offAllNamed(RouteHelper().getLoginScreen());
                         } else {
                           _controller.nextPage(
                             duration: const Duration(milliseconds: 400),

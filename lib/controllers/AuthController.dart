@@ -41,9 +41,9 @@ class AuthController extends GetxController{
     CommonFunctions().showLoader();
     var response;
     try{
+      print("verify otp :-- $otp");
       response = await _authRepo.verifyOtpRepo(mobileNumber, otp, type);
       print("verify otp response :-- $response");
-      print("verify otp :-- $otp");
       CommonFunctions().hideLoader();
       if (response.statusCode == 200) {
         print("verify otp api success");
@@ -114,7 +114,7 @@ class AuthController extends GetxController{
         print("Logout success");
 
         LocalStorage().clearLocalStorage();
-
+        LocalStorage().setBoolValue(LocalStorage().isFirstLaunch, true);
        await Get.offAllNamed(RouteHelper().getLoginScreen());
       }
     }catch(e){

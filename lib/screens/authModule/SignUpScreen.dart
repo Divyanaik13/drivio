@@ -254,7 +254,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               // }
                               authController.verifyOtpApi(
                                   mobileController.text.trim(),
-                                  authController.otpTextController.text.trim(),
+                                  otp,
                                   "signup");
                             },
                             () {

@@ -127,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen>{
                               }else {
                                 authController.verifyOtpApi(
                                     numberController.text.trim(),
-                                    authController.otpTextController.text.trim(), "login"
+                                    otp, "login"
                                 );
                               }
                             },

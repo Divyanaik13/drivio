@@ -59,7 +59,7 @@ class ProfileController extends GetxController {
         print("delete success");
 
         LocalStorage().clearLocalStorage();
-
+        LocalStorage().setBoolValue(LocalStorage().isFirstLaunch, true);
         Get.offAllNamed(RouteHelper().getLoginScreen());
       }
       print("delete Api response :-- $response");

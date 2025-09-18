@@ -1,11 +1,13 @@
 import 'package:drivio_sarthi/utils/AssetsImages.dart';
 import 'package:drivio_sarthi/utils/CommonFunctions.dart';
+import 'package:drivio_sarthi/utils/LocalStorage.dart';
 import 'package:drivio_sarthi/utils/RouteHelper.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sizer/sizer.dart';
+import '../../controllers/HomeController.dart';
 import '../../utils/ConstColors.dart';
 import '../profileModule/ProfileScreen.dart';
 
@@ -18,6 +20,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   TextEditingController searchController = TextEditingController();
+  var homeController = Get.find<HomeController>();
   String selectedTrip = "One Way";
   var dateTime = DateTime.now().obs;
 
@@ -40,6 +43,8 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     sourceLocation.value = LatLng(22.705313624334096, 75.90907346989012);
     destinationLocation.value = LatLng(22.738078356773574, 75.89032710201927);
+    homeController.searchHistoryListApi(
+        LocalStorage().getStringValue(LocalStorage().mobileNumber), 1, 20);
     _getCurrentLocation();
   }
 
@@ -108,10 +113,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               builder: (_) => const ProfileScreen()),
                         );
                       },
-                      child: const CircleAvatar(
-                        backgroundImage: NetworkImage(
-                            "https://randomuser.me/api/portraits/men/1.jpg"),
-                      ),
+                      child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Image.asset(
+                            AssetsImages().profileImage,
+                            height: 5.h,
+                          )),
                     ),
                   ],
                 ),
@@ -158,8 +165,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: GoogleMap(
                       initialCameraPosition: CameraPosition(
                         target: LatLng(
-                          (sourceLat.value + destinationLat.value.toDouble()) / 2,
-                          (sourceLong.value + destinationLong.value.toDouble()) / 2,
+                          (sourceLat.value + destinationLat.value.toDouble()) /
+                              2,
+                          (sourceLong.value +
+                                  destinationLong.value.toDouble()) /
+                              2,
                         ),
                         zoom: 12.0,
                       ),
@@ -172,7 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         destinationLocation.value!,
                       ),
                       markers: markers,
-                      polylines: polylines,
+                     // polylines: polylines,
                     ),
                   ),
                 ],
@@ -221,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Expanded(
                         child: InkWell(
-                          onTap: (){
+                          onTap: () {
                             Get.toNamed(RouteHelper().getOneWayTripScreen());
                           },
                           child: Container(
@@ -234,7 +244,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             child: const Row(
                               children: [
-                                Icon(Icons.search, color: Colors.grey, size: 26),
+                                Icon(Icons.search,
+                                    color: Colors.grey, size: 26),
                                 SizedBox(width: 8),
                                 Text(
                                   "Find driver from?",
@@ -250,7 +261,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(width: 10),
                       InkWell(
-                        onTap: (){
+                        onTap: () {
                           CommonFunctions().dateTimePicker();
                         },
                         child: Container(
@@ -275,19 +286,23 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       const Icon(Icons.my_location, color: Colors.black),
                       const SizedBox(width: 8),
-                      RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: "My Location ",
-                              style: TextStyle(color: Colors.red, fontSize: 16),
-                            ),
-                            TextSpan(
-                              text: "103, Kesar Bagh Road, Indore",
-                              style:
-                                  TextStyle(color: Colors.grey, fontSize: 16),
-                            ),
-                          ],
+                      Expanded(
+                        child: RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "My Location ",
+                                style: TextStyle(color: Colors.red, fontSize: 16),
+                              ),
+                              TextSpan(
+                                text: currentLocation.value.toString(),
+                                style:
+                                    TextStyle(color: Colors.grey, fontSize: 16),
+                              ),
+                            ],
+
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
@@ -296,13 +311,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 12),
 
                   // Recent Location
-                  const Row(
+                  Row(
                     children: [
                       Icon(Icons.access_time, color: Colors.black),
                       SizedBox(width: 8),
-                      Text(
-                        "Pheneix Citadel , Indore",
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
+                      Expanded(
+                        child: Text(
+                          homeController.searchHistoryList[0].address,
+                          style: TextStyle(color: Colors.grey, fontSize: 16),
+                          overflow: TextOverflow.ellipsis,
+                          
+                        ),
                       ),
                     ],
                   ),
@@ -359,7 +378,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-           /* const SizedBox(height: 16),
+            /* const SizedBox(height: 16),
             SizedBox(
               height: 100,
               width: 100,
@@ -453,7 +472,11 @@ class _HomeScreenState extends State<HomeScreen> {
             decoration: BoxDecoration(
                 color: Color(0xFFDDE3E3),
                 borderRadius: BorderRadius.all(Radius.circular(20))),
-            child: Image.asset(image, height: 60,width: 50,),
+            child: Image.asset(
+              image,
+              height: 60,
+              width: 50,
+            ),
           ),
           const SizedBox(height: 5),
           Text(
@@ -469,7 +492,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
- /// For showing current location
+  /// For showing current location
   Future<void> _getCurrentLocation() async {
     LocationPermission permission = await Geolocator.requestPermission();
     if (permission == LocationPermission.denied ||
@@ -478,7 +501,7 @@ class _HomeScreenState extends State<HomeScreen> {
         "Alert",
         "Location permission denied",
         "Ok",
-            () {
+        () {
           Get.back();
         },
       );
@@ -489,10 +512,10 @@ class _HomeScreenState extends State<HomeScreen> {
       desiredAccuracy: LocationAccuracy.high,
     );
 
-    currentLocation.value = LatLng(position.latitude, position.longitude);
+     currentLocation.value = LatLng(position.latitude, position.longitude);
 
     if (mounted) {
-      setState(() {
+  
         markers.add(
           Marker(
             markerId: const MarkerId("currentLocation"),
@@ -503,7 +526,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         );
-      });
+
 
       // Move camera if controller available
       _mapController?.animateCamera(
@@ -513,8 +536,10 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
   }
+
   /// For showing map
-  void _onMapCreated(GoogleMapController controller, LatLng source, LatLng destination) {
+  void _onMapCreated(
+      GoogleMapController controller, LatLng source, LatLng destination) {
     _mapController = controller;
 
     if (sourceLocation.value != null && destinationLocation.value != null) {
@@ -524,7 +549,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ? sourceLocation.value!.latitude
               : destinationLocation.value!.latitude,
           sourceLocation.value!.longitude <=
-              destinationLocation.value!.longitude
+                  destinationLocation.value!.longitude
               ? sourceLocation.value!.longitude
               : destinationLocation.value!.longitude,
         ),
@@ -533,7 +558,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ? sourceLocation.value!.latitude
               : destinationLocation.value!.latitude,
           sourceLocation.value!.longitude >=
-              destinationLocation.value!.longitude
+                  destinationLocation.value!.longitude
               ? sourceLocation.value!.longitude
               : destinationLocation.value!.longitude,
         ),

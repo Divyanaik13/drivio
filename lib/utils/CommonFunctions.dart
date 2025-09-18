@@ -341,12 +341,13 @@ class CommonFunctions {
     return null;
   }
 
-  Future<DateTime?> dateTimePicker() async {
+  Future<DateTime?> dateTimePicker({bool barrierDismissible = true}) async {
     DateTime? pickedDate = await showDatePicker(
       context: Get.context!,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime(2100),
+      barrierDismissible:barrierDismissible,
       builder: (context, child) {
         return Theme(
           data: ThemeData.light().copyWith(
@@ -364,6 +365,7 @@ class CommonFunctions {
       TimeOfDay? pickedTime = await showTimePicker(
         context: Get.context!,
         initialTime: TimeOfDay.now(),
+        barrierDismissible:barrierDismissible,
         builder: (context, child) {
           return Theme(
             data: ThemeData.light().copyWith(
