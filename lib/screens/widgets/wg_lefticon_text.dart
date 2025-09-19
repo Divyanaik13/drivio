@@ -86,3 +86,31 @@ class WgTextRightTextButton extends StatelessWidget {
   }
 }
 
+
+class WgIconText extends StatelessWidget {
+  final String text;
+  final IconData icon;
+  final double iconSize;
+  final Color iconColor;
+  final double textSize;
+  final Color textColor;
+  final VoidCallback onTap;
+
+  const WgIconText({super.key, required this.text, required this.icon, required this.iconSize, required this.iconColor, required this.textSize, required this.textColor, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return  InkWell(
+      onTap: onTap,
+      splashColor: Colors.transparent,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon,size: iconSize,color: iconColor,),
+          Text(text,style: TextStyle(fontSize: textSize.sp,color: textColor),),
+        ],
+      ),
+    );
+  }
+}
+

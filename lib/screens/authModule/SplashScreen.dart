@@ -79,7 +79,9 @@ import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
 import '../../utils/AssetsImages.dart';
 import '../../utils/RouteHelper.dart';
+import '../homeModule/notification_screen.dart';
 import '../vip card/vip_card_screen.dart';
+import 'loginScreen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -122,7 +124,7 @@ class _SplashScreenState extends State<SplashScreen> {
     //   Get.offAllNamed(RouteHelper().getOnBoardingScreen());
     // }
 
-    Get.offAll(() => VipCardScreen());
+    Get.offAll(() => NotificationScreen());
     // Get.offAll(() => const HomeScreen());
 
 
