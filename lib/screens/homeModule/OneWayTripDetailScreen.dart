@@ -1,5 +1,6 @@
 import 'package:drivio_sarthi/utils/ConstColors.dart';
 import 'package:drivio_sarthi/utils/ConstStrings.dart';
+import 'package:drivio_sarthi/utils/RouteHelper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -63,7 +64,6 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
       destinationLocation.value = const LatLng(
           22.738078356773574, 75.89032710201927); // Phoenix mall indore
     }
-
   }
 
   @override
@@ -203,17 +203,16 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                           ),
                           child: Row(
                             children: [
-                              Icon(
-                                Icons.directions_car,
-                                color: ConstColors().themeColor,
-                                size: 18.5.sp
-                              ),
+                              Icon(Icons.directions_car,
+                                  color: ConstColors().themeColor,
+                                  size: 18.5.sp),
                               SizedBox(
                                 width: 3.w,
                               ),
-                              Text("Xuv 700",  style: TextStyle(
-                                  fontSize: 14.5.sp,
-                                  fontWeight: FontWeight.w700,
+                              Text("Xuv 700",
+                                  style: TextStyle(
+                                    fontSize: 14.5.sp,
+                                    fontWeight: FontWeight.w700,
                                   )),
                             ],
                           ),
@@ -229,17 +228,16 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                           ),
                           child: Row(
                             children: [
-                              Icon(
-                                Icons.format_line_spacing,
-                                color: ConstColors().themeColor,
-                                size: 18.5.sp
-                              ),
+                              Icon(Icons.format_line_spacing,
+                                  color: ConstColors().themeColor,
+                                  size: 18.5.sp),
                               SizedBox(
                                 width: 3.w,
                               ),
-                              Text("Manual", style: TextStyle(
-                                  fontSize: 14.5.sp,
-                                  fontWeight: FontWeight.w700,
+                              Text("Manual",
+                                  style: TextStyle(
+                                    fontSize: 14.5.sp,
+                                    fontWeight: FontWeight.w700,
                                   )),
                             ],
                           ),
@@ -250,9 +248,11 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                     const SizedBox(height: 20),
 
                     /// Pay as you go
-                     Text("Pay as you go",
+                    Text("Pay as you go",
                         style: TextStyle(
-                            fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.grey)),
+                            fontSize: 15.sp,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.grey)),
                     const SizedBox(height: 10),
                     Container(
                       width: 100.w,
@@ -263,7 +263,12 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                           borderRadius: BorderRadius.circular(15)),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: ["2 hr", "4 hr", "6 hr", "8 hr", ].map((e) {
+                        children: [
+                          "2 hr",
+                          "4 hr",
+                          "6 hr",
+                          "8 hr",
+                        ].map((e) {
                           final isSelected = selectedHour == e;
                           return GestureDetector(
                             onTap: () {
@@ -272,13 +277,18 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                               });
                             },
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 18, vertical: 10),
                               margin: const EdgeInsets.only(right: 8),
                               decoration: BoxDecoration(
-                                color: isSelected ? Colors.red.shade100 : Colors.grey.shade200,
+                                color: isSelected
+                                    ? Colors.red.shade100
+                                    : Colors.grey.shade200,
                                 borderRadius: BorderRadius.circular(10),
                                 border: Border.all(
-                                  color: isSelected ? Colors.red : Colors.transparent,
+                                  color: isSelected
+                                      ? Colors.red
+                                      : Colors.transparent,
                                   width: 1.5,
                                 ),
                               ),
@@ -293,9 +303,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                             ),
                           );
                         }).toList(),
-
                       ),
-
                     ),
 
                     const SizedBox(height: 10),
@@ -320,22 +328,26 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                               children: [
                                 Text(
                                   "Drivio",
-                                  style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700),
+                                  style: TextStyle(
+                                      fontSize: 14.sp,
+                                      fontWeight: FontWeight.w700),
                                 ),
                                 SizedBox(height: 0.3.h),
                                 Text(
                                   "Verified and Tested Driver",
-                                  style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w400),
+                                  style: TextStyle(
+                                      fontSize: 15.sp,
+                                      fontWeight: FontWeight.w400),
                                 ),
                               ],
                             ),
                           ),
-
                           Text(
                             "₹100",
                             style: TextStyle(
                                 fontWeight: FontWeight.w700,
-                                color: Colors.black, fontSize: 17.sp),
+                                color: Colors.black,
+                                fontSize: 17.sp),
                           ),
                         ],
                       ),
@@ -346,7 +358,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                     /// Offers
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children:  [
+                      children: [
                         Row(
                           children: [
                             Icon(Icons.camera_rounded, color: Colors.black),
@@ -355,9 +367,14 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text("Offers",
-                                    style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700)),
+                                    style: TextStyle(
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.w700)),
                                 Text("Latest offers",
-                                    style: TextStyle(fontSize: 15.sp,  fontWeight: FontWeight.w300, color: Colors.grey)),
+                                    style: TextStyle(
+                                        fontSize: 15.sp,
+                                        fontWeight: FontWeight.w300,
+                                        color: Colors.grey)),
                               ],
                             ),
                           ],
@@ -389,10 +406,12 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(30),
                 ),
               ),
-              onPressed: () {},
+              onPressed: () {
+                Get.toNamed(RouteHelper().getCardScreen());
+              },
               child: const Text(
                 "Request for Driver",
                 style: TextStyle(fontSize: 16, color: Colors.white),

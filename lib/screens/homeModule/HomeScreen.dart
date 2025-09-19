@@ -9,6 +9,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sizer/sizer.dart';
 import '../../controllers/HomeController.dart';
 import '../../utils/ConstColors.dart';
+import '../../utils/ConstStrings.dart';
 import '../profileModule/ProfileScreen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -37,15 +38,17 @@ class _HomeScreenState extends State<HomeScreen> {
   final Set<Marker> markers = {};
   final Set<Polyline> polylines = {};
 
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    sourceLocation.value = LatLng(22.705313624334096, 75.90907346989012);
-    destinationLocation.value = LatLng(22.738078356773574, 75.89032710201927);
-    homeController.searchHistoryListApi(
-        LocalStorage().getStringValue(LocalStorage().mobileNumber), 1, 20);
-    _getCurrentLocation();
+    // sourceLocation.value = LatLng(22.705313624334096, 75.90907346989012);
+    // destinationLocation.value = LatLng(22.738078356773574, 75.89032710201927);
+    CommonFunctions().getCurrentLocation();
+    Future.delayed(Duration.zero,(){
+      homeController.searchHistoryListApi(
+          LocalStorage().getStringValue(LocalStorage().mobileNumber), 1, 20);
+    });
   }
 
   @override
@@ -160,29 +163,30 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Stack(
                 children: [
                   // Google Map
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: GoogleMap(
-                      initialCameraPosition: CameraPosition(
-                        target: LatLng(
-                          (sourceLat.value + destinationLat.value.toDouble()) /
-                              2,
-                          (sourceLong.value +
-                                  destinationLong.value.toDouble()) /
-                              2,
+                  Obx(
+                    ()=> ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: GoogleMap(
+                        initialCameraPosition: CameraPosition(
+                          target: ConstStrings().latitude.value != 0.0
+                              ? LatLng(ConstStrings().latitude.value,
+                              ConstStrings().longitude.value)
+                              : LatLng(22.721354881593992, 75.86108525441043),
+                          zoom: 15.0,
                         ),
-                        zoom: 12.0,
+                        mapType: MapType.normal,
+                        onMapCreated: (GoogleMapController controller) {},
+                        markers: {
+                          Marker(
+                            markerId: MarkerId('source'),
+                            position: ConstStrings().latitude.value != 0.0
+                                ? LatLng(ConstStrings().latitude.value,
+                                ConstStrings().longitude.value)
+                                : LatLng(22.721354881593992, 75.86108525441043),
+                            infoWindow: InfoWindow(title: 'Source Location'),
+                          ),
+                        },
                       ),
-                      mapType: MapType.normal,
-                      myLocationEnabled: true,
-                      myLocationButtonEnabled: true,
-                      onMapCreated: (controller) => _onMapCreated(
-                        controller,
-                        sourceLocation.value!,
-                        destinationLocation.value!,
-                      ),
-                      markers: markers,
-                     // polylines: polylines,
                     ),
                   ),
                 ],
@@ -282,48 +286,52 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 16),
 
                   // My Location
-                  Row(
-                    children: [
-                      const Icon(Icons.my_location, color: Colors.black),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: RichText(
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: "My Location ",
-                                style: TextStyle(color: Colors.red, fontSize: 16),
-                              ),
-                              TextSpan(
-                                text: currentLocation.value.toString(),
-                                style:
-                                    TextStyle(color: Colors.grey, fontSize: 16),
-                              ),
-                            ],
+                  Obx(
+                    ()=> Row(
+                      children: [
+                        const Icon(Icons.my_location, color: Colors.black),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "My Location ",
+                                  style: TextStyle(color: Colors.red, fontSize: 16),
+                                ),
+                                TextSpan(
+                                  text: ConstStrings().location.value,
+                                  style:
+                                      TextStyle(color: Colors.grey, fontSize: 16),
+                                ),
+                              ],
 
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
 
                   const SizedBox(height: 12),
 
                   // Recent Location
-                  Row(
-                    children: [
-                      Icon(Icons.access_time, color: Colors.black),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          homeController.searchHistoryList[0].address,
-                          style: TextStyle(color: Colors.grey, fontSize: 16),
-                          overflow: TextOverflow.ellipsis,
-                          
+                  Obx(
+                    ()=> Row(
+                      children: [
+                        Icon(Icons.access_time, color: Colors.black),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            homeController.lastSearch.value,
+                            style: TextStyle(color: Colors.grey, fontSize: 16),
+                            overflow: TextOverflow.ellipsis,
+
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -493,7 +501,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// For showing current location
-  Future<void> _getCurrentLocation() async {
+/*  Future<void> _getCurrentLocation() async {
     LocationPermission permission = await Geolocator.requestPermission();
     if (permission == LocationPermission.denied ||
         permission == LocationPermission.deniedForever) {
@@ -568,7 +576,7 @@ class _HomeScreenState extends State<HomeScreen> {
         CameraUpdate.newLatLngBounds(bounds, 50),
       );
     }
-  }
+  }*/
 
   @override
   void dispose() {

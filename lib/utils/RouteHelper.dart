@@ -3,9 +3,11 @@ import 'package:get/get.dart';
 import '../screens/authModule/SignUpScreen.dart';
 import '../screens/authModule/loginScreen.dart';
 import '../screens/authModule/onBoardingScreen.dart';
+import '../screens/homeModule/CardScreen.dart';
 import '../screens/homeModule/HomeScreen.dart';
 import '../screens/homeModule/OneWayTrip.dart';
 import '../screens/homeModule/OneWayTripDetailScreen.dart';
+import '../screens/homeModule/OrderPlacedSuccessScreen.dart';
 import '../screens/profileModule/ProfileScreen.dart';
 
 class RouteHelper{
@@ -24,6 +26,8 @@ class RouteHelper{
   String onBoardingScreen = "/OnBoardingScreen";
   String oneWayTripScreen = "/OneWayTripScreen";
   String oneWayTripDetailScreen = "/OneWayTripDetailScreen";
+  String cardScreen = "/CardScreen";
+  String orderPlacedSuccessScreen = "/OrderPlacedSuccessScreen";
 
   String getSplashScreen() => splashScreen;
   String getLoginScreen() => loginScreen;
@@ -33,6 +37,8 @@ class RouteHelper{
   String getOnBoardingScreen() => onBoardingScreen;
   String getOneWayTripScreen() => oneWayTripScreen;
   String getOneWayTripDetailScreen() => oneWayTripDetailScreen;
+  String getCardScreen() => cardScreen;
+  String getOrderPlacedSuccessScreen() => orderPlacedSuccessScreen;
 
   List<GetPage> get pageList => [
     GetPage(name: splashScreen, page: () => SplashScreen()),
@@ -44,6 +50,8 @@ class RouteHelper{
     GetPage(name: onBoardingScreen, page: () => OnBoardingScreen()),
     GetPage(name: oneWayTripScreen, page: () => OneWayTripScreen()),
     GetPage(name: oneWayTripDetailScreen, page: () => OneWayTripDetailScreen()),
+    GetPage(name: cardScreen, page: () => CardScreen()),
+    GetPage(name: orderPlacedSuccessScreen, page: () => OrderPlacedSuccessScreen()),
   ];
 
 }

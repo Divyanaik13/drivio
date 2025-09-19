@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:drivio_sarthi/network/ApiService.dart';
@@ -13,7 +14,7 @@ class HomeRepo {
       print("Search History url :-- $url");
       response = await DioServices()
           .getMethod(url, await DioServices().getAllHeaders());
-      print("Search History repo response :-- $response");
+      log("Search History repo response :-- $response");
     } catch (e) {
       print("Search History repo error :-- $e");
     }

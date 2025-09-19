@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 class ConstStrings{
 
   static final ConstStrings _constStrings = ConstStrings._internal();
@@ -8,6 +10,14 @@ class ConstStrings{
 
    String placeApiKey = "AIzaSyBWpknhgETEcPdExDw13FsmKIbazhH-BpI";
 
+
+  var serviceEnabled = false.obs;
+  var latitude = 0.0.obs;
+  var longitude = 0.0.obs;
+  var location = "".obs;
+  var countryName = "".obs;
+  var cityName = "".obs;
+  var stateName = "".obs;
 
   /// Login screen text
   String drivTxt = "Driv";

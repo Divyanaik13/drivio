@@ -14,6 +14,7 @@ class HomeController extends GetxController {
 
    var searchHistoryList = <SearchHistoryList>[].obs;
    var searchHistoryListModel = Rxn<SearchHistoryListModel>();
+   var lastSearch = "".obs;
 
    ///Search History List Repo Function
   Future<void> searchHistoryListApi(String phoneNumber, int page, limit) async{
@@ -26,7 +27,9 @@ class HomeController extends GetxController {
       print("searchHistoryListApi response :-- $response");
       searchHistoryListModel.value = SearchHistoryListModel.fromJson(response.data);
       searchHistoryList.value = searchHistoryListModel.value!.data;
+      lastSearch.value = searchHistoryList[0].address;
       print("searchHistoryList.value :-- $searchHistoryList");
+      print("lastSearch.value :-- ${lastSearch.value}");
     }catch(e){
       CommonFunctions().hideLoader();
       print("searchHistoryListApi error :-- $e");

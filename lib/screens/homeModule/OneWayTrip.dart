@@ -47,6 +47,7 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         leading: InkWell(
             onTap: () {
@@ -298,6 +299,7 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
                 return ListView.builder(
                     itemCount: homeController.searchHistoryList.length,
                     shrinkWrap: true,
+                    physics: AlwaysScrollableScrollPhysics(),
                     itemBuilder: (BuildContext context, int index) {
                       var history = homeController.searchHistoryList[index];
                       return Column(
