@@ -90,7 +90,7 @@ class _OrderPlacedSuccessScreenState extends State<OrderPlacedSuccessScreen> {
               // Back to Home
               TextButton(
                 onPressed: () {
-                  Get.toNamed(RouteHelper().getHomeScreen());
+                  Get.offAllNamed(RouteHelper().getHomeScreen());
                 },
                 child: Text(
                   "Back to home",

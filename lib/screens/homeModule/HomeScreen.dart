@@ -3,7 +3,6 @@ import 'package:drivio_sarthi/utils/CommonFunctions.dart';
 import 'package:drivio_sarthi/utils/LocalStorage.dart';
 import 'package:drivio_sarthi/utils/RouteHelper.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sizer/sizer.dart';
