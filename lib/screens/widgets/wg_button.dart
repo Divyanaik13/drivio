@@ -36,6 +36,8 @@ class WgButton extends StatelessWidget {
                 style: TextStyle(
                     fontSize: fontSize,
                     color: textColor ?? Colors.white,
+                    fontWeight: FontWeight.bold,
+
                     ))),
       ),
     );

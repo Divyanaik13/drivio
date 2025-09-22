@@ -1,5 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:drivio_sarthi/controllers/vip_card_controller.dart';
+import 'package:drivio_sarthi/screens/homeModule/refer_screen.dart';
+import 'package:drivio_sarthi/screens/terms%20and%20condition/terms_and_conditions.dart';
 import 'package:drivio_sarthi/screens/widgets/wg_carousel_slider.dart';
 import 'package:drivio_sarthi/screens/widgets/wg_lefticon_text.dart';
 import 'package:flutter/gestures.dart';
@@ -32,7 +34,7 @@ class VipCardScreen extends StatelessWidget {
               icon: Icons.arrow_back,
               text: "Doc vip card",
               onTap: () {
-                Get.to(MessagesScreen());
+                Get.to(ReferScreen());
               },
               isBold: true,
             ),
@@ -129,7 +131,7 @@ Column(
                 decoration: TextDecoration.underline,
               ),
               recognizer: TapGestureRecognizer() ..onTap = (){
-                debugPrint("user tap on terms and condition");
+                Get.to(TermsAndConditions());
               }
 
           ),

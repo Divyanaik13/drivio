@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class MessagesScreen extends StatelessWidget {
-  const MessagesScreen({super.key});
+  final String userName;
+  const MessagesScreen({super.key, required this.userName});
 
   @override
   Widget build(BuildContext context) {
@@ -13,22 +14,22 @@ class MessagesScreen extends StatelessWidget {
         backgroundColor: const Color(0xFFFF2800),
         foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
-        title: const Row(
+        title: Row(
           children: [
-            BackButton(),
-            CircleAvatar(
+            const BackButton(),
+            const CircleAvatar(
               backgroundImage:
               NetworkImage("https://i.postimg.cc/cCsYDjvj/user-2.png"),
             ),
-            SizedBox(width: 16.0 * 0.75),
+            const SizedBox(width: 16.0 * 0.75),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Kristin Watson",
-                  style: TextStyle(fontSize: 16),
+                userName,
+                  style: const TextStyle(fontSize: 16),
                 ),
-                Text(
+                const Text(
                   "Active 3m ago",
                   style: TextStyle(fontSize: 12),
                 )

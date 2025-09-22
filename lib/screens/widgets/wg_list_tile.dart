@@ -13,11 +13,11 @@ class WgListTile extends StatelessWidget {
   final Color headingColor;
   final Color subHeadingColor;
   final VoidCallback onTap;
-  final String networKImagePath;
+  final String imgUrl;
 
 
 
-  const WgListTile({super.key, required this.height, required this.width, required this.headingText, required this.subHeadingText1, required this.subHeadingText2, required this.subHeadingText3, required this.subHeadingTextLeft, required this.headingColor, required this.subHeadingColor, required this.onTap, required this.networKImagePath});
+  const WgListTile({super.key, required this.height, required this.width, required this.headingText, required this.subHeadingText1, required this.subHeadingText2, required this.subHeadingText3, required this.subHeadingTextLeft, required this.headingColor, required this.subHeadingColor, required this.onTap, required this.imgUrl});
 
   @override
   Widget build(BuildContext context) {
