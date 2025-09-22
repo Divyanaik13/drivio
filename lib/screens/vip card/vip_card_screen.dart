@@ -12,6 +12,7 @@ import 'package:sizer/sizer.dart';
 
 import '../../utils/CommonWidgets.dart';
 import '../homeModule/messages_screen.dart';
+import '../homeModule/my_coins_screen.dart';
 import '../widgets/wg_button.dart';
 
 class VipCardScreen extends StatelessWidget {
@@ -34,7 +35,7 @@ class VipCardScreen extends StatelessWidget {
               icon: Icons.arrow_back,
               text: "Doc vip card",
               onTap: () {
-                Get.to(ReferScreen());
+                Get.to(MyCoinsScreen());
               },
               isBold: true,
             ),

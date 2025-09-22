@@ -70,10 +70,8 @@ class ReferScreen extends StatelessWidget {
               WgButton(
                 text: "Invite Friends",
                 onTap: () {
-
-                  SharePlus.instance.share(
-                      ShareParams(text: 'check out my website https://example.com')
-                  );
+                  SharePlus.instance.share(ShareParams(
+                      text: 'check out my website https://example.com'));
                 },
                 height: 4,
                 width: 400,
