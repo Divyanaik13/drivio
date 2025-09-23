@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MessagesScreen extends StatelessWidget {
   final String userName;
   const MessagesScreen({super.key, required this.userName});
+
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber,
+    );
+    await launchUrl(launchUri);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +49,9 @@ class MessagesScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.local_phone),
-            onPressed: () {},
+            onPressed: () {
+              _makePhoneCall('9981421187');
+            },
           ),
           IconButton(
             icon: const Icon(Icons.videocam),
