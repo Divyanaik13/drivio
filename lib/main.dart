@@ -1,11 +1,18 @@
+import 'package:drivio_sarthi/repositories/vip_card_repository.dart';
 import 'package:drivio_sarthi/utils/BindingClass.dart';
 import 'package:drivio_sarthi/utils/ConstColors.dart';
 import 'package:drivio_sarthi/utils/RouteHelper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:sizer/sizer.dart';
+
+import 'network/ApiService.dart';
+import 'network/WebService.dart';
+
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,7 +56,7 @@ class MyApp extends StatelessWidget {
         initialBinding: BindingClass(),
         builder: (context, child) {
           final mediaQuery =
-          MediaQuery.of(context).copyWith(textScaleFactor: 1.0);
+          MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(1.0));
           return MediaQuery(
             data: mediaQuery,
             child: EasyLoading.init()(context, child),

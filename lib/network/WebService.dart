@@ -6,6 +6,7 @@ class WebService{
   }
   WebService._internal();
 
+
   var baseUrl = "https://docapi.nuke.co.in/api/user";
 
   var signUpApi = "/auth/register";
@@ -16,4 +17,5 @@ class WebService{
   var deleteUserApi = "/auth/deleteUser";
   var getReferCodeApi = "/auth/getReferCode";
   var getSearchHistoryApi = "/search-history";
+  var vipCardApi = "/search-history"; //endpoint has to be change
 }

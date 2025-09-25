@@ -171,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   // Google Map
                   Obx(
-                    () => ClipRRect(
+                        () => ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: GoogleMap(
                         initialCameraPosition: CameraPosition(
@@ -294,7 +294,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   // My Location
                   Obx(
-                    () => Row(
+                        () => Row(
                       children: [
                         const Icon(Icons.my_location, color: Colors.black),
                         const SizedBox(width: 8),
@@ -325,7 +325,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   // Recent Location
                   Obx(
-                    () => Row(
+
+                        () => Row(
                       children: [
                         Icon(Icons.access_time, color: Colors.black),
                         SizedBox(width: 8),
@@ -333,7 +334,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Text(
                             homeController.lastSearch.value,
                             style:
-                                TextStyle(color: Colors.grey, fontSize: 15.sp),
+                            TextStyle(color: Colors.grey, fontSize: 15.sp),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -413,12 +414,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   },
                 )
-                ),
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
                 _pages.length,
-                (index) => Container(
+                    (index) => Container(
                   margin: const EdgeInsets.all(4),
                   width: _currentIndex == index ? 12 : 8,
                   height: _currentIndex == index ? 12 : 8,
