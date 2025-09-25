@@ -36,7 +36,6 @@ class _SplashScreenState extends State<SplashScreen> {
     String token = storage.getStringValue(storage.authToken);
     print("firstLaunch ! $firstLaunch");
     if (!firstLaunch) {
-      // first ever app launch -> onboarding
       Get.offAllNamed(RouteHelper().getOnBoardingScreen());
     } else if (token.isNotEmpty) {
       // already logged in

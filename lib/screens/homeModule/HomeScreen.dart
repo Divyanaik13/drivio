@@ -177,7 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         initialCameraPosition: CameraPosition(
                           target: ConstStrings().latitude.value != 0.0
                               ? LatLng(ConstStrings().latitude.value,
-                              ConstStrings().longitude.value)
+                                  ConstStrings().longitude.value)
                               : LatLng(22.721354881593992, 75.86108525441043),
                           zoom: 15.0,
                         ),
@@ -188,7 +188,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             markerId: MarkerId('source'),
                             position: ConstStrings().latitude.value != 0.0
                                 ? LatLng(ConstStrings().latitude.value,
-                                ConstStrings().longitude.value)
+                                    ConstStrings().longitude.value)
                                 : LatLng(22.721354881593992, 75.86108525441043),
                             infoWindow: InfoWindow(title: 'Source Location'),
                           ),
@@ -325,6 +325,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   // Recent Location
                   Obx(
+
                         () => Row(
                       children: [
                         Icon(Icons.access_time, color: Colors.black),
