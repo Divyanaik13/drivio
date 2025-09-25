@@ -17,4 +17,5 @@ class WebService{
   var deleteUserApi = "/auth/deleteUser";
   var getReferCodeApi = "/auth/getReferCode";
   var getSearchHistoryApi = "/search-history";
+  var vipCardApi = "/search-history"; //endpoint has to be change
 }

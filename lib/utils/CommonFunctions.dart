@@ -8,6 +8,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:permission_handler/permission_handler.dart' hide ServiceStatus;
 import 'package:sizer/sizer.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import '../controllers/AuthController.dart';
