@@ -48,6 +48,8 @@ class WgTextRightTextButton extends StatelessWidget {
   final String suffixText;
   final double? sFontSize;
   final bool? isBold;
+  final Color? prfixColor;
+  final Color? suffixColor;
   final VoidCallback onTap;
   const WgTextRightTextButton(
       {super.key,
@@ -56,7 +58,7 @@ class WgTextRightTextButton extends StatelessWidget {
       required this.onTap,
       this.pFontSize,
       this.sFontSize,
-      this.isBold = false});
+      this.isBold = false, this.prfixColor = Colors.black, this.suffixColor = Colors.red});
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +69,7 @@ class WgTextRightTextButton extends StatelessWidget {
           prfixText,
           style: TextStyle(
               fontSize: pFontSize,
+              color: prfixColor,
               fontWeight: isBold! ? FontWeight.bold : FontWeight.normal),
         ),
         TextButton(
@@ -78,7 +81,7 @@ class WgTextRightTextButton extends StatelessWidget {
           child: Text(suffixText,
               style: TextStyle(
                   fontSize: pFontSize,
-                  color: Colors.red,
+                  color: suffixColor,
                   fontWeight: isBold! ? FontWeight.bold : FontWeight.normal)),
         )
       ],
