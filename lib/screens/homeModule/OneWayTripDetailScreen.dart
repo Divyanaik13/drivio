@@ -1,5 +1,4 @@
 import 'package:drivio_sarthi/utils/ConstColors.dart';
-import 'package:drivio_sarthi/utils/ConstStrings.dart';
 import 'package:drivio_sarthi/utils/RouteHelper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
