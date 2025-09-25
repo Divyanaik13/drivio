@@ -107,10 +107,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                        Container(
                          decoration: BoxDecoration(
                            border: Border.all(color: Colors.grey),
-                           borderRadius: BorderRadius.circular(50),
+                           borderRadius: BorderRadius.circular(60),
                          ),
                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(50),
+                            borderRadius: BorderRadius.circular(60),
                             child: Image.asset(AssetsImages().profileImage,height: 11.h,)),
                        ),
                       const SizedBox(width: 20),

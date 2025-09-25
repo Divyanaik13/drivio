@@ -9,7 +9,6 @@ import 'package:sizer/sizer.dart';
 import '../../controllers/HomeController.dart';
 import '../../utils/ConstColors.dart';
 import '../../utils/ConstStrings.dart';
-import '../profileModule/ProfileScreen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,6 +19,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   TextEditingController searchController = TextEditingController();
+  final PageController _pageController = PageController();
   var homeController = Get.find<HomeController>();
   String selectedTrip = "One Way";
   var dateTime = DateTime.now().obs;
@@ -36,7 +36,19 @@ class _HomeScreenState extends State<HomeScreen> {
   Rxn<LatLng> currentLocation = Rxn<LatLng>();
   final Set<Marker> markers = {};
   final Set<Polyline> polylines = {};
+  int _currentIndex = 0;
 
+  final List<Map<String, String>> _pages = [
+    {
+      "image": AssetsImages().homeScreenImage,
+    },
+    {
+      "image": AssetsImages().homeScreenImage,
+    },
+    {
+      "image": AssetsImages().homeScreenImage,
+    }
+  ];
 
   @override
   void initState() {
@@ -44,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // sourceLocation.value = LatLng(22.705313624334096, 75.90907346989012);
     // destinationLocation.value = LatLng(22.738078356773574, 75.89032710201927);
     CommonFunctions().getCurrentLocation();
-    Future.delayed(Duration.zero,(){
+    Future.delayed(Duration.zero, () {
       homeController.searchHistoryListApi(
           LocalStorage().getStringValue(LocalStorage().mobileNumber), 1, 20);
     });
@@ -69,14 +81,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   text: TextSpan(
                     text: "Book",
                     style: TextStyle(
-                        fontSize: 22,
+                        fontSize: 18.sp,
                         fontWeight: FontWeight.w500,
                         color: Colors.black),
                     children: [
                       TextSpan(
                         text: " Driver",
                         style: TextStyle(
-                            fontSize: 22,
+                            fontSize: 18.sp,
                             fontWeight: FontWeight.w500,
                             color: ConstColors().themeColor),
                       ),
@@ -106,20 +118,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         )
                       ],
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 7),
                     InkWell(
                       onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const ProfileScreen()),
-                        );
+                        Get.toNamed(RouteHelper().getProfileScreen());
                       },
                       child: ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(30),
                           child: Image.asset(
                             AssetsImages().profileImage,
-                            height: 5.h,
+                            height: 4.h,
                           )),
                     ),
                   ],
@@ -129,8 +137,8 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 4),
             Row(
               children: [
-                const Text("103, Kesar Bagh Road, Indore",
-                    style: TextStyle(color: Colors.black54)),
+                Text("103, Kesar Bagh Road, Indore",
+                    style: TextStyle(color: Colors.black54, fontSize: 14.sp)),
               ],
             ),
             const SizedBox(height: 16),
@@ -145,14 +153,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: TextStyle(
                             color: ConstColors().blackColor,
                             fontWeight: FontWeight.w600,
-                            fontSize: 15)),
+                            fontSize: 15.sp)),
                   ],
                 ),
                 Text("10 km",
                     style: TextStyle(
                         color: ConstColors().blackColor,
                         fontWeight: FontWeight.w600,
-                        fontSize: 15)),
+                        fontSize: 14.5.sp)),
               ],
             ),
             const SizedBox(height: 16),
@@ -163,13 +171,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   // Google Map
                   Obx(
-                    ()=> ClipRRect(
+                    () => ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: GoogleMap(
                         initialCameraPosition: CameraPosition(
                           target: ConstStrings().latitude.value != 0.0
                               ? LatLng(ConstStrings().latitude.value,
-                              ConstStrings().longitude.value)
+                                  ConstStrings().longitude.value)
                               : LatLng(22.721354881593992, 75.86108525441043),
                           zoom: 15.0,
                         ),
@@ -180,7 +188,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             markerId: MarkerId('source'),
                             position: ConstStrings().latitude.value != 0.0
                                 ? LatLng(ConstStrings().latitude.value,
-                                ConstStrings().longitude.value)
+                                    ConstStrings().longitude.value)
                                 : LatLng(22.721354881593992, 75.86108525441043),
                             infoWindow: InfoWindow(title: 'Source Location'),
                           ),
@@ -220,10 +228,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Title
-                  const Text(
+                  Text(
                     "Start Booking",
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 16.sp,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -245,7 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               borderRadius: BorderRadius.circular(25),
                               border: Border.all(color: Colors.black, width: 1),
                             ),
-                            child: const Row(
+                            child: Row(
                               children: [
                                 Icon(Icons.search,
                                     color: Colors.grey, size: 26),
@@ -254,7 +262,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   "Find driver from?",
                                   style: TextStyle(
                                     color: Colors.grey,
-                                    fontSize: 16,
+                                    fontSize: 15.sp,
                                   ),
                                 ),
                               ],
@@ -286,7 +294,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   // My Location
                   Obx(
-                    ()=> Row(
+                    () => Row(
                       children: [
                         const Icon(Icons.my_location, color: Colors.black),
                         const SizedBox(width: 8),
@@ -296,15 +304,15 @@ class _HomeScreenState extends State<HomeScreen> {
                               children: [
                                 TextSpan(
                                   text: "My Location ",
-                                  style: TextStyle(color: Colors.red, fontSize: 16),
+                                  style: TextStyle(
+                                      color: Colors.red, fontSize: 15.sp),
                                 ),
                                 TextSpan(
                                   text: ConstStrings().location.value,
-                                  style:
-                                      TextStyle(color: Colors.grey, fontSize: 16),
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 15.sp),
                                 ),
                               ],
-
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -317,16 +325,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   // Recent Location
                   Obx(
-                    ()=> Row(
+                    () => Row(
                       children: [
                         Icon(Icons.access_time, color: Colors.black),
                         SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             homeController.lastSearch.value,
-                            style: TextStyle(color: Colors.grey, fontSize: 16),
+                            style:
+                                TextStyle(color: Colors.grey, fontSize: 15.sp),
                             overflow: TextOverflow.ellipsis,
-
                           ),
                         ),
                       ],
@@ -350,17 +358,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         "Services",
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
                         "See all",
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 14.sp,
                           color: Colors.red,
                           fontWeight: FontWeight.w500,
                         ),
@@ -385,18 +393,44 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            /* const SizedBox(height: 16),
+            const SizedBox(height: 16),
             SizedBox(
-              height: 100,
-              width: 100,
-              child: ListView.builder(
-                  itemCount: 1,
-                  shrinkWrap: true,
-                  scrollDirection: Axis.horizontal,
-                  itemBuilder: (context, index) =>
-                Image.asset(AssetsImages().homeScreenImage, height: 100, width: 200,)
+                height: 14.h,
+                width: 100.w,
+                child: PageView.builder(
+                  controller: _pageController,
+                  itemCount: _pages.length,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentIndex = index;
+                    });
+                  },
+                  itemBuilder: (context, index) {
+                    Image.asset(
+                      _pages[index]["image"]!,
+                      width: 100.w,
+                      fit: BoxFit.cover,
+                    );
+                  },
+                )
                 ),
-            )*/
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                _pages.length,
+                (index) => Container(
+                  margin: const EdgeInsets.all(4),
+                  width: _currentIndex == index ? 12 : 8,
+                  height: _currentIndex == index ? 12 : 8,
+                  decoration: BoxDecoration(
+                    color: _currentIndex == index
+                        ? Colors.red
+                        : Colors.grey.shade400,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -459,7 +493,7 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(
                   color: isSelected ? Colors.white : Colors.black,
                   fontWeight: FontWeight.w500,
-                  fontSize: 14),
+                  fontSize: 14.sp),
             ),
           ],
         ),
@@ -468,7 +502,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget serviceItem(String image, String title) {
-    return Container(
+    return SizedBox(
       height: 110,
       child: Column(
         children: [
@@ -489,8 +523,8 @@ class _HomeScreenState extends State<HomeScreen> {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 13,
+            style: TextStyle(
+              fontSize: 14.sp,
               color: Colors.black,
             ),
           ),
@@ -498,84 +532,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
-  /// For showing current location
-/*  Future<void> _getCurrentLocation() async {
-    LocationPermission permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
-      CommonFunctions().alertDialog(
-        "Alert",
-        "Location permission denied",
-        "Ok",
-        () {
-          Get.back();
-        },
-      );
-      return;
-    }
-
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-
-     currentLocation.value = LatLng(position.latitude, position.longitude);
-
-    if (mounted) {
-  
-        markers.add(
-          Marker(
-            markerId: const MarkerId("currentLocation"),
-            position: currentLocation.value!,
-            infoWindow: const InfoWindow(title: "My Location"),
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueGreen,
-            ),
-          ),
-        );
-
-
-      // Move camera if controller available
-      _mapController?.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(target: currentLocation.value!, zoom: 15),
-        ),
-      );
-    }
-  }
-
-  /// For showing map
-  void _onMapCreated(
-      GoogleMapController controller, LatLng source, LatLng destination) {
-    _mapController = controller;
-
-    if (sourceLocation.value != null && destinationLocation.value != null) {
-      final bounds = LatLngBounds(
-        southwest: LatLng(
-          sourceLocation.value!.latitude <= destinationLocation.value!.latitude
-              ? sourceLocation.value!.latitude
-              : destinationLocation.value!.latitude,
-          sourceLocation.value!.longitude <=
-                  destinationLocation.value!.longitude
-              ? sourceLocation.value!.longitude
-              : destinationLocation.value!.longitude,
-        ),
-        northeast: LatLng(
-          sourceLocation.value!.latitude >= destinationLocation.value!.latitude
-              ? sourceLocation.value!.latitude
-              : destinationLocation.value!.latitude,
-          sourceLocation.value!.longitude >=
-                  destinationLocation.value!.longitude
-              ? sourceLocation.value!.longitude
-              : destinationLocation.value!.longitude,
-        ),
-      );
-
-      _mapController?.animateCamera(
-        CameraUpdate.newLatLngBounds(bounds, 50),
-      );
-    }
-  }*/
 
   @override
   void dispose() {
