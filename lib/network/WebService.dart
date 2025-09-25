@@ -6,6 +6,7 @@ class WebService{
   }
   WebService._internal();
 
+
   var baseUrl = "https://docapi.nuke.co.in/api/user";
 
   var signUpApi = "/auth/register";

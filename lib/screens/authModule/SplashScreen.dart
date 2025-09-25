@@ -27,25 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
    // requestSmsPermission();
   }
 
-/*  Future<bool> requestSmsPermission() async {
-    final granted = await telephony.requestSmsPermissions ?? false;
-    return granted;
-  }*/
-
-/*  Future<void> _checkLoginStatus() async {
-    await Future.delayed(const Duration(seconds: 3));
-
-    final storage = LocalStorage();
-    bool firstLaunch = storage.getBoolValue(storage.isFirstLaunch);
-    String authToken = storage.getStringValue(storage.authToken);
-
-    if (authToken.value != "" && authToken.value.isNotEmpty) {
-      Get.offAllNamed(RouteHelper().getHomeScreen());
-    } else {
-      Get.offAllNamed(RouteHelper().getOnBoardingScreen());
-    }
-  }*/
-  Future<void> _checkLoginStatus() async {
+ Future<void> _checkLoginStatus() async {
     await Future.delayed(const Duration(seconds: 3));
 
     final storage = LocalStorage();
