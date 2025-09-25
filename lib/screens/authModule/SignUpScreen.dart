@@ -9,6 +9,7 @@ import '../../controllers/AuthController.dart';
 import '../../utils/CommonFunctions.dart';
 import '../../utils/CommonWidgets.dart';
 import '../../utils/ConstStrings.dart';
+import '../../utils/Debounce.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -30,15 +31,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
   var _numberError = "".obs;
   String? otpCode;
   String? code;
+  Debouncer debounce = Debouncer(milliseconds: 500);
 
   @override
   void initState() {
     super.initState();
-    if(Get.arguments != null){
+    if (Get.arguments != null) {
       mobileController.text = Get.arguments;
-    }else{
-
-    }
+    } else {}
     mobileController.addListener(() {
       if (_numberError.value != "") {
         _numberError.value = "";
@@ -133,18 +133,32 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ],
                         ),
                         const SizedBox(height: 20),
-                        CommonWidgets.customTextField(
-                          controller: referralController,
-                          keyboardType: TextInputType.number,
-                          hintText: ConstStrings().referralCodeTxt,
-                          prefixImage: Image.asset(AssetsImages().referralCodeIcon, height: 22, width: 22),
-                          // validator: validateReferral,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(
-                                RegExp(r'^[a-zA-Z0-9]*$')),
-                            LengthLimitingTextInputFormatter(10),
-                          ],
-                        ),
+                        Obx(() {
+                          return CommonWidgets.customTextField(
+                            controller: referralController,
+                            keyboardType: TextInputType.text,
+                            hintText: ConstStrings().referralCodeTxt,
+                            prefixImage: Image.asset(
+                                AssetsImages().referralCodeIcon,
+                                height: 22,
+                                width: 22),
+                            validator: authController.validateReferral,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                  RegExp(r'^[a-zA-Z0-9]*$')),
+                              LengthLimitingTextInputFormatter(6),
+                            ],
+                            onChanged: (event) {
+                              debounce.run(() {
+                                authController.referralCodeApi(
+                                    referralController.text, _formKey);
+                              });
+                            },
+                            suffixIcon: authController.isReferral.value
+                                ? Icons.check_circle
+                                : null,
+                          );
+                        }),
                       ],
                     ),
                   ),
@@ -217,16 +231,34 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             mobileController.text.trim(),
                             (otp) {
                               print("OTP submitted: $otp");
+                              // if (authController
+                              //     .otpTextController.text.isEmpty) {
+                              //   CommonFunctions().alertDialog(
+                              //       "Alert", "Please enter OTP", "Ok", () {
+                              //     Get.back();
+                              //   });
+                              // } else if (authController
+                              //         .otpTextController.text.length <
+                              //     4) {
+                              //   CommonFunctions().alertDialog(
+                              //       "Alert", "Please enter correct OTP", "Ok",
+                              //       () {
+                              //     Get.back();
+                              //   });
+                              // } else {
+                              //   authController.verifyOtpApi(
+                              //       mobileController.text.trim(),
+                              //       authController.otpTextController.text
+                              //           .trim(),
+                              //       "signup");
+                              // }
                               authController.verifyOtpApi(
                                   mobileController.text.trim(),
-                                  authController.otpTextController.text.trim(), "signup"
-                              )/*.then((response){
-                                    final verifyData = response.data;
-
-                              })*/;
+                                  otp,
+                                  "signup");
                             },
                             () {
-                             // resend otp tab
+                              // resend otp tab
                             },
                           );
                         }
@@ -294,10 +326,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return null;
   }
 
-  String? validateReferral(String? value) {
+/*  String? validateReferral(String? value) {
     if (value == null || value.trim().isEmpty) {
       return "Please enter referral code";
     }
     return null;
-  }
+  }*/
 }

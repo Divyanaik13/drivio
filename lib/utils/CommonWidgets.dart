@@ -8,6 +8,7 @@ import 'ConstColors.dart';
 
 class CommonWidgets {
 
+
   static Widget customTextField({
     required TextEditingController controller,
     TextInputType? keyboardType,
@@ -17,6 +18,9 @@ class CommonWidgets {
     String? Function(String?)? validator,
     int? maxLength,
     List<TextInputFormatter>? inputFormatters,
+    Function(String?)? onChanged,
+    IconData? suffixIcon,
+    Widget? suffixImage,
   }) {
     return TextFormField(
       controller: controller,
@@ -52,21 +56,33 @@ class CommonWidgets {
         ),
         prefixIcon: prefixIcon != null
             ? Padding(
-          padding: const EdgeInsets.only(left: 20, right: 10),
-          child: Icon(prefixIcon, size: 24, color: Colors.black),
-        )
+                padding: const EdgeInsets.only(left: 20, right: 10),
+                child: Icon(prefixIcon, size: 24, color: Colors.black),
+              )
             : (prefixImage != null
+                ? Padding(
+                    padding: const EdgeInsets.only(left: 20, right: 10),
+                    child: prefixImage,
+                  )
+                : null),
+        suffixIcon: suffixIcon != null
             ? Padding(
-          padding: const EdgeInsets.only(left: 20, right: 10),
-          child: prefixImage,
-        )
-            : null),
+                padding: const EdgeInsets.only(left: 20, right: 20),
+                child: Icon(suffixIcon, size: 24, color: Colors.green),
+              )
+            : (suffixImage != null
+                ? Padding(
+                    padding: const EdgeInsets.only(left: 20, right: 10),
+                    child: suffixImage,
+                  )
+                : null),
       ),
       validator: validator,
       inputFormatters: inputFormatters ??
           (maxLength != null
               ? [LengthLimitingTextInputFormatter(maxLength)]
               : null),
+      onChanged: onChanged,
     );
   }
 
@@ -108,6 +124,13 @@ class CommonWidgets {
     EasyLoading.dismiss();
   }
 
+  static void keyboardHide() {
+    FocusNode? currentFocus = FocusManager.instance.primaryFocus;
+    if (currentFocus!.hasPrimaryFocus) {
+      currentFocus.unfocus();
+    }
+  }
+
   Widget customBorderButtonWithColorBorder(
       String text, void Function() onTap, Color color) {
     return InkWell(
@@ -139,6 +162,29 @@ class CommonWidgets {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // Custom Screens Button
+  Widget customBorderButton(String text, void Function() onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        height: 50,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: ConstColors().whiteColor,
+          border: Border.all(color: ConstColors().themeColor, width: 2),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight:  FontWeight.w600,fontSize: 18,
+              color: ConstColors().themeColor),
+        ),
       ),
     );
   }

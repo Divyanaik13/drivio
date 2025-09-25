@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 class ConstStrings{
 
   static final ConstStrings _constStrings = ConstStrings._internal();
@@ -5,6 +7,17 @@ class ConstStrings{
     return _constStrings;
   }
   ConstStrings._internal();
+
+   String placeApiKey = "AIzaSyBWpknhgETEcPdExDw13FsmKIbazhH-BpI";
+
+
+  var serviceEnabled = false.obs;
+  var latitude = 0.0.obs;
+  var longitude = 0.0.obs;
+  var location = "".obs;
+  var countryName = "".obs;
+  var cityName = "".obs;
+  var stateName = "".obs;
 
   /// Login screen text
   String drivTxt = "Driv";
@@ -38,4 +51,5 @@ class ConstStrings{
   String alertTxt = "Alert";
   String noInternetTxt = "No internet";
   String okTxt = "Ok";
+  String oneWayTripTxt = "One way trip ↻";
 }

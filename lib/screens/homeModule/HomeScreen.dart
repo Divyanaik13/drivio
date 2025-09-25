@@ -1,10 +1,15 @@
 import 'package:drivio_sarthi/utils/AssetsImages.dart';
+import 'package:drivio_sarthi/utils/CommonFunctions.dart';
+import 'package:drivio_sarthi/utils/LocalStorage.dart';
+import 'package:drivio_sarthi/utils/RouteHelper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sizer/sizer.dart';
+import '../../controllers/HomeController.dart';
 import '../../utils/ConstColors.dart';
-import 'ProfileScreen.dart';
+import '../../utils/ConstStrings.dart';
+import '../profileModule/ProfileScreen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,7 +21,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   TextEditingController searchController = TextEditingController();
 
+  var homeController = Get.find<HomeController>();
   String selectedTrip = "One Way";
+  var dateTime = DateTime.now().obs;
 
   /// For google map
   var isMapLoading = true.obs;
@@ -27,15 +34,21 @@ class _HomeScreenState extends State<HomeScreen> {
   var destinationLong = 0.0.obs;
   Rxn<LatLng> sourceLocation = Rxn<LatLng>();
   Rxn<LatLng> destinationLocation = Rxn<LatLng>();
-  var markers = <Marker>{}.obs;
-  var polylines = <Polyline>{}.obs;
+  Rxn<LatLng> currentLocation = Rxn<LatLng>();
+  final Set<Marker> markers = {};
+  final Set<Polyline> polylines = {};
+
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    sourceLocation.value = LatLng(22.705313624334096, 75.90907346989012);
-    destinationLocation.value = LatLng(22.738078356773574, 75.89032710201927);
+    // sourceLocation.value = LatLng(22.705313624334096, 75.90907346989012);
+    // destinationLocation.value = LatLng(22.738078356773574, 75.89032710201927);
+    CommonFunctions().getCurrentLocation();
+    Future.delayed(Duration.zero,(){
+      homeController.searchHistoryListApi(
+          LocalStorage().getStringValue(LocalStorage().mobileNumber), 1, 20);
+    });
   }
 
   @override
@@ -71,9 +84,131 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
+
+                    const SizedBox(width: 10),
+                    InkWell(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const ProfileScreen()),
+                        );
+                      },
+                      child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Image.asset(
+                            AssetsImages().profileImage,
+                            height: 5.h,
+                          )),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Text("103, Kesar Bagh Road, Indore",
+                    style: TextStyle(color: Colors.black54)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.location_on, size: 16),
+                    SizedBox(width: 4),
+                    Text("Nearest available drivers",
+                        style: TextStyle(
+                            color: ConstColors().blackColor,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15)),
+                  ],
+                ),
+                Text("10 km",
+                    style: TextStyle(
+                        color: ConstColors().blackColor,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 30.h,
+              width: double.infinity,
+              child: Stack(
+                children: [
+                  // Google Map
+                  Obx(
+                    ()=> ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: GoogleMap(
+                        initialCameraPosition: CameraPosition(
+                          target: ConstStrings().latitude.value != 0.0
+                              ? LatLng(ConstStrings().latitude.value,
+                              ConstStrings().longitude.value)
+                              : LatLng(22.721354881593992, 75.86108525441043),
+                          zoom: 15.0,
+                        ),
+                        mapType: MapType.normal,
+                        onMapCreated: (GoogleMapController controller) {},
+                        markers: {
+                          Marker(
+                            markerId: MarkerId('source'),
+                            position: ConstStrings().latitude.value != 0.0
+                                ? LatLng(ConstStrings().latitude.value,
+                                ConstStrings().longitude.value)
+                                : LatLng(22.721354881593992, 75.86108525441043),
+                            infoWindow: InfoWindow(title: 'Source Location'),
+                          ),
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            /// Trip Options
+            SizedBox(
+              height: 50,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  tripButton("One Way", Icons.repeat),
+                  const SizedBox(width: 10),
+                  tripButton("Round Trip", Icons.repeat),
+                  const SizedBox(width: 10),
+                  tripButton("OutStation", Icons.add_road),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title
+                  const Text(
+                    "Start Booking",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   Row(
                     children: [
+
                       Stack(
                         children: [
                           const Icon(
@@ -94,10 +229,42 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           )
                         ],
+
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            Get.toNamed(RouteHelper().getOneWayTripScreen());
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            height: 45,
+                            decoration: BoxDecoration(
+                              color: const Color(0xfff2f2f2),
+                              borderRadius: BorderRadius.circular(25),
+                              border: Border.all(color: Colors.black, width: 1),
+                            ),
+                            child: const Row(
+                              children: [
+                                Icon(Icons.search,
+                                    color: Colors.grey, size: 26),
+                                SizedBox(width: 8),
+                                Text(
+                                  "Find driver from?",
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
                       ),
                       const SizedBox(width: 10),
                       InkWell(
                         onTap: () {
+
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
@@ -110,6 +277,73 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ],
+                          CommonFunctions().dateTimePicker();
+                        },
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.access_time,
+                            color: Colors.white,
+                            size: 35,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // My Location
+                  Obx(
+                    ()=> Row(
+                      children: [
+                        const Icon(Icons.my_location, color: Colors.black),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "My Location ",
+                                  style: TextStyle(color: Colors.red, fontSize: 16),
+                                ),
+                                TextSpan(
+                                  text: ConstStrings().location.value,
+                                  style:
+                                      TextStyle(color: Colors.grey, fontSize: 16),
+                                ),
+                              ],
+
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Recent Location
+                  Obx(
+                    ()=> Row(
+                      children: [
+                        Icon(Icons.access_time, color: Colors.black),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            homeController.lastSearch.value,
+                            style: TextStyle(color: Colors.grey, fontSize: 16),
+                            overflow: TextOverflow.ellipsis,
+
+                          ),
+                        ),
+                      ],
+                    ),
+
                   ),
                 ],
               ),
@@ -282,6 +516,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
                         ),
+
+                        serviceItem(AssetsImages().walletIcon, "Vip Card"),
+                        serviceItem(AssetsImages().handIcon, "Refer & Earn"),
+                        serviceItem(AssetsImages().rupeesIcon, "Mv Coins"),
                       ],
                     ),
         
@@ -353,6 +591,21 @@ class _HomeScreenState extends State<HomeScreen> {
               )
             ],
           ),
+
+            ),
+            /* const SizedBox(height: 16),
+            SizedBox(
+              height: 100,
+              width: 100,
+              child: ListView.builder(
+                  itemCount: 1,
+                  shrinkWrap: true,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (context, index) =>
+                Image.asset(AssetsImages().homeScreenImage, height: 100, width: 200,)
+                ),
+            )*/
+          ],
         ),
       ),
 
@@ -424,18 +677,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget serviceItem(String image, String title) {
     return Container(
-      // margin: const EdgeInsets.only(right: 16),
       height: 110,
       child: Column(
         children: [
           Container(
             width: 25.w,
             padding: EdgeInsets.all(15),
-            margin: EdgeInsets.symmetric(horizontal: 5),
+            margin: EdgeInsets.symmetric(horizontal: 7),
             decoration: BoxDecoration(
-                color: Colors.grey,
+                color: Color(0xFFDDE3E3),
                 borderRadius: BorderRadius.all(Radius.circular(20))),
-            child: Image.asset(image, color: ConstColors().themeColor),
+            child: Image.asset(
+              image,
+              height: 60,
+              width: 50,
+            ),
           ),
           const SizedBox(height: 5),
           Text(
@@ -451,62 +707,87 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// For showing map
-  void onMapCreated(
-      GoogleMapController controller, LatLng source, LatLng destination) {
-    _mapController = controller;
+  /// For showing current location
+/*  Future<void> _getCurrentLocation() async {
+    LocationPermission permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      CommonFunctions().alertDialog(
+        "Alert",
+        "Location permission denied",
+        "Ok",
+        () {
+          Get.back();
+        },
+      );
+      return;
+    }
 
-    final bounds = LatLngBounds(
-      southwest: LatLng(
-        source.latitude <= destination.latitude
-            ? source.latitude
-            : destination.latitude,
-        source.longitude <= destination.longitude
-            ? source.longitude
-            : destination.longitude,
-      ),
-      northeast: LatLng(
-        source.latitude >= destination.latitude
-            ? source.latitude
-            : destination.latitude,
-        source.longitude >= destination.longitude
-            ? source.longitude
-            : destination.longitude,
-      ),
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
     );
 
-    _mapController?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+     currentLocation.value = LatLng(position.latitude, position.longitude);
+
+    if (mounted) {
+  
+        markers.add(
+          Marker(
+            markerId: const MarkerId("currentLocation"),
+            position: currentLocation.value!,
+            infoWindow: const InfoWindow(title: "My Location"),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueGreen,
+            ),
+          ),
+        );
+
+
+      // Move camera if controller available
+      _mapController?.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(target: currentLocation.value!, zoom: 15),
+        ),
+      );
+    }
   }
 
   /// For showing map
-  void _addMarker() {
-    setState(() {
-      markers.addAll([
-        Marker(
-          markerId: const MarkerId('source'),
-          position: sourceLocation.value!,
-          infoWindow: const InfoWindow(title: 'Pickup Location'),
-          icon:
-              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-        ),
-        Marker(
-          markerId: const MarkerId('destination'),
-          position: destinationLocation.value!,
-          infoWindow: const InfoWindow(title: 'Delivery Location'),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-        ),
-      ]);
+  void _onMapCreated(
+      GoogleMapController controller, LatLng source, LatLng destination) {
+    _mapController = controller;
 
-      polylines.add(
-        Polyline(
-          polylineId: const PolylineId('route'),
-          visible: true,
-          points: [sourceLocation.value!, destinationLocation.value!],
-          width: 5,
-          color: ConstColors().blackColor,
-          patterns: [PatternItem.dot, PatternItem.gap(5)],
+    if (sourceLocation.value != null && destinationLocation.value != null) {
+      final bounds = LatLngBounds(
+        southwest: LatLng(
+          sourceLocation.value!.latitude <= destinationLocation.value!.latitude
+              ? sourceLocation.value!.latitude
+              : destinationLocation.value!.latitude,
+          sourceLocation.value!.longitude <=
+                  destinationLocation.value!.longitude
+              ? sourceLocation.value!.longitude
+              : destinationLocation.value!.longitude,
+        ),
+        northeast: LatLng(
+          sourceLocation.value!.latitude >= destinationLocation.value!.latitude
+              ? sourceLocation.value!.latitude
+              : destinationLocation.value!.latitude,
+          sourceLocation.value!.longitude >=
+                  destinationLocation.value!.longitude
+              ? sourceLocation.value!.longitude
+              : destinationLocation.value!.longitude,
         ),
       );
-    });
+
+      _mapController?.animateCamera(
+        CameraUpdate.newLatLngBounds(bounds, 50),
+      );
+    }
+  }*/
+
+  @override
+  void dispose() {
+    _mapController?.dispose();
+    super.dispose();
   }
 }

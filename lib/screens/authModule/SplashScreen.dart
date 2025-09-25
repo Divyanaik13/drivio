@@ -1,77 +1,5 @@
-/*
-import 'package:another_telephony/telephony.dart';
-import 'package:flutter/material.dart';
-import 'package:drivio_sarthi/screens/authModule/loginScreen.dart';
-import 'package:drivio_sarthi/screens/homeModule/HomeScreen.dart';
-import 'package:drivio_sarthi/utils/LocalStorage.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:sizer/sizer.dart';
-
-import '../../utils/AssetsImages.dart';
-import '../../utils/RouteHelper.dart';
-
-class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
-
-  @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
-  var authToken = LocalStorage().(LocalStorage().authToken);
-  final Telephony telephony = Telephony.instance;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkLoginStatus();
-    requestSmsPermission();
-  }
-
-  Future<bool> requestSmsPermission() async {
-    final granted = await telephony.requestSmsPermissions ?? false;
-    return granted;
-  }
-
-  Future<void> _checkLoginStatus() async {
-    await Future.delayed(const Duration(seconds: 5));
-
-    if (authToken != null && authToken.isNotEmpty) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
-    } else {
-      Get.offAllNamed(RouteHelper().getOnBoardingScreen());
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.red,
-      body: Center(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-                height: 8.h,
-                width: 50.w,
-                padding: EdgeInsets.only(right: 30.w),
-                child: Image.asset(AssetsImages().splashIcon, height: 50,)),
-            Image.asset(AssetsImages().drivioIcon, height: 60,),
-          ],
-        ),
-      ),
-    );
-  }
-}
-*/
 import 'dart:async';
 import 'package:another_telephony/telephony.dart';
-import 'package:drivio_sarthi/temp_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:drivio_sarthi/screens/homeModule/HomeScreen.dart';
 import 'package:drivio_sarthi/utils/LocalStorage.dart';
@@ -79,9 +7,6 @@ import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
 import '../../utils/AssetsImages.dart';
 import '../../utils/RouteHelper.dart';
-import '../homeModule/notification_screen.dart';
-import '../vip card/vip_card_screen.dart';
-import 'loginScreen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -91,7 +16,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  String? authToken;
   final Telephony telephony = Telephony.instance;
 
   LocalStorage ls = LocalStorage();
@@ -100,34 +24,27 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     _checkLoginStatus();
-    _initToken();
-    requestSmsPermission();
+   // requestSmsPermission();
   }
 
-  Future<void> _initToken() async {
-    authToken = await LocalStorage().getStringValue(ls.authToken);
-    print("splash auth token :-- $authToken");
-    _checkLoginStatus();
-  }
-
-  Future<bool> requestSmsPermission() async {
-    final granted = await telephony.requestSmsPermissions ?? false;
-    return granted;
-  }
-
-  Future<void> _checkLoginStatus() async {
+ Future<void> _checkLoginStatus() async {
     await Future.delayed(const Duration(seconds: 3));
 
-    // if (authToken != "" && authToken!.isNotEmpty) {
-    //   Get.offAll(() => const HomeScreen());
-    // } else {
-    //   Get.offAllNamed(RouteHelper().getOnBoardingScreen());
-    // }
+    final storage = LocalStorage();
 
-    Get.offAll(() => NotificationScreen());
-    // Get.offAll(() => const HomeScreen());
-
-
+    bool firstLaunch = storage.getBoolValue(storage.isFirstLaunch);
+    String token = storage.getStringValue(storage.authToken);
+    print("firstLaunch ! $firstLaunch");
+    if (!firstLaunch) {
+      // first ever app launch -> onboarding
+      Get.offAllNamed(RouteHelper().getOnBoardingScreen());
+    } else if (token.isNotEmpty) {
+      // already logged in
+      Get.offAllNamed(RouteHelper().getHomeScreen());
+    } else {
+      // logged out
+      Get.offAllNamed(RouteHelper().getLoginScreen());
+    }
   }
 
   @override

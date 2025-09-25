@@ -7,23 +7,24 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:sizer/sizer.dart';
 
 import 'network/ApiService.dart';
 import 'network/WebService.dart';
 
-void main() {
 
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await GetStorage.init();
   configLoading();
   runApp(const MyApp());
-
 }
-
 
 void configLoading() {
   EasyLoading.instance
     ..maskType = EasyLoadingMaskType
-        .black // Prevents interaction with widgets underneath
+        .black
     ..indicatorType = EasyLoadingIndicatorType.fadingCircle
     ..displayDuration = const Duration(milliseconds: 2000)
     ..indicatorType = EasyLoadingIndicatorType.fadingCircle

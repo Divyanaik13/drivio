@@ -1,8 +1,13 @@
+import 'dart:async';
+
+import 'package:drivio_sarthi/utils/AssetsImages.dart';
 import 'package:drivio_sarthi/utils/ConstColors.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:sizer/sizer.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import '../controllers/AuthController.dart';
@@ -21,8 +26,12 @@ class CommonFunctions {
   var isListeningForCode = false.obs;
   var appSignature = "".obs;
   var otpCode = "".obs;
+  DateTime? selectedDate;
+  DateTime? selectedTime;
+
 
   final TextEditingController otpController = TextEditingController();
+  TextEditingController dateTimeController = TextEditingController();
 
   Future successDialog(String text, buttonTxt, Function() buttonTap) {
     return Get.defaultDialog(
@@ -230,7 +239,6 @@ class CommonFunctions {
                 if (code != null && code.length == 4) {
                   authController.otpCode.value = code;
                   authController.otpTextController.text = code;
-                  onOtpSubmit(code);
                 }
               })),
 
@@ -265,4 +273,246 @@ class CommonFunctions {
     );
      await authController.stopOtpListener();
   }
+
+  Future<DateTime?> dateTimePicker1() async {
+    DateTime? pickedDate = await showDatePicker(
+      context: Get.context!,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+              colorScheme: ColorScheme.light(
+                  brightness: Brightness.light,
+                  primary: ConstColors().themeColor ?? Color(0xFFFF4300)),
+              datePickerTheme: DatePickerThemeData(
+                headerBackgroundColor:
+                ConstColors().themeColor ?? Color(0xFFFF4300),
+                headerForegroundColor: Colors.white,
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.zero),
+              )),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      TimeOfDay? pickedTime = await showTimePicker(
+        context: Get.context!,
+        initialTime: TimeOfDay.now(),
+        builder: (context, child) {
+          return Theme(
+            data: ThemeData.light().copyWith(
+              colorScheme: ColorScheme.light(
+                brightness: Brightness.light,
+                primary: ConstColors().themeColor ?? const Color(0xFFFF4300),
+                onPrimary: Colors.white,
+                onSurface: Colors.black,
+              ),
+              timePickerTheme: TimePickerThemeData(
+                dialHandColor: ConstColors().themeColor ?? const Color(0xFFFF4300),
+                dialBackgroundColor: Colors.grey.shade200,
+                entryModeIconColor: ConstColors().themeColor ?? const Color(0xFFFF4300),
+                helpTextStyle: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            child: child!,
+          );
+        },
+      );
+
+      if (pickedTime != null) {
+        final selectedDateTime = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+
+        print("Selected DateTime: $selectedDateTime");
+         // _myDateTime = selectedDateTime;
+      }
+    }
+
+    //debugPrint("selected date is $_myDateTime");
+    return null;
+  }
+
+  Future<DateTime?> dateTimePicker({bool barrierDismissible = true}) async {
+    DateTime? pickedDate = await showDatePicker(
+      context: Get.context!,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+      barrierDismissible:barrierDismissible,
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.light(
+              brightness: Brightness.light,
+              primary: ConstColors().themeColor ?? const Color(0xFFFF4300),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      TimeOfDay? pickedTime = await showTimePicker(
+        context: Get.context!,
+        initialTime: TimeOfDay.now(),
+        barrierDismissible:barrierDismissible,
+        builder: (context, child) {
+          return Theme(
+            data: ThemeData.light().copyWith(
+              colorScheme: ColorScheme.light(
+                brightness: Brightness.light,
+                primary: ConstColors().themeColor ?? const Color(0xFFFF4300),
+                onPrimary: Colors.white,
+                onSurface: Colors.black,
+              ),
+            ),
+            child: child!,
+          );
+        },
+      );
+
+      if (pickedTime != null) {
+        return DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+      }
+    }
+
+    return null; // if user cancels
+  }
+
+  // Get current location
+  Future<Position> getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
+    Geolocator.getServiceStatusStream().listen((ServiceStatus status) {
+      if (status == ServiceStatus.enabled) {
+        print("Location service is ENABLED");
+        ConstStrings().serviceEnabled.value = true;
+      } else {
+        print("Location service is DISABLED");
+        ConstStrings().serviceEnabled.value = false;
+      }
+    });
+
+    if (!serviceEnabled) {
+      ConstStrings().serviceEnabled.value = false;
+      print("Location services are disabled. ");
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ConstStrings().serviceEnabled.value = false;
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      ConstStrings().serviceEnabled.value = false;
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    ConstStrings().serviceEnabled.value = true;
+
+    const LocationSettings locationSettings = LocationSettings(
+      accuracy: LocationAccuracy.low,
+      distanceFilter: 100,
+    );
+
+    StreamSubscription<Position> positionStream =
+    Geolocator.getPositionStream(locationSettings: locationSettings).listen((Position? position) {
+      ConstStrings().latitude.value = double.parse(position!.latitude.toStringAsFixed(5));
+      ConstStrings().longitude.value = double.parse(position!.longitude.toStringAsFixed(5));
+      getAddress(ConstStrings().latitude.value, ConstStrings().longitude.value);
+      print('dghdfhdfhdfhdfhdfhd  '
+          '${position.latitude.toString()}, ${position.longitude.toString()}');
+    });
+
+    return await Geolocator.getCurrentPosition();
+  }
+
+  Future<void> getAddress(double latitude, longitude) async {
+    if (latitude != 0.0) {
+      try {
+        //showLoader();
+        List<Placemark> placeMarks =
+        await placemarkFromCoordinates(latitude, longitude);
+
+        if (placeMarks.isNotEmpty) {
+          Placemark place1 = placeMarks.first;
+          Placemark place = placeMarks.last;
+          print("place: $place  "
+              "street :- ${place.street}  "
+              "locality :- ${place.locality}  "
+              "administrativeArea :- ${place.administrativeArea}  "
+              "country :- ${place.country}");
+          print("place1: $place1 "
+              "street 1 ${place1.street}");
+
+          ConstStrings().location.value = cleanUpAddressParts([
+            place1.street ?? '',
+            place.street ?? '',
+            place1.name ?? '',
+            place.locality ?? '',
+            place.administrativeArea ?? '',
+            place.country ?? '',
+          ]);
+
+          ConstStrings().cityName.value = (place.locality??place1.locality)!;
+          ConstStrings().countryName.value = (place.country??place1.country)!;
+          ConstStrings().stateName.value = (place.administrativeArea??place1.administrativeArea)!;
+
+          print("User Address: ${ConstStrings().location.value}");
+
+          hideLoader();
+        } else {
+          print("No address found.");
+          hideLoader();
+        }
+      } catch (e) {
+        hideLoader();
+        print("Error fetching address: $e");
+      }
+    }
+  }
+
+  String cleanUpAddressParts(List<String> parts) {
+    final seen = <String>{};
+    final result = <String>[];
+
+    for (final part in parts) {
+      final trimmed = part.trim();
+      if (trimmed.isNotEmpty && !seen.contains(trimmed.toLowerCase())) {
+        seen.add(trimmed.toLowerCase());
+        result.add(trimmed);
+      }
+    }
+
+    return result.join(', ');
+  }
+
 }

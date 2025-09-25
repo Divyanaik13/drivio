@@ -1,40 +1,3 @@
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
-
-/*class LocalStorage {
-  static const String _userKey = "user_data";
-  static const String _tokenKey = "auth_token";
-
-  /// Save user + token
-  static Future<void> saveUserData(Map<String, dynamic> user, String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_userKey, jsonEncode(user));
-    await prefs.setString(_tokenKey, token);
-  }
-
-  /// Get user data
-  static Future<Map<String, dynamic>?> getUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? userJson = prefs.getString(_userKey);
-    if (userJson != null) {
-      return jsonDecode(userJson);
-    }
-    return null;
-  }
-
-  /// Get token
-  static Future<String?> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_tokenKey);
-  }
-
-  /// Clear all user data (Logout)
-  static Future<void> clearUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-  }
-}*/
-
 import 'package:get_storage/get_storage.dart';
 
 class LocalStorage {
@@ -55,6 +18,7 @@ class LocalStorage {
   String mobileNumber = "mobileNumber";
   String referral = "referral";
   String myCoins = "myCoins";
+  String isFirstLaunch = "isFirstLaunch";
 
   //For Storing String value
   void setStringValue(String key, String value){

@@ -81,11 +81,13 @@ class AuthRepo {
   /// logout repo function
   Future<dynamic> logoutRepo() async {
     var response;
+    var header = await DioServices().getAllHeaders();
     try {
       response = await DioServices().getMethod(
         WebService().logoutApi,
-        await DioServices().getDefaultHeader(),
+        header,
       );
+      print("response logout repo header :-- $header");
       print("response logout repo :-- $response");
     } catch (e) {
       print("error logout repo :-- $e");
@@ -93,31 +95,18 @@ class AuthRepo {
     return response;
   }
 
-  /// Update profile repo function
-  Future<dynamic> updateProfileRepo(
-    String id,
-    String fullname,
-    String email,
-    String mobileNumber,
-  ) async {
+
+  /// referral code repo function
+  Future<dynamic> referralCodeRepo(String referralCode) async {
     var response;
-
-    Map<String, dynamic> bodyMap = {
-      "id" : id,
-      "fullname" : fullname,
-      "email" : email,
-      "mobileNumber" : mobileNumber,
-    };
-    print("update profile body :-- $bodyMap");
-
     try {
-      response = await DioServices().putMethod(
-        WebService().editProfileApi,
-        bodyMap, await DioServices().getDefaultHeader()
+      response = await DioServices().getMethod(
+        "${WebService().getReferCodeApi}?referralCode=$referralCode",
+        await DioServices().getDefaultHeader(),
       );
-      print("response:-- $response");
+      print("response referralCode repo :-- $response");
     } catch (e) {
-      print("update profile repo error :-- $e");
+      print("error referralCode repo :-- $e");
     }
     return response;
   }

@@ -15,5 +15,9 @@ class AssetsImages{
   String referralCodeIcon = "assets/images/reffarelCode.png";
   String walletIcon = "assets/images/solar_card-bold.png";
   String handIcon = "assets/images/streamline-flex-color_coin-share.png";
-  String rupees = "assets/images/Vector.png";
+  String rupeesIcon = "assets/images/Vector.png";
+  String greenTickIcon = "assets/images/greenTick.png";
+  String crossIcon = "assets/images/cross_icon.png";
+  String homeScreenImage = "assets/images/homeScreenImage.png";
+  String profileImage = "assets/images/profileImage.png";
 }

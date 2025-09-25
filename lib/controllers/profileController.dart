@@ -10,8 +10,9 @@ import '../utils/RouteHelper.dart';
 class ProfileController extends GetxController {
   final ProfileRepo _profileRepo;
 
-
   ProfileController(this._profileRepo);
+
+  LocalStorage ls = LocalStorage();
 
   Future<dynamic> updateProfileApi(
       String id, fullname, mobileNumber, email) async {
@@ -22,6 +23,25 @@ class ProfileController extends GetxController {
           id, fullname, mobileNumber, email);
       CommonFunctions().hideLoader();
       print("update Profile Api response :-- $response");
+      var data = response.data["data"];
+      print("data :-- $data");
+
+      var userId = data["user"]["id"].toString()??"";
+      var fullName = data["user"]["fullname"].toString()??"";
+      var editEmail = data["user"]["email"].toString()??"";
+      var number = data["user"]["mobileNumber"].toString()??"";
+
+      print("userId :-- $userId");
+      print("fullName :-- $fullName");
+      print("email :-- $editEmail");
+      print("mobileNumber :-- $number");
+
+      LocalStorage().setStringValue(ls.userId, userId);
+      LocalStorage().setStringValue(ls.fullName, fullName);
+      LocalStorage().setStringValue(ls.email, editEmail);
+      LocalStorage().setStringValue(ls.mobileNumber, number);
+
+      print("edit profile data save :-- ${LocalStorage().getStringValue(ls.authToken)}");
     } catch (e) {
       print("update Profile Api error :-- $e");
     }
@@ -39,7 +59,7 @@ class ProfileController extends GetxController {
         print("delete success");
 
         LocalStorage().clearLocalStorage();
-
+        LocalStorage().setBoolValue(LocalStorage().isFirstLaunch, true);
         Get.offAllNamed(RouteHelper().getLoginScreen());
       }
       print("delete Api response :-- $response");

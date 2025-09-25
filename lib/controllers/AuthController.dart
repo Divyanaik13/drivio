@@ -2,7 +2,6 @@ import 'package:another_telephony/telephony.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-
 import '../repositories/AuthRepository.dart';
 import '../utils/CommonFunctions.dart';
 import '../utils/LocalStorage.dart';
@@ -14,6 +13,8 @@ class AuthController extends GetxController{
   AuthController(this._authRepo);
 
   LocalStorage ls = LocalStorage();
+  var isReferral = false.obs;
+  var referralErrorMessage = RxnString();
 
   /// Sign-up api function
   Future<dynamic> signUpApi(String fullname, String mobileNumber, email, referral) async{
@@ -40,26 +41,15 @@ class AuthController extends GetxController{
     CommonFunctions().showLoader();
     var response;
     try{
+      print("verify otp :-- $otp");
       response = await _authRepo.verifyOtpRepo(mobileNumber, otp, type);
       print("verify otp response :-- $response");
-      print("verify otp :-- $otp");
       CommonFunctions().hideLoader();
       if (response.statusCode == 200) {
         print("verify otp api success");
-      /*  final data = response.data;
-        print("verify data:-- $data");
-        if (data != null &&
-            data["success"] == 1 &&
-            data["data"] != null &&
-            data["token"] != null) {
-
-          // Save to LocalStorage
-          await LocalStorage.saveUserData(data["data"], data["token"]);
-          Get.offAllNamed(RouteHelper().getHomeScreen());
-          print("save update profile data :-- ${data["data"]}");
-        }*/
         var data = response.data["data"];
         print("data :-- $data");
+        print("verify token :-- ${response.data["token"]}");
         var authToken = response.data["token"].toString()??"";
         var userId = data["id"].toString()??"";
         var fullName = data["fullname"].toString()??"";
@@ -99,6 +89,7 @@ class AuthController extends GetxController{
     var response;
     try{
       response = await _authRepo.loginRepo(mobileNumber);
+
       CommonFunctions().hideLoader();
       if(response.data["success"] == 0){
         CommonFunctions().alertDialog("Alert", response.data["message"], "Ok", (){
@@ -122,9 +113,9 @@ class AuthController extends GetxController{
       if (response != null && response.data['success'] == 1) {
         print("Logout success");
 
-        await LocalStorage().clearLocalStorage;
-
-        Get.offAllNamed(RouteHelper().getLoginScreen());
+        LocalStorage().clearLocalStorage();
+        LocalStorage().setBoolValue(LocalStorage().isFirstLaunch, true);
+       await Get.offAllNamed(RouteHelper().getLoginScreen());
       }
     }catch(e){
       print("logout error :-- $e");
@@ -133,19 +124,32 @@ class AuthController extends GetxController{
     return response;
   }
 
-  /// update profile api function
-  Future<dynamic> updateProfileApi(String id, fullname, email, mobileNumber)async{
-    CommonFunctions().showLoader();
+  /// Referral code
+  Future<dynamic> referralCodeApi(String referralCode,GlobalKey<FormState> formKey)async{
+  //  CommonFunctions().showLoader();
     var response;
     try{
-      response = await _authRepo.updateProfileRepo(id, fullname, email, mobileNumber);
-      print("update profile api");
+      response = await _authRepo.referralCodeRepo(referralCode);
+      print("referral Code Api response :-- $response");
+    //  CommonFunctions().hideLoader();
+      if(response.data["success"] == 1){
+        isReferral.value = true;
+        referralErrorMessage.value = null;
+      }else{
+        isReferral.value = false;
+        referralErrorMessage.value = "You have entered incorrect referral code";
+      }
+      formKey.currentState?.validate();
     }catch(e){
-      print("update profile api error :-- $e");
-      CommonFunctions().hideLoader();
+      print("referral Code Api error :-- $e");
+      referralErrorMessage.value = "Something went wrong";
+    //  CommonFunctions().hideLoader();
+      formKey.currentState?.validate();
     }
-    return response;
+  }
 
+  String? validateReferral(String? value) {
+    return referralErrorMessage.value; // error comes from API
   }
 
   /// otp autofill functionality

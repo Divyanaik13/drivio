@@ -115,16 +115,21 @@ class _LoginScreenState extends State<LoginScreen>{
                           CommonFunctions().showOtpBottomSheet(
                             numberController.text.trim(),
                                 (otp) {
-                              print("OTP submitted: $otp");
-                              authController.verifyOtpApi(
-                                  numberController.text.trim(),
-                                  authController.otpTextController.text.trim(), "login"
-                              );/*.then((response){
-                                final verifyData = response.data;
-                                if(verifyData["success"] == 1){
-                                  Get.offAllNamed(RouteHelper().getHomeScreen());
-                                }
-                              });*/
+                                  print("OTP submitted: $otp");
+                              if(authController.otpTextController.text.isEmpty){
+                                CommonFunctions().alertDialog("Alert", "Please enter OTP", "Ok", (){
+                                  Get.back();
+                                });
+                              }else if(authController.otpTextController.text.length < 4){
+                                CommonFunctions().alertDialog("Alert", "Please enter correct OTP", "Ok", (){
+                                  Get.back();
+                                });
+                              }else {
+                                authController.verifyOtpApi(
+                                    numberController.text.trim(),
+                                    otp, "login"
+                                );
+                              }
                             },
                               () {
                               print("Resend OTP clicked");

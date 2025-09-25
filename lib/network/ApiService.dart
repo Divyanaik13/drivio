@@ -50,7 +50,7 @@ class DioServices extends GetxService {
   }
 
   //For postMethod
-  Future<DIO.Response> postMethod1(
+/*  Future<DIO.Response> postMethod1(
       String endPoint, Map<String, dynamic>? body, header) async {
     DIO.FormData formData = DIO.FormData.fromMap(body!);
     var response;
@@ -80,7 +80,7 @@ class DioServices extends GetxService {
     }
 
     return returnResponse(response);
-  }
+  }*/
 
   Future<DIO.Response> postMethod(
       String endPoint,
@@ -408,7 +408,7 @@ class DioServices extends GetxService {
   // Get all headers
   Future<Map<String, String>> getAllHeaders() async {
     Map<String, String> allHeaders = {
-     // "access-token": LocalStorage().getStringValue(sp.authToken),
+      "Authorization": "Bearer ${LocalStorage().getStringValue(sp.authToken)}",
      // "device-token": LocalStorage().getStringValue(sp.deviceToken),
     //  "device-type": Platform.isAndroid ? "android" : "ios",
     //  "device-id": await CommonFunctions().getDeviceId(name: true) ?? "",
