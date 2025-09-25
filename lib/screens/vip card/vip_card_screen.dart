@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:drivio_sarthi/controllers/vip_card_controller.dart';
 import 'package:drivio_sarthi/screens/homeModule/notification_screen.dart';
 import 'package:drivio_sarthi/screens/homeModule/refer_screen.dart';
+import 'package:drivio_sarthi/screens/payment_breakdown_screen.dart';
 import 'package:drivio_sarthi/screens/terms%20and%20condition/terms_and_conditions.dart';
 import 'package:drivio_sarthi/screens/widgets/wg_carousel_slider.dart';
 import 'package:drivio_sarthi/screens/widgets/wg_lefticon_text.dart';
