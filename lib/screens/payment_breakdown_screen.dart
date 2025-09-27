@@ -1,8 +1,9 @@
-import 'package:drivio_sarthi/screens/widgets/wg_lefticon_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:sizer/sizer.dart';
+
+import '../utils/widgets/wg_lefticon_text.dart';
 
 class PaymentBreakdownScreen extends StatelessWidget {
   PaymentBreakdownScreen({super.key});

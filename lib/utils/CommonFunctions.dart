@@ -202,6 +202,7 @@ class CommonFunctions {
   }
   /// OTP Bottom Sheet
   Future<void> showOtpBottomSheet(String mobileNumber,
+      String type,
       Function(String otp) onOtpSubmit,
       VoidCallback onResendTap,) async {
      final authController = Get.find<AuthController>();
@@ -234,13 +235,28 @@ class CommonFunctions {
 
             Obx(() => PinFieldAutoFill(
               controller: authController.otpTextController,
-              codeLength: 4, // match your backend
+              codeLength: 4,
               currentCode: authController.otpCode.value,
               onCodeChanged: (code) {
                 if (code != null && code.length == 4) {
                   authController.otpCode.value = code;
                   authController.otpTextController.text = code;
+                  if(authController.otpTextController.text.isEmpty){
+                    CommonFunctions().alertDialog("Alert", "Please enter OTP", "Ok", (){
+                      Get.back();
+                    });
+                  }else if(authController.otpTextController.text.length < 4){
+                    CommonFunctions().alertDialog("Alert", "Please enter correct OTP", "Ok", (){
+                      Get.back();
+                    });
+                  }else {
+                    authController.verifyOtpApi(
+                        mobileNumber,
+                        code, type
+                    );
+                  }
                 }
+
               })),
 
             const SizedBox(height: 20),

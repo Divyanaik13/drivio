@@ -2,9 +2,9 @@ import 'package:drivio_sarthi/screens/homeModule/messages_screen.dart';
 import 'package:drivio_sarthi/screens/vip%20card/vip_card_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import '../widgets/wg_lefticon_text.dart';
-import '../widgets/wg_list_tile.dart';
+
+import '../../utils/widgets/wg_lefticon_text.dart';
+import '../../utils/widgets/wg_list_tile.dart';
 
 class NotificationScreen extends StatelessWidget {
   NotificationScreen({super.key});

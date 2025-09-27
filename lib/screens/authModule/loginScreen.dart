@@ -114,26 +114,11 @@ class _LoginScreenState extends State<LoginScreen>{
                         if (data is Map && data['success'] == 1) {
                           CommonFunctions().showOtpBottomSheet(
                             numberController.text.trim(),
-                                (otp) {
-                                  print("OTP submitted: $otp");
-                              if(authController.otpTextController.text.isEmpty){
-                                CommonFunctions().alertDialog("Alert", "Please enter OTP", "Ok", (){
-                                  Get.back();
-                                });
-                              }else if(authController.otpTextController.text.length < 4){
-                                CommonFunctions().alertDialog("Alert", "Please enter correct OTP", "Ok", (){
-                                  Get.back();
-                                });
-                              }else {
-                                authController.verifyOtpApi(
-                                    numberController.text.trim(),
-                                    otp, "login"
-                                );
-                              }
-                            },
-                              () {
+                            "login", (otp){
+                              authController.verifyOtpApi(numberController.text.trim(), otp, "login");
+                          }, () {
                               print("Resend OTP clicked");
-                            },
+                        },
                           );
                         }
                       });
@@ -179,9 +164,4 @@ class _LoginScreenState extends State<LoginScreen>{
   void dispose() {
     super.dispose();
   }
-
 }
-
-
-
-

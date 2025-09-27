@@ -229,7 +229,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         if (data is Map && data['success'] == 1) {
                           CommonFunctions().showOtpBottomSheet(
                             mobileController.text.trim(),
-                            (otp) {
+                            "signup", (otp){
+                            authController.verifyOtpApi(
+                                mobileController.text.trim(),
+                                otp,
+                                "signup");
+                          }, (){
+
+                          }
+                           /* (otp) {
                               print("OTP submitted: $otp");
                               // if (authController
                               //     .otpTextController.text.isEmpty) {
@@ -259,7 +267,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             },
                             () {
                               // resend otp tab
-                            },
+                            },*/
                           );
                         }
                       });

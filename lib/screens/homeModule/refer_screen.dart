@@ -5,8 +5,9 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sizer/sizer.dart';
 
-import '../widgets/wg_button.dart';
-import '../widgets/wg_lefticon_text.dart';
+import '../../utils/widgets/wg_button.dart';
+import '../../utils/widgets/wg_lefticon_text.dart';
+
 
 class ReferScreen extends StatelessWidget {
   ReferScreen({super.key});
