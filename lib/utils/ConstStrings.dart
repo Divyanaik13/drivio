@@ -8,16 +8,21 @@ class ConstStrings{
   }
   ConstStrings._internal();
 
-   String placeApiKey = "AIzaSyBWpknhgETEcPdExDw13FsmKIbazhH-BpI";
+   String placeApiKey = "AIzaSyA_85bYxVsGCpYeNAUAYaYJ3Z_fCmt74mg";
 
 
   var serviceEnabled = false.obs;
   var latitude = 0.0.obs;
   var longitude = 0.0.obs;
   var location = "".obs;
+  var isLocationLoading = true.obs;
   var countryName = "".obs;
   var cityName = "".obs;
   var stateName = "".obs;
+  var isResumed = false.obs;
+  var isOtherLocation = false.obs;
+
+
 
   /// Login screen text
   String drivTxt = "Driv";
@@ -45,7 +50,7 @@ class ConstStrings{
   String fullNameTxt = "Full Name";
   String mobileNumberTxt = 'Mobile Number';
   String emailTxt = 'Email';
-  String myCarsCollectionTxt = "My cars collection";
+  String myCarsCollectionTxt = "My cars";
   String addAndManageYourVehiclesTxt = "Add & manage your vehicles";
   String successTxt = "Success";
   String alertTxt = "Alert";

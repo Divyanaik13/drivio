@@ -7,8 +7,11 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
-
+import '../../controllers/HomeController.dart';
+import '../../network/SocketService.dart';
 import '../../utils/CommonFunctions.dart';
+import '../../utils/LocalStorage.dart';
+import '../../utils/widgets/DriverSearchingBootmSheet.dart';
 
 class OneWayTripDetailScreen extends StatefulWidget {
   const OneWayTripDetailScreen({super.key});
@@ -20,9 +23,20 @@ class OneWayTripDetailScreen extends StatefulWidget {
 class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
   TextEditingController sourceController = TextEditingController();
   TextEditingController destinationController = TextEditingController();
-  String selectedHour = "2 hr";
+  var homeController = Get.find<HomeController>();
+ // String? selectedHour;
+  final TextEditingController manualController = TextEditingController();
+
+  String selectedHour = "2 hour";
   String? selectedDateTime;
   double? tripDistance;
+  bool isNavigator = false;
+  var userNme = "";
+  var phoneNumber = "";
+  var email = "";
+  RxString selectedTransmission = "Manual".obs;
+
+  LocalStorage ls = LocalStorage();
 
   GoogleMapController? _mapController;
   Rxn<LatLng> sourceLocation = Rxn<LatLng>();
@@ -32,10 +46,21 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
   final Set<Marker> markers = {};
   final Set<Polyline> polylines = {};
 
+  Future<void> _loadUserData() async {
+    userNme = ls.getStringValue(ls.fullName) ?? "";
+    email = ls.getStringValue(ls.email) ?? "";
+    phoneNumber = ls.getStringValue(ls.mobileNumber) ?? "";
+  }
+
   @override
   void initState() {
     super.initState();
+    _loadUserData(); // Load user info
+
     final args = Get.arguments;
+
+    print(args);
+    print("args");
     if (args != null) {
       double sourceLat = args["sourceLatitude"];
       double sourceLong = args["sourceLongitude"];
@@ -44,9 +69,20 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
       String sourceLoc = args["sourceLocation"];
       String destinationLoc = args["destinationLocation"];
       String tempDateTime = args["dateTime"];
+      isNavigator = args["isNavigator"] ?? false;
 
-      DateTime parsedDate = DateTime.parse(tempDateTime);
-      selectedDateTime = DateFormat("d MMM, h:mm a").format(parsedDate);
+      /*DateTime parsedDate = DateTime.parse(tempDateTime);
+      selectedDateTime = DateFormat("d MMM, h:mm a").format(parsedDate);*/
+      if (tempDateTime != null && tempDateTime.isNotEmpty) {
+        try {
+          DateTime parsedDate = DateTime.parse(tempDateTime);
+          selectedDateTime = DateFormat("d MMM, h:mm a").format(parsedDate);
+        } catch (_) {
+          selectedDateTime = DateFormat("d MMM, h:mm a").format(DateTime.now());
+        }
+      } else {
+        selectedDateTime = DateFormat("d MMM, h:mm a").format(DateTime.now());
+      }
 
       sourceLocation.value = LatLng(sourceLat, sourceLong);
       destinationLocation.value = LatLng(destinationLat, destinationLong);
@@ -56,6 +92,24 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
 
       tripDistance =
           calculateDistance(sourceLocation.value!, destinationLocation.value!);
+
+      if (isNavigator) {
+        setState(() {
+          destinationController.clear();
+        });
+      }
+
+      if (sourceLocation.value != null) {
+        markers.add(
+          Marker(
+            markerId: const MarkerId("source"),
+            position: sourceLocation.value!,
+            infoWindow: const InfoWindow(title: "Current Location"),
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+          ),
+        );
+      }
+
     } else {
       /// Default pickup & drop
       sourceLocation.value = const LatLng(
@@ -91,7 +145,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: SizedBox(
-                height: 180,
+                height: 200,
                 child: GoogleMap(
                   initialCameraPosition: CameraPosition(
                     target: sourceLocation.value!,
@@ -121,7 +175,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                   children: [
                     Container(
                       padding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                      EdgeInsets.symmetric(horizontal: 10, vertical: 20),
                       decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(15)),
@@ -129,14 +183,14 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Column(
-                            children: const [
+                            children:  [
                               SizedBox(height: 15),
                               Icon(Icons.circle, color: Colors.red, size: 14),
-                              SizedBox(height: 15),
-                              Icon(Icons.more_vert,
-                                  size: 20, color: Colors.black),
-                              SizedBox(height: 15),
-                              Icon(Icons.circle, color: Colors.green, size: 14),
+                              isNavigator != true ? SizedBox(height: 15) : SizedBox(height: 15),
+                              isNavigator != true ? Icon(Icons.more_vert,
+                                  size: 20, color: Colors.black):SizedBox(width: 10,),
+                              isNavigator != true ? SizedBox(height: 15) : SizedBox(height: 0),
+                              isNavigator != true ? Icon(Icons.circle, color: Colors.green, size: 14) : SizedBox(width: 10)
                             ],
                           ),
                           const SizedBox(width: 12),
@@ -144,44 +198,35 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                             child: Column(
                               children: [
                                 _customTextField(
-                                    "Lig square indore", sourceController),
+                                     sourceController),
                                 const SizedBox(height: 12),
-                                _customTextField("Phoenix -mall indore",
-                                    destinationController),
+                                if(isNavigator != true)
+                                  _customTextField(
+                                      destinationController),
                               ],
                             ),
                           )
                         ],
                       ),
                     ),
+
                     const SizedBox(height: 20),
 
                     /// Today's vehicle
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Text(
-                          "Today's vehicle",
-                          style: TextStyle(
-                              fontSize: 15.sp,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.grey),
-                        ),
-                        Row(
-                          children: [
-                            Icon(Icons.access_time,
-                                size: 18, color: Colors.red),
-                            SizedBox(width: 5),
-                            Text(selectedDateTime!,
-                                style: TextStyle(
-                                    fontSize: 14.5.sp,
-                                    fontWeight: FontWeight.w400)),
-                          ],
-                        ),
+                        Icon(Icons.access_time,
+                            size: 18.sp, color: Colors.red),
+                        SizedBox(width: 5),
+                        Text(selectedDateTime!,
+                            style: TextStyle(
+                                fontSize: 15.sp,
+                                fontWeight: FontWeight.w400)),
                       ],
                     ),
                     const SizedBox(height: 10),
-                    Text("Distance ${tripDistance?.toStringAsFixed(1)} km",
+                    if(isNavigator != true) Text("Distance ${tripDistance?.toStringAsFixed(1)} km",
                         style: TextStyle(
                             fontSize: 15.sp,
                             fontWeight: FontWeight.w700,
@@ -208,11 +253,16 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                               SizedBox(
                                 width: 3.w,
                               ),
-                              Text("Xuv 700",
-                                  style: TextStyle(
-                                    fontSize: 14.5.sp,
-                                    fontWeight: FontWeight.w700,
-                                  )),
+                              InkWell(
+                                onTap: (){
+                                  carDetailPopup();
+                                },
+                                child: Text("Xuv 700",
+                                    style: TextStyle(
+                                      fontSize: 14.5.sp,
+                                      fontWeight: FontWeight.w700,
+                                    )),
+                              ),
                             ],
                           ),
                         ),
@@ -255,8 +305,68 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                     const SizedBox(height: 10),
                     Container(
                       width: 100.w,
+                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Row(
+                        children: [
+                          // Dropdown for selecting hour
+                          Expanded(
+                            flex: 1,
+                            child: DropdownButtonFormField<String>(
+                              value: selectedHour,
+                              decoration: InputDecoration(
+                                contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                labelText: 'Select Hour',
+                              ),
+                              items: List.generate(12, (index) {
+                                final hour = '${index + 1} hour';
+                                return DropdownMenuItem(
+                                  value: hour,
+                                  child: Text(hour),
+                                );
+                              }),
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedHour = value!;
+                                  manualController.clear(); // clear manual input if dropdown selected
+                                });
+                              },
+                            ),
+                          ),
+                        /*  SizedBox(width: 10),
+                          // OR manual entry
+                          Expanded(
+                            flex: 1,
+                            child: TextField(
+                              controller: manualController,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                labelText: 'Enter Hour',
+                                hintText: 'e.g. 5',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedHour = ""; // clear dropdown if manual entered
+                                });
+                              },
+                            ),
+                          ),*/
+                        ],
+                      ),
+                    ),
+                   /* Container(
+                      width: 100.w,
                       padding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                       decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(15)),
@@ -303,7 +413,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                           );
                         }).toList(),
                       ),
-                    ),
+                    ),*/
 
                     const SizedBox(height: 10),
 
@@ -341,6 +451,17 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                               ],
                             ),
                           ),
+                      InkWell(
+                        onTap: () {
+                          final breakdown = _calculatePaymentBreakdown();
+                          Get.toNamed(
+                            RouteHelper().getPaymentBreakdownScreen(),
+                            arguments: breakdown,
+                          );
+                        },
+                        child: Icon(Icons.info_outline, color: ConstColors().themeColor),
+                      ),
+                          SizedBox(width: 10,),
                           Text(
                             "₹100",
                             style: TextStyle(
@@ -408,8 +529,137 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                   borderRadius: BorderRadius.circular(30),
                 ),
               ),
-              onPressed: () {
-                Get.toNamed(RouteHelper().getCardScreen());
+              onPressed: () async {
+                // Load user data
+                userNme = ls.getStringValue(ls.fullName) ?? "";
+                email = ls.getStringValue(ls.email) ?? "";
+                phoneNumber = ls.getStringValue(ls.mobileNumber) ?? "";
+
+                // Pickup & Drop
+                String pickUp = sourceController.text;
+                String drop = isNavigator ? "" : destinationController.text;
+
+                // Date & Time
+                DateTime selectedDT =
+                DateFormat("d MMM, h:mm a").parse(selectedDateTime!);
+                String startDate = DateFormat("yyyy-MM-dd").format(selectedDT);
+                String startTime = DateFormat("HH:mm:ss").format(selectedDT);
+
+                // Vehicle info
+                String carName = "Xuv 700";
+                String carType = "Manual";
+
+                // Hours
+                int expectedEnd = int.parse(selectedHour.split(" ")[0]);
+
+                // Amount
+                String amount = "300";
+
+                // Call API
+              /*  bool success = await homeController.createBookingApi(
+                  userNme,
+                  phoneNumber,
+                  email,
+                  "hourly",
+                  pickUp,
+                  expectedEnd,
+                  300,
+                  startDate,
+                  startTime,
+                  carName,
+                  carType,
+                );*/
+
+               /* if (success) {
+                  // Initialize Socket
+                  SocketService().initSocket();
+                  print(" Socket initialized successfully");
+                  // Show Bottom Sheet
+                  Get.bottomSheet(
+                    const DriverSearchingBottomSheet(
+                      statusText: "Searching for nearby drivers...",
+                    ),
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                  );
+
+                  // Listen for real-time updates from backend
+                  SocketService().listenEvent('joinBooking', (eventData) {
+                    print("Driver assigned event: $eventData");
+
+                    // Update your UI or bottom sheet dynamically
+                    Get.bottomSheet(
+                      DriverSearchingBottomSheet(
+                        statusText: eventData['status'] ?? "Driver assigned!",
+                      ),
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                    );
+                  });
+                } else {
+                  CommonFunctions().alertDialog(
+                    "Booking Failed",
+                    "Please try again later",
+                    "OK",
+                        () => Get.back(),
+                  );
+                }*/
+                final bookingId = await homeController.createBookingApi(
+                  userNme,
+                  phoneNumber,
+                  email,
+                  "hourly",
+                  pickUp,
+                  expectedEnd,
+                  300,
+                  startDate,
+                  startTime,
+                  carName,
+                  carType,
+                );
+
+                if (bookingId != null) {
+                  print('Booking created successfully with ID: $bookingId');
+
+                  // Initialize & connect socket
+                  SocketService().initSocket(baseUrl: 'https://docapi.nuke.co.in');
+                  SocketService().connect();
+
+                  // Join the booking room using the correct ID
+                  SocketService().joinBookingRoom(bookingId: bookingId);
+
+                  // Show searching UI
+                  Get.bottomSheet(
+                    const DriverSearchingBottomSheet(
+                      statusText: "Searching for nearby drivers...",
+                    ),
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                  );
+
+                  // Listen for assignment
+                  SocketService().onDriverAssigned((eventData) {
+                    print("Driver assigned: $eventData");
+                    final driverName = eventData['driverName'] ?? "Unknown";
+                    final status = eventData['bookingStatus'] ?? "pending";
+
+                    Get.bottomSheet(
+                      DriverSearchingBottomSheet(
+                        statusText: "Driver $driverName ($status)",
+                      ),
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                    );
+                  });
+                } else {
+                  CommonFunctions().alertDialog(
+                    "Booking Failed",
+                    "Please try again later",
+                    "OK",
+                        () => Get.back(),
+                  );
+                }
+
               },
               child: const Text(
                 "Request for Driver",
@@ -422,12 +672,12 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
     );
   }
 
-  Widget _customTextField(String hint, TextEditingController controller) {
+  Widget _customTextField( TextEditingController controller) {
     return TextField(
       controller: controller,
       style: const TextStyle(fontSize: 14),
       decoration: InputDecoration(
-        hintText: hint,
+       // hintText: hint,
         prefixIcon: const Icon(Icons.location_on_outlined, size: 20),
         contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
         border: OutlineInputBorder(
@@ -455,7 +705,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
           const SizedBox(width: 6),
           Text(text,
               style:
-                  const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+              const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -470,7 +720,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
         "Alert",
         "Location permission denied",
         "Ok",
-        () => Get.back(),
+            () => Get.back(),
       );
       return;
     }
@@ -502,55 +752,68 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
       GoogleMapController controller, LatLng source, LatLng destination) {
     _mapController = controller;
 
+    markers.clear();
+    polylines.clear();
+
+    // Always show source marker
     markers.add(
       Marker(
         markerId: const MarkerId("source"),
         position: source,
-        infoWindow: const InfoWindow(title: "Pickup"),
+        infoWindow: const InfoWindow(title: "Current Location"),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
       ),
     );
 
-    markers.add(
-      Marker(
-        markerId: const MarkerId("destination"),
-        position: destination,
-        infoWindow: const InfoWindow(title: "Drop"),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-      ),
-    );
+    if (isNavigator != true) {
+      markers.add(
+        Marker(
+          markerId: const MarkerId("destination"),
+          position: destination,
+          infoWindow: const InfoWindow(title: "Drop"),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+        ),
+      );
 
-    polylines.add(
-      Polyline(
-        polylineId: const PolylineId("route"),
-        color: Colors.black,
-        width: 4,
-        points: [source, destination],
-      ),
-    );
+      polylines.add(
+        Polyline(
+          polylineId: const PolylineId("route"),
+          color: Colors.black,
+          width: 4,
+          points: [source, destination],
+        ),
+      );
+    }
 
-    final bounds = LatLngBounds(
-      southwest: LatLng(
-        source.latitude <= destination.latitude
-            ? source.latitude
-            : destination.latitude,
-        source.longitude <= destination.longitude
-            ? source.longitude
-            : destination.longitude,
-      ),
-      northeast: LatLng(
-        source.latitude >= destination.latitude
-            ? source.latitude
-            : destination.latitude,
-        source.longitude >= destination.longitude
-            ? source.longitude
-            : destination.longitude,
-      ),
-    );
+    // Adjust camera bounds based on mode
+    if (isNavigator) {
+      _mapController?.animateCamera(
+        CameraUpdate.newLatLngZoom(source, 14),
+      );
+    } else {
+      final bounds = LatLngBounds(
+        southwest: LatLng(
+          source.latitude <= destination.latitude
+              ? source.latitude
+              : destination.latitude,
+          source.longitude <= destination.longitude
+              ? source.longitude
+              : destination.longitude,
+        ),
+        northeast: LatLng(
+          source.latitude >= destination.latitude
+              ? source.latitude
+              : destination.latitude,
+          source.longitude >= destination.longitude
+              ? source.longitude
+              : destination.longitude,
+        ),
+      );
 
-    _mapController?.animateCamera(
-      CameraUpdate.newLatLngBounds(bounds, 50),
-    );
+      _mapController?.animateCamera(
+        CameraUpdate.newLatLngBounds(bounds, 50),
+      );
+    }
 
     setState(() {});
   }
@@ -558,12 +821,11 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
   /// convert meters to km
   double calculateDistance(LatLng start, LatLng end) {
     return Geolocator.distanceBetween(
-          start.latitude,
-          start.longitude,
-          end.latitude,
-          end.longitude,
-        ) /
-        1000;
+      start.latitude,
+      start.longitude,
+      end.latitude,
+      end.longitude,
+    ) / 1000;
   }
 
   @override
@@ -571,4 +833,376 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
     _mapController?.dispose();
     super.dispose();
   }
+
+
+  /// Calculate the payment for the ride
+  Map<String, dynamic> _calculatePaymentBreakdown() {
+    double hourlyRate = 188; // example base hourly rate
+    int hours = int.parse(selectedHour.split(" ")[0]);
+    double basePrice = hours * hourlyRate;
+
+    // GST (18%)
+    double gst = (basePrice * 0.18).roundToDouble();
+
+    // Late night charges (₹100 if pickup time between 9 PM and 4 AM)
+    double lateNightCharges = 0;
+    if (selectedDateTime != null) {
+      DateTime selectedDT =
+      DateFormat("d MMM, h:mm a").parse(selectedDateTime!);
+      int hour = selectedDT.hour;
+      if (hour >= 21 || hour < 4) {
+        lateNightCharges = 100;
+      }
+    }
+
+    // Platform fees (₹19 if base < 200)
+    double platformFees = basePrice < 200 ? 19 : 0;
+
+    // Total
+    double total = basePrice + gst + lateNightCharges + platformFees;
+    print("total :-- $total");
+
+    return {
+      "basePrice": basePrice,
+      "gst": gst,
+      "lateNightCharges": lateNightCharges,
+      "platformFees": platformFees,
+      "total": total,
+      "hours": hours,
+    };
+  }
+
+
+  Future carDetailPopup(){
+    return showDialog(
+      context: context,
+      builder: (context) {
+        String selectedTransmission = "Manual";
+        String selectedCar = "Xuv 700";
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              backgroundColor: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                     Center(
+                       child: Text(
+                        "Select Car & Transmission",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16.sp,
+                        ),
+                       ),
+                     ),
+                     SizedBox(height: 2.h),
+                    Text(
+                      "Transmission",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 15.sp,
+                      ),
+                    ),
+                     SizedBox(height: 1.h),
+                    // Transmission section
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => setState(() => selectedTransmission = "Manual"),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 15),
+                              decoration: BoxDecoration(
+                                color: selectedTransmission == "Manual"
+                                    ? Colors.red.shade50
+                                    : Colors.grey.shade200,
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(
+                                  color: selectedTransmission == "Manual"
+                                      ? Colors.redAccent
+                                      : Colors.transparent,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  if (selectedTransmission == "Manual")
+                                    const Icon(Icons.check_circle,
+                                        color: Colors.redAccent, size: 20),
+                                  if (selectedTransmission == "Manual")
+                                    const SizedBox(width: 6),
+                                  Text(
+                                    "Manual",
+                                    style: TextStyle(
+                                      color: selectedTransmission == "Manual"
+                                          ? Colors.redAccent
+                                          : Colors.black54,
+                                      fontWeight: selectedTransmission == "Manual"
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () =>
+                                setState(() => selectedTransmission = "Automatic"),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 15),
+                              decoration: BoxDecoration(
+                                color: selectedTransmission == "Automatic"
+                                    ? Colors.red.shade50
+                                    : Colors.grey.shade200,
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(
+                                  color: selectedTransmission == "Automatic"
+                                      ? Colors.redAccent
+                                      : Colors.transparent,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  if (selectedTransmission == "Automatic")
+                                    const Icon(Icons.check_circle,
+                                        color: Colors.redAccent, size: 20),
+                                  if (selectedTransmission == "Automatic")
+                                    const SizedBox(width: 6),
+                                  Text(
+                                    "Automatic",
+                                    style: TextStyle(
+                                      color: selectedTransmission == "Automatic"
+                                          ? Colors.redAccent
+                                          : Colors.black54,
+                                      fontWeight: selectedTransmission == "Automatic"
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                     SizedBox(height: 2.h),
+
+                     Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "My car",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 15.sp,
+                        ),
+                      ),
+                    ),
+
+                     SizedBox(height: 1.h),
+
+                    // Car cards
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Car 1
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => setState(() => selectedCar = "Xuv 700"),
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              margin: const EdgeInsets.only(right: 10),
+                              decoration: BoxDecoration(
+                                color: selectedCar == "Xuv 700"
+                                    ? Colors.red.shade50
+                                    : Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(15),
+                                border: Border.all(
+                                  color: selectedCar == "Xuv 700"
+                                      ? Colors.redAccent
+                                      : Colors.transparent,
+                                ),
+                              ),
+                              child: Column(
+                                children: [
+                                  Stack(
+                                    children: [
+                                      Icon(Icons.directions_car,
+                                          size: 40,
+                                          color: selectedCar == "Xuv 700"
+                                              ? Colors.redAccent
+                                              : Colors.black45),
+                                      if (selectedCar == "Xuv 700")
+                                        Positioned(
+                                          top: 0,
+                                          right: 0,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(2),
+                                            decoration: const BoxDecoration(
+                                              color: Colors.white,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(Icons.check_circle,
+                                                size: 16, color: Colors.redAccent),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text("Xuv 700",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: selectedCar == "Xuv 700"
+                                            ? Colors.black
+                                            : Colors.black54,
+                                      )),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        // Car 2
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => setState(() => selectedCar = "Ford"),
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              margin: const EdgeInsets.only(right: 8),
+                              decoration: BoxDecoration(
+                                color: selectedCar == "Ford"
+                                    ? Colors.red.shade50
+                                    : Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(15),
+                                border: Border.all(
+                                  color: selectedCar == "Ford"
+                                      ? Colors.redAccent
+                                      : Colors.transparent,
+                                ),
+                              ),
+                              child: Column(
+                                children: [
+                                  Stack(
+                                    children: [
+                                      Icon(Icons.directions_car,
+                                          size: 40,
+                                          color: selectedCar == "Ford"
+                                              ? Colors.redAccent
+                                              : Colors.black45),
+                                      if (selectedCar == "Ford")
+                                        Positioned(
+                                          top: 0,
+                                          right: 0,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(2),
+                                            decoration: const BoxDecoration(
+                                              color: Colors.white,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(Icons.check_circle,
+                                                size: 16, color: Colors.redAccent),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text("Ford",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: selectedCar == "Ford"
+                                            ? Colors.black
+                                            : Colors.black54,
+                                      )),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        // Add button
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              // You can add your car adding logic here
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: Column(
+                                children: const [
+                                  Icon(Icons.add, size: 40, color: Colors.black45),
+                                  SizedBox(height: 6),
+                                  Text(
+                                    "Add",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black54),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                     SizedBox(height: 3.h),
+
+                    // Confirm Button
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                "Selected: $selectedTransmission - $selectedCar"),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        decoration: BoxDecoration(
+                          color: Colors.redAccent,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Confirm",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16.sp),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 1.h),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
 }

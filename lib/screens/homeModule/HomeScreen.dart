@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sizer/sizer.dart';
 import '../../controllers/HomeController.dart';
+import '../../controllers/profileController.dart';
 import '../../utils/ConstColors.dart';
 import '../../utils/ConstStrings.dart';
 
@@ -18,12 +19,18 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  var profileController = Get.find<ProfileController>();
   TextEditingController searchController = TextEditingController();
   final PageController _pageController = PageController();
   var homeController = Get.find<HomeController>();
   var selectedTrip = "One Way".obs;
   var dateTime = DateTime.now().obs;
   var isSelected = "".obs;
+  var isNavigator = false.obs;
+  var latitude = 0.0.obs;
+  var longitude = 0.0.obs;
+  var location = "".obs;
+  var placeId = "".obs;
 
   /// For google map
   var isMapLoading = true.obs;
@@ -60,7 +67,51 @@ class _HomeScreenState extends State<HomeScreen> {
     Future.delayed(Duration.zero, () {
       homeController.searchHistoryListApi(
           LocalStorage().getStringValue(LocalStorage().mobileNumber), 1, 20);
+      final savedImage = LocalStorage().getStringValue(LocalStorage().profileImg);
+      if (savedImage.isNotEmpty) {
+        profileController.profileImageUrl.value = savedImage;
+      } else {
+        profileController.updateProfileApi(profileController.profileImageUrl.value);
+      }
+
     });
+
+  }
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    print("state :-- $state");
+    if (state == AppLifecycleState.resumed) {
+      ConstStrings().isResumed.value = true;
+      if (!ConstStrings().isOtherLocation.value) {
+        await CommonFunctions().determinePosition();
+        print("state :--- OnResume");
+        Future.delayed(Duration.zero, () async {
+          if (ConstStrings().latitude.value != 0.0 &&
+              ConstStrings().longitude.value != 0.0) {
+            latitude.value = ConstStrings().latitude.value;
+            longitude.value = ConstStrings().longitude.value;
+            location.value = ConstStrings().location.value;
+
+            print("latitude.value 1111 >> ${latitude.value}");
+            print("location.value 1111 >> ${location.value}");
+           // await storeListApi();
+          } else {
+            print("on resume else");
+
+            Future.delayed(const Duration(milliseconds: 300), () {
+              if (ConstStrings().serviceEnabled.value == true) {
+                latitude.value = ConstStrings().latitude.value;
+                longitude.value = ConstStrings().longitude.value;
+                location.value = ConstStrings().location.value;
+                print("on resume else ${ConstStrings().location.value}");
+               // storeListApi();
+              }
+            });
+          }
+        });
+      }
+    }
   }
 
   @override
@@ -124,13 +175,31 @@ class _HomeScreenState extends State<HomeScreen> {
                       onTap: () {
                         Get.toNamed(RouteHelper().getProfileScreen());
                       },
-                      child: ClipRRect(
-                          borderRadius: BorderRadius.circular(30),
-                          child: Image.asset(
-                            AssetsImages().profileImage,
-                            height: 4.h,
-                          )),
+                      child: Obx(() {
+                        if (profileController.profileImageUrl.value.isNotEmpty) {
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(30),
+                            child: Image.network(
+                              profileController.profileImageUrl.value,
+                              height: 4.h,
+                              width: 4.h,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Image.asset(AssetsImages().profileImage, height: 4.h),
+                            ),
+                          );
+                        } else {
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(30),
+                            child: Image.asset(
+                              AssetsImages().profileImage,
+                              height: 4.h,
+                            ),
+                          );
+                        }
+                      }),
                     ),
+
                   ],
                 ),
               ],
@@ -170,6 +239,49 @@ class _HomeScreenState extends State<HomeScreen> {
               width: double.infinity,
               child: Stack(
                 children: [
+                  Obx(() {
+                    if (ConstStrings().isLocationLoading.value) {
+                      return const Center(
+                        child: CircularProgressIndicator(), // Loader until location fetched
+                      );
+                    }
+
+                    if (ConstStrings().latitude.value == 0.0 ||
+                        ConstStrings().longitude.value == 0.0) {
+                      return const Center(
+                        child: Text('Fetching location...'),
+                      );
+                    }
+
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: GoogleMap(
+                        initialCameraPosition: CameraPosition(
+                          target: LatLng(
+                            ConstStrings().latitude.value,
+                            ConstStrings().longitude.value,
+                          ),
+                          zoom: 15.0,
+                        ),
+                        mapType: MapType.normal,
+                        onMapCreated: (GoogleMapController controller) {},
+                        markers: {
+                          Marker(
+                            markerId: const MarkerId('source'),
+                            position: LatLng(
+                              ConstStrings().latitude.value,
+                              ConstStrings().longitude.value,
+                            ),
+                            infoWindow: const InfoWindow(title: 'Current Location'),
+                          ),
+                        },
+                      ),
+                    );
+                  }),
+                ],
+              )
+              /*Stack(
+                children: [
                   // Google Map
                   Obx(
                     () => ClipRRect(
@@ -198,7 +310,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ],
-              ),
+              ),*/
             ),
             const SizedBox(height: 16),
             Expanded(
@@ -212,7 +324,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         tripButton("One Way", Icons.keyboard_arrow_down_outlined, (){
                           selectedTrip.value = "One Way";
-                          Get.toNamed(RouteHelper().getOneWayTripScreen());
+                          Get.toNamed(RouteHelper().getOneWayTripScreen(), arguments: true);
                         },
                       selectedTrip.value == "One Way",),
                         const SizedBox(width: 10),
@@ -225,7 +337,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ) ),
 
 
-                    const SizedBox(height: 16),
+                 /*   const SizedBox(height: 16),
 
                     Container(
                       padding: const EdgeInsets.all(16),
@@ -238,7 +350,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           // Title
                           Text(
-                            "Start Booking",
+                            "Booking",
                             style: TextStyle(
                               fontSize: 16.sp,
                               fontWeight: FontWeight.bold,
@@ -247,7 +359,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           const SizedBox(height: 12),
 
                           // Search bar with clock button
-                          Row(
+                        *//*  Row(
                             children: [
                               Expanded(
                                 child: InkWell(
@@ -302,7 +414,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
 
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 16),*//*
 
                           // My Location
                           Obx(
@@ -357,7 +469,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ],
                       ),
-                    ),
+                    ),*/
 
                     const SizedBox(height: 16),
                     Container(
@@ -399,8 +511,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               shrinkWrap: true,
                               scrollDirection: Axis.horizontal,
                               children: [
-                                serviceItem(
-                                    AssetsImages().walletIcon, "Vip Card"),
+                                InkWell(
+                                  onTap: (){
+                                    Get.toNamed(RouteHelper().getVipCardScreen());
+                          },
+                                  child: serviceItem(
+                                      AssetsImages().walletIcon, "Vip Card"),
+                                ),
                                 serviceItem(
                                     AssetsImages().handIcon, "Refer & Earn"),
                                 serviceItem(
@@ -412,9 +529,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    SizedBox(
+                  /*  SizedBox(
                         height: 13.h,
-                        width: 130.w,
+                       // width: 100.w,
+                        width: double.infinity,
+
                         child: PageView.builder(
                           controller: _pageController,
                           itemCount: _pages.length,
@@ -425,14 +544,60 @@ class _HomeScreenState extends State<HomeScreen> {
                           },
                           itemBuilder: (context, index) {
                             return Padding(
-                              padding: const EdgeInsets.only(left: 20),
+                              padding: const EdgeInsets.symmetric(horizontal: 0), // no side margin
+                              child: AspectRatio(
+                                aspectRatio: 2.5, // controls height-to-width ratio
+                                child: PageView.builder(
+                                  controller: _pageController,
+                                  itemCount: _pages.length,
+                                  onPageChanged: (index) {
+                                    setState(() {
+                                      _currentIndex = index;
+                                    });
+                                  },
+                                  itemBuilder: (context, index) {
+                                    return ClipRRect(
+                                      borderRadius: BorderRadius.circular(15),
+                                      child: Image.asset(
+                                        _pages[index]["image"]!,
+                                        fit: BoxFit.fitWidth,
+                                        width: double.infinity,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            );
+
+                          },
+                        )),*/
+                    SizedBox(
+                      height: 15.h,
+                      width: double.infinity, // full width of screen
+                      child: AspectRatio(
+                        aspectRatio: 2.5, // adjust as you like for banner height
+                        child: PageView.builder(
+                          controller: _pageController,
+                          itemCount: _pages.length,
+                          onPageChanged: (index) {
+                            setState(() {
+                              _currentIndex = index;
+                            });
+                          },
+                          itemBuilder: (context, index) {
+                            return ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
                               child: Image.asset(
                                 _pages[index]["image"]!,
-                                fit: BoxFit.cover,
+                                fit: BoxFit.cover, // covers entire width and height properly
+                                width: double.infinity,
                               ),
                             );
                           },
-                        )),
+                        ),
+                      ),
+                    ),
+
                     SizedBox(
                       height: 10,
                     ),

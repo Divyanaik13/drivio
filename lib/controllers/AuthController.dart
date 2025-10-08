@@ -57,6 +57,7 @@ class AuthController extends GetxController{
         var mobileNumber = data["mobileNumber"].toString()??"";
         var referral = data["referral"].toString()??"";
         var myCoins = data["myCoins"].toString()??"";
+        var profileLink = data["profileLink"].toString()??"";
 
         print("authToken :-- $authToken");
         print("userId :-- $userId");
@@ -64,6 +65,7 @@ class AuthController extends GetxController{
         print("email :-- $email");
         print("mobileNumber :-- $mobileNumber");
         print("referral :-- $referral");
+        print("profileLink :-- $profileLink");
 
         LocalStorage().setStringValue(ls.authToken, authToken);
         LocalStorage().setStringValue(ls.userId, userId);
@@ -72,6 +74,7 @@ class AuthController extends GetxController{
         LocalStorage().setStringValue(ls.mobileNumber, mobileNumber);
         LocalStorage().setStringValue(ls.referral, referral);
         LocalStorage().setStringValue(ls.myCoins, myCoins);
+        LocalStorage().setStringValue(ls.profileImg, profileLink);
 
         print("verify otp data save :-- ${ LocalStorage().getStringValue(ls.authToken)}");
         Get.offAllNamed(RouteHelper().getHomeScreen());

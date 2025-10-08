@@ -1,21 +1,14 @@
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:drivio_sarthi/controllers/vip_card_controller.dart';
 import 'package:drivio_sarthi/screens/homeModule/notification_screen.dart';
-import 'package:drivio_sarthi/screens/homeModule/refer_screen.dart';
-import 'package:drivio_sarthi/screens/payment_breakdown_screen.dart';
-import 'package:drivio_sarthi/screens/terms%20and%20condition/terms_and_conditions.dart';
-import 'package:drivio_sarthi/screens/widgets/wg_carousel_slider.dart';
-import 'package:drivio_sarthi/screens/widgets/wg_lefticon_text.dart';
+import 'package:drivio_sarthi/screens/profileModule/terms_and_conditions.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../utils/CommonWidgets.dart';
-import '../homeModule/messages_screen.dart';
-import '../homeModule/my_coins_screen.dart';
-import '../widgets/wg_button.dart';
+import '../../utils/widgets/wg_button.dart';
+import '../../utils/widgets/wg_carousel_slider.dart';
+import '../../utils/widgets/wg_lefticon_text.dart';
 
 class VipCardScreen extends StatelessWidget {
   VipCardScreen({super.key});

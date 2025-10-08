@@ -19,6 +19,7 @@ class LocalStorage {
   String referral = "referral";
   String myCoins = "myCoins";
   String isFirstLaunch = "isFirstLaunch";
+  String profileImg = "profileImg";
 
   //For Storing String value
   void setStringValue(String key, String value){

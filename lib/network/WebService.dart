@@ -18,4 +18,7 @@ class WebService{
   var getReferCodeApi = "/auth/getReferCode";
   var getSearchHistoryApi = "/search-history";
   var vipCardApi = "/search-history"; //endpoint has to be change
+  var updateProfile = "/auth/uploadProfile";
+  var profileOtpVerify = "/auth/verifyOTPforUpdate";
+  var bookingBeforeAcceptApi = "/auth/bookingBeforeAccept";
 }

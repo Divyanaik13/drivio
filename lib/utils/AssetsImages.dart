@@ -20,4 +20,9 @@ class AssetsImages{
   String crossIcon = "assets/images/cross_icon.png";
   String homeScreenImage = "assets/images/homeScreenImage.png";
   String profileImage = "assets/images/profileImage.png";
+  String locationIcon = "assets/images/locationIcon.png";
+  String driverDostImage = "assets/images/driver_dost.png";
+  String mapCarWash = "assets/images/map_car-wash.png";
+  String contact = "assets/images/qlementine-icons_resume-16.png";
+  String questionMark = "assets/images/questionMark.png";
 }

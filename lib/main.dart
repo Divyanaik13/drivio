@@ -23,19 +23,20 @@ void main() async{
 
 void configLoading() {
   EasyLoading.instance
-    ..maskType = EasyLoadingMaskType
-        .black
-    ..indicatorType = EasyLoadingIndicatorType.fadingCircle
+    ..maskType = EasyLoadingMaskType.black
     ..displayDuration = const Duration(milliseconds: 2000)
     ..indicatorType = EasyLoadingIndicatorType.fadingCircle
-    ..loadingStyle = EasyLoadingStyle.dark
+    ..loadingStyle = EasyLoadingStyle.custom // use custom style
     ..indicatorSize = 45.0
     ..radius = 10.0
-    ..maskColor = Colors.transparent
-    ..backgroundColor = Colors.black
+    ..backgroundColor = Colors.white // white background
+    ..indicatorColor = Colors.red // red loader
+    ..textColor = Colors.black
+    ..maskColor = Colors.black.withOpacity(0.3)
     ..userInteractions = false
     ..dismissOnTap = false;
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

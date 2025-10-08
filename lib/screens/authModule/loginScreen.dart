@@ -22,8 +22,7 @@ class _LoginScreenState extends State<LoginScreen>{
   var authController = Get.find<AuthController>();
   TextEditingController numberController = TextEditingController();
   TextEditingController otpController = TextEditingController();
-  final telephony = Telephony.instance;
-  var textReceived = "".obs;
+
 
   String? otpCode;
   var _numberError = "".obs;

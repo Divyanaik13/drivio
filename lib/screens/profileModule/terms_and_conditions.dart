@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:sizer/sizer.dart';
 import '../../controllers/terms_and_conditon_controller.dart';
-import '../widgets/wg_lefticon_text.dart';
+import '../../utils/widgets/wg_lefticon_text.dart';
 
 class TermsAndConditions extends StatelessWidget {
   const TermsAndConditions({super.key});

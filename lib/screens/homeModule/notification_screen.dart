@@ -1,5 +1,5 @@
 import 'package:drivio_sarthi/screens/homeModule/messages_screen.dart';
-import 'package:drivio_sarthi/screens/vip%20card/vip_card_screen.dart';
+import 'package:drivio_sarthi/screens/profileModule/vip_card_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

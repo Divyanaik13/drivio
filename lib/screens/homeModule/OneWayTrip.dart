@@ -34,11 +34,13 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
   var placeId = "".obs;
   var dateTime = DateTime.now().obs;
   var phoneNumber = "".obs;
+  var isNavigator;
 
   final googlePlaceApi = ConstStrings().placeApiKey;
 
   @override
   void initState() {
+    isNavigator = Get.arguments;
     phoneNumber.value = LocalStorage().getStringValue(LocalStorage().mobileNumber);
     homeController.searchHistoryListApi(phoneNumber.value, 1, 20);
     super.initState();
@@ -55,10 +57,10 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
             },
             child: Icon(Icons.arrow_back, color: Colors.black)),
         title: Text(
-          "One-way trip ↻",
+          isNavigator == true ?"One-way trip" : "Out station trip",
           style: TextStyle(
             fontSize: 17.sp,
-            fontWeight: FontWeight.w400,
+            fontWeight: FontWeight.w500,
             color: Colors.black,
           ),
         ),
@@ -81,19 +83,29 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
                   // Left side icons
                   Column(
                     mainAxisAlignment: MainAxisAlignment.start,
-                    children: const [
+                    children: [
                       SizedBox(height: 15),
                       Icon(Icons.circle, color: Colors.red, size: 18),
                       SizedBox(height: 18),
-                      Icon(Icons.more_vert_rounded,
-                          color: Colors.black, size: 18),
+                      isNavigator != true
+                          ? Icon(Icons.more_vert_rounded,
+                              color: Colors.black, size: 18)
+                          : SizedBox(
+                              width: 10,
+                            ),
                       SizedBox(height: 18),
-                      Icon(Icons.circle, color: Colors.green, size: 18),
+                      isNavigator != true
+                          ? Icon(Icons.circle, color: Colors.green, size: 18)
+                          : SizedBox(
+                              width: 10,
+                            ),
                     ],
                   ),
                   const SizedBox(width: 10),
 
                   Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
                         width: 80.w,
@@ -132,7 +144,7 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
                                     color: ConstColors().whiteColor,
                                     width: 2.px)),
                             contentPadding:
-                                const EdgeInsets.only(left: 10, right: 10),
+                                const EdgeInsets.only(left: 15, right: 15),
                           ),
                           boxDecoration: BoxDecoration(
                             color: ConstColors().whiteColor,
@@ -142,6 +154,13 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
                           getPlaceDetailWithLatLng: (prediction) async {
                             try {
                               print("prediction :--  $prediction");
+
+                              /*  CommonWidgets.keyboardHide();
+
+                              /// show calender
+                               DateTime? selectedDateTime =
+                              await CommonFunctions().dateTimePicker(
+                                  barrierDismissible: false);*/
 
                               sourceLatitude.value = double.parse(
                                 double.parse(prediction.lat!)
@@ -153,15 +172,38 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
                               );
                               placeId.value = prediction.placeId!;
                               sourceController.text = sourceLocation.value;
-                              /* Get.back(result: {
-                                "latitude": latitude.value,
-                                "longitude": longitude.value,
-                                "location": location.value,
-                                "placeId": placeId.value,
-                              });*/
+
+                              CommonWidgets.keyboardHide();
+
+                              // Show date-time picker only if isNavigator is true
+                              if (isNavigator == true) {
+                                DateTime? selectedDateTime =
+                                    await CommonFunctions().dateTimePicker(
+                                        barrierDismissible: false);
+
+                                if (selectedDateTime != null) {
+                                  print(
+                                      "Selected date and time: $selectedDateTime");
+                                  dateTime.value = selectedDateTime;
+
+                                  Get.toNamed(
+                                    RouteHelper().getOneWayTripDetailScreen(),
+                                    arguments: {
+                                      "sourceLatitude": sourceLatitude.value,
+                                      "sourceLongitude": sourceLongitude.value,
+                                      "destinationLatitude": destinationLatitude.value,
+                                      "destinationLongitude": destinationLongitude.value,
+                                      "sourceLocation": sourceController.text,
+                                      "destinationLocation": destinationController.text,
+                                      "dateTime": selectedDateTime.toString(),
+                                      "isNavigator": isNavigator,
+                                    },
+                                  );
+                                }
+                              }
                             } catch (e, stacktrace) {
-                              print("❌ Error in getPlaceDetailWithLatLng: $e");
-                              print("📌 Stacktrace: $stacktrace");
+                              print("Error in getPlaceDetailWithLatLng: $e");
+                              print("Stacktrace: $stacktrace");
                             }
                           },
                           itemClick: (prediction) {
@@ -173,114 +215,208 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      SizedBox(
-                        width: 80.w,
-                        child: GooglePlaceAutoCompleteTextField(
-                          textEditingController: destinationController,
-                          googleAPIKey: googlePlaceApi,
-                          debounceTime: 400,
-                          isLatLngRequired: true,
-                          inputDecoration: InputDecoration(
-                            hintText: "to?",
-                            hintStyle: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 15.px,
-                              color: Colors.grey,
-                            ),
-                            filled: true,
-                            fillColor: ConstColors().whiteColor,
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: BorderSide(
-                                    color: ConstColors().whiteColor,
-                                    width: 2.px)),
-                            focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: BorderSide(
-                                    color: ConstColors().whiteColor,
-                                    width: 2.px)),
-                            errorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: BorderSide(
-                                    color: ConstColors().whiteColor,
-                                    width: 2.px)),
-                            enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: BorderSide(
-                                    color: ConstColors().whiteColor,
-                                    width: 2.px)),
-                            contentPadding:
-                                const EdgeInsets.only(left: 10, right: 10),
-                          ),
-                          boxDecoration: BoxDecoration(
-                            color: ConstColors().whiteColor,
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          getPlaceDetailWithLatLng: (prediction) async {
-                            try {
-                              print("prediction :--  $prediction");
 
-                              destinationLatitude.value = double.parse(
-                                double.parse(prediction.lat!)
-                                    .toStringAsFixed(5),
-                              );
-                              destinationLongitude.value = double.parse(
-                                double.parse(prediction.lng!)
-                                    .toStringAsFixed(5),
-                              );
-                              placeId.value = prediction.placeId!;
-                              destinationController.text =
-                                  destinationLocation.value;
 
-                              CommonWidgets.keyboardHide();
+                      /// Destination field
+                      isNavigator != true
+                          ? SizedBox(
+                              width: 80.w,
+                              child: GooglePlaceAutoCompleteTextField(
+                                textEditingController: destinationController,
+                                googleAPIKey: googlePlaceApi,
+                                debounceTime: 400,
+                                isLatLngRequired: true,
+                                inputDecoration: InputDecoration(
+                                  hintText: "to?",
+                                  hintStyle: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 15.px,
+                                    color: Colors.grey,
+                                  ),
+                                  filled: true,
+                                  fillColor: ConstColors().whiteColor,
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                      borderSide: BorderSide(
+                                          color: ConstColors().whiteColor,
+                                          width: 2.px)),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                      borderSide: BorderSide(
+                                          color: ConstColors().whiteColor,
+                                          width: 2.px)),
+                                  errorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                      borderSide: BorderSide(
+                                          color: ConstColors().whiteColor,
+                                          width: 2.px)),
+                                  enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                      borderSide: BorderSide(
+                                          color: ConstColors().whiteColor,
+                                          width: 2.px)),
+                                  contentPadding: const EdgeInsets.only(
+                                      left: 15, right: 15),
+                                ),
+                                boxDecoration: BoxDecoration(
+                                  color: ConstColors().whiteColor,
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                getPlaceDetailWithLatLng: (prediction) async {
+                                  try {
+                                    print("prediction :--  $prediction");
 
-                              /// show calender
-                              DateTime? selectedDateTime =
-                                  await CommonFunctions().dateTimePicker(
-                                      barrierDismissible: false);
-                              print(
-                                  "Select date and time :-- $selectedDateTime");
-                              if (selectedDateTime != null) {
-                                print(
-                                    "Select date and time :-- $selectedDateTime");
-                                await homeController.createSearchHistoryApi(
-                                    LocalStorage().getStringValue(LocalStorage().mobileNumber),
-                                    destinationLatitude.value,
-                                    destinationLongitude.value,
-                                    destinationController.text,
-                                    selectedDateTime.toUtc().toIso8601String());
+                                    destinationLatitude.value = double.parse(
+                                      double.parse(prediction.lat!)
+                                          .toStringAsFixed(5),
+                                    );
+                                    destinationLongitude.value = double.parse(
+                                      double.parse(prediction.lng!)
+                                          .toStringAsFixed(5),
+                                    );
+                                    placeId.value = prediction.placeId!;
+                                    destinationController.text =
+                                        destinationLocation.value;
 
-                                /// Navigate to next screen
-                                Get.toNamed(
-                                    RouteHelper().getOneWayTripDetailScreen(),
-                                    arguments: {
-                                      "sourceLatitude": sourceLatitude.value,
-                                      "sourceLongitude": sourceLongitude.value,
-                                      "destinationLatitude":
-                                          destinationLatitude.value,
-                                      "destinationLongitude":
-                                          destinationLongitude.value,
-                                      "sourceLocation": sourceController.text,
-                                      "destinationLocation":
-                                          destinationController.text,
-                                      "dateTime": selectedDateTime.toString(),
-                                    });
-                              }
-                            } catch (e, stacktrace) {
-                              print("❌ Error in getPlaceDetailWithLatLng: $e");
-                              print("📌 Stacktrace: $stacktrace");
-                            }
-                          },
-                          itemClick: (prediction) {
-                            destinationLocation.value = prediction.description!;
-                            placeId.value = prediction.placeId!;
-                            destinationController.text =
-                                prediction.description!;
-                          },
-                          focusNode: destinationFocusNode,
-                        ),
-                      ),
+                                    CommonWidgets.keyboardHide();
+
+                                    /// show calender
+                                    DateTime? selectedDateTime =
+                                        await CommonFunctions().dateTimePicker(
+                                            barrierDismissible: false);
+                                    print(
+                                        "Select date and time :-- $selectedDateTime");
+                                    if (selectedDateTime != null) {
+                                      print(
+                                          "Select date and time :-- $selectedDateTime");
+                                      await homeController
+                                          .createSearchHistoryApi(
+                                              LocalStorage().getStringValue(
+                                                  LocalStorage().mobileNumber),
+                                              destinationLatitude.value,
+                                              destinationLongitude.value,
+                                              destinationController.text,
+                                              selectedDateTime
+                                                  .toUtc()
+                                                  .toIso8601String());
+
+                                      /// Navigate to next screen
+                                      Get.toNamed(
+                                          RouteHelper()
+                                              .getOneWayTripDetailScreen(),
+                                          arguments: {
+                                            "sourceLatitude":
+                                                sourceLatitude.value,
+                                            "sourceLongitude":
+                                                sourceLongitude.value,
+                                            "destinationLatitude":
+                                                destinationLatitude.value,
+                                            "destinationLongitude":
+                                                destinationLongitude.value,
+                                            "sourceLocation":
+                                                sourceController.text,
+                                            "destinationLocation":
+                                                destinationController.text,
+                                            "dateTime":
+                                                selectedDateTime.toString(),
+                                            "isNavigator": isNavigator,
+                                          });
+                                    }
+                                  } catch (e, stacktrace) {
+                                    print(
+                                        "Error in getPlaceDetailWithLatLng: $e");
+                                    print("Stacktrace: $stacktrace");
+                                  }
+                                },
+                                itemClick: (prediction) {
+                                  destinationLocation.value =
+                                      prediction.description!;
+                                  placeId.value = prediction.placeId!;
+                                  destinationController.text =
+                                      prediction.description!;
+                                },
+                                focusNode: destinationFocusNode,
+                              ),
+                            )
+                          : InkWell(
+                              onTap: () async {
+                                CommonFunctions().showLoader();
+                                try {
+                                  var position = await CommonFunctions()
+                                      .getCurrentLocation();
+                                  if (position != null) {
+                                    sourceLatitude.value = position.latitude;
+                                    sourceLongitude.value = position.longitude;
+
+                                    await CommonFunctions().getAddress(
+                                        position.latitude, position.longitude);
+
+                                    sourceLocation.value =
+                                        ConstStrings().location.value;
+                                    sourceController.text =
+                                        ConstStrings().location.value;
+
+                                    // Show date-time picker if isNavigator is true
+                                    if (isNavigator == true) {
+                                      CommonWidgets.keyboardHide();
+
+                                      DateTime? selectedDateTime =
+                                          await CommonFunctions()
+                                              .dateTimePicker(
+                                                  barrierDismissible: false);
+
+                                      if (selectedDateTime != null) {
+                                        print(
+                                            "Selected date and time: $selectedDateTime");
+                                        dateTime.value = selectedDateTime;
+
+
+                                        /// Navigate to next screen
+                                        Get.toNamed(
+                                            RouteHelper()
+                                                .getOneWayTripDetailScreen(),
+                                            arguments: {
+                                              "sourceLatitude":
+                                              sourceLatitude.value,
+                                              "sourceLongitude":
+                                              sourceLongitude.value,
+                                              "destinationLatitude":
+                                              destinationLatitude.value,
+                                              "destinationLongitude":
+                                              destinationLongitude.value,
+                                              "sourceLocation":
+                                              sourceController.text,
+                                              "destinationLocation":
+                                              destinationController.text,
+                                              "dateTime":
+                                              selectedDateTime.toString(),
+                                              "isNavigator": isNavigator,
+                                            });
+                                      }
+                                    }
+                                  }
+                                } catch (e) {
+                                  print("current location error :-- $e");
+                                } finally {
+                                  CommonFunctions().hideLoader();
+                                }
+                              },
+                              child: Container(
+                                padding: EdgeInsets.all(15),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(30),
+                                  color: ConstColors().themeColor,
+                                ),
+                                child: Text(
+                                  "Current location",
+                                  style: TextStyle(
+                                      fontSize: 15.sp,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white),
+                                ),
+                              ),
+                            )
                     ],
                   ),
                 ],
@@ -295,36 +431,38 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
                 ),
               ),
               const SizedBox(height: 10),
-              Obx((){
-                return ListView.builder(
-                    itemCount: homeController.searchHistoryList.length,
-                    shrinkWrap: true,
-                    physics: AlwaysScrollableScrollPhysics(),
-                    itemBuilder: (BuildContext context, int index) {
-                      var history = homeController.searchHistoryList[index];
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            history.address,
-                            style: TextStyle(
-                              fontSize: 14.5.sp,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black,
+              Obx(() {
+                return Expanded(
+                  child: ListView.builder(
+                      itemCount: homeController.searchHistoryList.length,
+                      shrinkWrap: true,
+                      physics: AlwaysScrollableScrollPhysics(),
+                      itemBuilder: (BuildContext context, int index) {
+                        var history = homeController.searchHistoryList[index];
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              history.address,
+                              style: TextStyle(
+                                fontSize: 14.5.sp,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black,
+                              ),
                             ),
-                          ),
-                          /* Text(
-                      "837 Howard St, india , CA 94103, Indore",
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.grey[600],
-                      ),
-                    ),*/
-                          SizedBox(height: 20)
-                        ],
-                      );
-                    });
+                            /* Text(
+                        "837 Howard St, india , CA 94103, Indore",
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.grey[600],
+                        ),
+                      ),*/
+                            SizedBox(height: 20)
+                          ],
+                        );
+                      }),
+                );
               })
             ],
           ),

@@ -8,7 +8,9 @@ import '../screens/homeModule/HomeScreen.dart';
 import '../screens/homeModule/OneWayTrip.dart';
 import '../screens/homeModule/OneWayTripDetailScreen.dart';
 import '../screens/homeModule/OrderPlacedSuccessScreen.dart';
+import '../screens/homeModule/PaymentBreakdownScreen.dart';
 import '../screens/profileModule/ProfileScreen.dart';
+import '../screens/profileModule/vip_card_screen.dart';
 
 class RouteHelper{
   static final RouteHelper _routeHelper = RouteHelper._internal();
@@ -28,6 +30,8 @@ class RouteHelper{
   String oneWayTripDetailScreen = "/OneWayTripDetailScreen";
   String cardScreen = "/CardScreen";
   String orderPlacedSuccessScreen = "/OrderPlacedSuccessScreen";
+  String paymentBreakdownScreen = "/PaymentBreakdownScreen";
+  String vipCardScreen = "/VipCardScreen";
 
   String getSplashScreen() => splashScreen;
   String getLoginScreen() => loginScreen;
@@ -39,6 +43,8 @@ class RouteHelper{
   String getOneWayTripDetailScreen() => oneWayTripDetailScreen;
   String getCardScreen() => cardScreen;
   String getOrderPlacedSuccessScreen() => orderPlacedSuccessScreen;
+  String getPaymentBreakdownScreen() => paymentBreakdownScreen;
+  String getVipCardScreen() => vipCardScreen;
 
   List<GetPage> get pageList => [
     GetPage(name: splashScreen, page: () => SplashScreen()),
@@ -52,6 +58,8 @@ class RouteHelper{
     GetPage(name: oneWayTripDetailScreen, page: () => OneWayTripDetailScreen()),
     GetPage(name: cardScreen, page: () => CardScreen()),
     GetPage(name: orderPlacedSuccessScreen, page: () => OrderPlacedSuccessScreen()),
+    GetPage(name: paymentBreakdownScreen, page: () => PaymentBreakdownScreen()),
+    GetPage(name: vipCardScreen, page: () => VipCardScreen()),
   ];
 
 }
