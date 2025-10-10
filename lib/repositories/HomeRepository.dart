@@ -8,7 +8,6 @@ class HomeRepo {
   Future<dynamic> searchHistoryListRepo(
       String phoneNumber, int page, limit) async {
     var response;
-
     try {
       var url =
           "${WebService().getSearchHistoryApi}?user_phoneNumber=$phoneNumber&page=$page&limit=$limit";
@@ -45,57 +44,6 @@ class HomeRepo {
     return response;
   }
 
-/*  Future<dynamic> createBookingRepo(
-      String userName,
-      phoneNumber,
-      email,
-      type,
-      pickUp,
-      expectedEnd,
-      int amount,
-      startDate,
-      startTime,
-      carName,
-      carType,
-      ) async {
-    var response;
-    try {
-      Map<String, dynamic> body = {
-        "userName": userName,
-        "phoneNumber": phoneNumber,
-        "email": email,
-        "type": type,
-        "pickUp": pickUp,
-        "expectedEnd": expectedEnd,
-        "amount": amount,
-        "startDate": startDate,
-        "startTime": startTime,
-        "carName": carName,
-        "carType": carType,
-       *//* "userName": "Divya Arya",
-        "phoneNumber": "6263934024",
-        "email": "divya123@gmail.com",
-        "type": "hourly",
-        "pickUp": "JIT",
-        "expectedEnd": "2",
-        "amount": 300,
-        "startDate": "2025-09-22",
-        "startTime": "12:02:10",
-        "carName": "auto",
-        "carType": "Manual"*//*
-      };
-
-      print("create Booking Repo body :-- $body");
-      response = await DioServices().postMethod(
-          WebService().bookingBeforeAcceptApi,
-          body,
-          await DioServices().getAllHeaders());
-      print("create Booking Repo response :-- $response");
-    } catch (e) {
-      print("create Booking Repo error :-- $e");
-    }
-    return response;
-  }*/
 
   Future<dynamic> createBookingRepo(
       String userName,
@@ -135,6 +83,32 @@ class HomeRepo {
       print("create Booking Repo response :-- $response");
     } catch (e) {
       print("create Booking Repo error :-- $e");
+    }
+    return response;
+  }
+
+  Future<dynamic> getSaveAddressRepo(
+      String userNumber, userEmail, buildingName, nearBylandmark, area, pincode, city, state) async {
+    var response;
+    try {
+      Map<String, dynamic> body = {
+        "userNumber": "9876543210",
+        "userEmail": "harshitarya0611@gmail.com",
+        "buildingName": "Green Apartment",
+        "nearBylandmark": "Near Park",
+        "area": "Sector 5",
+        "pincode": "462001",
+        "city": "Bhopal",
+        "state": "Madhya Pradesh"
+      };
+      print("get Save Address Repo body :-- $body");
+      response = await DioServices().postMethod(
+          WebService().getSaveAddressApi,
+          body,
+          await DioServices().getAllHeaders());
+      print("get Save Address Repo response :-- $response");
+    } catch (e) {
+      print("get Save Address Repo error :-- $e");
     }
     return response;
   }

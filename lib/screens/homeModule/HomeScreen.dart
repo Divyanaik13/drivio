@@ -151,10 +151,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Stack(
                       children: [
-                        const Icon(
-                          Icons.notifications_none,
-                          color: Colors.black,
-                          size: 35,
+                        InkWell(
+                          onTap: (){
+                            Get.toNamed(RouteHelper().getNotificationScreen());
+                          },
+                          child: const Icon(
+                            Icons.notifications_none,
+                            color: Colors.black,
+                            size: 35,
+                          ),
                         ),
                         Positioned(
                           right: 6,
@@ -199,40 +204,17 @@ class _HomeScreenState extends State<HomeScreen> {
                         }
                       }),
                     ),
-
                   ],
                 ),
               ],
             ),
             const SizedBox(height: 4),
-            Row(
+        Obx(() => Row(
               children: [
-                Text("103, Kesar Bagh Road, Indore",
-                    style: TextStyle(color: Colors.black54, fontSize: 14.sp)),
+                Text(ConstStrings().location.value,
+                    style: TextStyle(color: Colors.black54, fontSize: 14.sp, fontWeight: FontWeight.w400)),
               ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.location_on, size: 16),
-                    SizedBox(width: 4),
-                    Text("Nearest available drivers",
-                        style: TextStyle(
-                            color: ConstColors().blackColor,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15.sp)),
-                  ],
-                ),
-                Text("10 km",
-                    style: TextStyle(
-                        color: ConstColors().blackColor,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14.5.sp)),
-              ],
-            ),
+            )),
             const SizedBox(height: 16),
             SizedBox(
               height: 30.h,
@@ -327,7 +309,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Get.toNamed(RouteHelper().getOneWayTripScreen(), arguments: true);
                         },
                       selectedTrip.value == "One Way",),
-                        const SizedBox(width: 10),
+                         SizedBox(width: 10.sp),
                         tripButton("OutStation", Icons.add_road, (){
                           selectedTrip.value = "OutStation";
                           Get.toNamed(RouteHelper().getOneWayTripScreen());
@@ -520,8 +502,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 serviceItem(
                                     AssetsImages().handIcon, "Refer & Earn"),
-                                serviceItem(
-                                    AssetsImages().rupeesIcon, "Mv Coins"),
+                                InkWell(
+                                  onTap: (){
+                                    Get.toNamed(RouteHelper().getMyCoinsScreen());
+                                  },
+                                  child: serviceItem(
+                                      AssetsImages().rupeesIcon, "My Coins"),
+                                ),
                               ],
                             ),
                           ),
@@ -529,53 +516,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                  /*  SizedBox(
-                        height: 13.h,
-                       // width: 100.w,
-                        width: double.infinity,
-
-                        child: PageView.builder(
-                          controller: _pageController,
-                          itemCount: _pages.length,
-                          onPageChanged: (index) {
-                            setState(() {
-                              _currentIndex = index;
-                            });
-                          },
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 0), // no side margin
-                              child: AspectRatio(
-                                aspectRatio: 2.5, // controls height-to-width ratio
-                                child: PageView.builder(
-                                  controller: _pageController,
-                                  itemCount: _pages.length,
-                                  onPageChanged: (index) {
-                                    setState(() {
-                                      _currentIndex = index;
-                                    });
-                                  },
-                                  itemBuilder: (context, index) {
-                                    return ClipRRect(
-                                      borderRadius: BorderRadius.circular(15),
-                                      child: Image.asset(
-                                        _pages[index]["image"]!,
-                                        fit: BoxFit.fitWidth,
-                                        width: double.infinity,
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            );
-
-                          },
-                        )),*/
                     SizedBox(
                       height: 15.h,
-                      width: double.infinity, // full width of screen
+                      width: double.infinity,
                       child: AspectRatio(
-                        aspectRatio: 2.5, // adjust as you like for banner height
+                        aspectRatio: 2.5,
                         child: PageView.builder(
                           controller: _pageController,
                           itemCount: _pages.length,
@@ -586,11 +531,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           },
                           itemBuilder: (context, index) {
                             return ClipRRect(
-                              borderRadius: BorderRadius.circular(15),
-                              child: Image.asset(
-                                _pages[index]["image"]!,
-                                fit: BoxFit.cover, // covers entire width and height properly
-                                width: double.infinity,
+                              borderRadius: BorderRadius.circular(30),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Image.asset(
+                                  _pages[index]["image"]!,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                ),
                               ),
                             );
                           },
@@ -599,7 +547,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
 
                     SizedBox(
-                      height: 10,
+                      height: 1.h,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -672,7 +620,7 @@ class _HomeScreenState extends State<HomeScreen> {
               color: isSelected ? Colors.white : Colors.black,
             ),
             SizedBox(
-              width: 10,
+              width: 10.sp,
             ),
             Text(
               text,
@@ -689,23 +637,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget serviceItem(String image, String title) {
     return SizedBox(
-      height: 110,
+      height: 110.h,
       child: Column(
         children: [
           Container(
             width: 25.w,
-            padding: EdgeInsets.all(15),
+            padding: EdgeInsets.all(10),
             margin: EdgeInsets.symmetric(horizontal: 7),
             decoration: BoxDecoration(
                 color: Color(0xFFDDE3E3),
                 borderRadius: BorderRadius.all(Radius.circular(20))),
             child: Image.asset(
               image,
-              height: 70,
-              width: 60,
+              height: 6.5.h,
+              width: 6.w,
             ),
           ),
-          const SizedBox(height: 5),
+          SizedBox(height: 1.h),
           Text(
             title,
             textAlign: TextAlign.center,

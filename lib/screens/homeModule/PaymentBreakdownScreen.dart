@@ -1,9 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
+import '../../controllers/PaymentCalController.dart';
 
-class PaymentBreakdownScreen extends StatelessWidget {
+class PaymentBreakdownScreen extends StatefulWidget {
   const PaymentBreakdownScreen({super.key});
+
+  @override
+  State<PaymentBreakdownScreen> createState() => _PaymentBreakdownScreenState();
+}
+
+class _PaymentBreakdownScreenState extends State<PaymentBreakdownScreen> {
+   var paymentController = Get.find<PaymentController>();
+
+
+  @override
+  void initState() {
+    paymentController.paymentCalApi(39,"2024-10-10 10:00", "2024-10-10 12:00", 2, "hourly", "");
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -149,3 +164,4 @@ class PaymentBreakdownScreen extends StatelessWidget {
     );
   }
 }
+

@@ -81,30 +81,29 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                     ),
                   ),
                 ),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(color: ConstColors().themeColor),
-                      color: ConstColors().themeColor),
-                  child: InkWell(
-                      onTap: () {
-                        if (_currentIndex == _pages.length - 1) {
-                          LocalStorage().setBoolValue(LocalStorage().isFirstLaunch, true);
-                          Get.offAllNamed(RouteHelper().getLoginScreen());
-                        } else {
-                          _controller.nextPage(
-                            duration: const Duration(milliseconds: 400),
-                            curve: Curves.easeIn,
-                          );
-                        }
-                      },
-                      child: const Icon(
-                        Icons.play_arrow_rounded,
-                        color: Colors.white,
-                        size: 20,
-                      )),
-                )
+                InkWell(
+                    onTap: () {
+                      if (_currentIndex == _pages.length - 1) {
+                        LocalStorage().setBoolValue(LocalStorage().isFirstLaunch, true);
+                        Get.offAllNamed(RouteHelper().getLoginScreen());
+                      } else {
+                        _controller.nextPage(
+                          duration: const Duration(milliseconds: 400),
+                          curve: Curves.easeIn,
+                        );
+                      }
+                    },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(color: ConstColors().themeColor),
+                        color: ConstColors().themeColor),
+                    child: const Icon(
+                    Icons.play_arrow_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),),),
               ],
             ),
           ),

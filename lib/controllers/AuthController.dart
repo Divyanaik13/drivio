@@ -1,7 +1,6 @@
 import 'package:another_telephony/telephony.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import '../repositories/AuthRepository.dart';
 import '../utils/CommonFunctions.dart';
 import '../utils/LocalStorage.dart';
@@ -24,9 +23,26 @@ class AuthController extends GetxController{
       response = await _authRepo.signUpRepo(fullname, mobileNumber, email, referral);
       print("sign up response :-- $response");
       CommonFunctions().hideLoader();
-      if(response.data["success"] == 0){
-        CommonFunctions().alertDialog("Alert", response.data["message"], "Ok", (){
-          Get.offAllNamed(RouteHelper().getLoginScreen(),arguments: mobileNumber);
+      if(response.data["success"] == 0 && response.data["message"] == "Email already exists"){
+        CommonFunctions().alertDialog("Alert","This email address is already registered.", "Ok", (){
+          Get.back();
+        });
+      }else if(response.data["success"] == 0 && response.data["message"] == "Mobile number already exists") {
+        CommonFunctions().alertDialog(
+            "Alert","This phone number is already registered.", "Ok", () {
+          Get.offAllNamed(
+              RouteHelper().getLoginScreen(), arguments: mobileNumber);
+        });
+      }else if(response.data["success"] == 0 && response.data["message"] == "Mobile number already exists" && response.data["message"] == "Email already exists") {
+        CommonFunctions().alertDialog(
+            "Alert","An account with this email and phone number already exists", "Ok", () {
+          Get.offAllNamed(
+              RouteHelper().getLoginScreen(), arguments: mobileNumber);
+        });
+      }else if(response.data["success"] == 0) {
+        CommonFunctions().alertDialog(
+            "Alert", response.data["message"], "Ok", () {
+          Get.back();
         });
       }
     }catch(e){
@@ -43,11 +59,39 @@ class AuthController extends GetxController{
     try{
       print("verify otp :-- $otp");
       response = await _authRepo.verifyOtpRepo(mobileNumber, otp, type);
+
       print("verify otp response :-- $response");
+
       CommonFunctions().hideLoader();
-      if (response.statusCode == 200) {
-        print("verify otp api success");
-        var data = response.data["data"];
+
+
+      if(response.data["success"] == 0 && response.data["message"] == "Invalid OTP"){
+        CommonFunctions().alertDialog("Incorrect OTP","Please enter the correct OTP.", "Ok", (){
+           Get.back();
+        //  Get.offAllNamed(RouteHelper().getLoginScreen(),arguments: mobileNumber);
+        });
+      }
+
+      final statusCode = response?.statusCode ?? 0;
+      final Map<String, dynamic> raw = (response?.data is Map<String, dynamic>)
+          ? response.data as Map<String, dynamic>
+          : <String, dynamic>{};
+
+      // Top-level fields from your sample payload
+      final int success = (raw["success"] is int)
+          ? raw["success"] as int
+          : (raw["status"] is int ? raw["status"] as int : 0);
+      final String message = (raw["message"] ?? "Something went wrong").toString();
+
+
+      // Only proceed when truly successful
+      if (statusCode == 200 && success == 1) {
+        final Map<String, dynamic> data =
+        (raw["data"] is Map<String, dynamic>) ? raw["data"] : <String, dynamic>{};
+
+        print("data :-- $data");
+        print("verify token :-- ${raw["token"]}");
+
         print("data :-- $data");
         print("verify token :-- ${response.data["token"]}");
         var authToken = response.data["token"].toString()??"";

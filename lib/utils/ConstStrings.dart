@@ -25,7 +25,7 @@ class ConstStrings{
 
 
   /// Login screen text
-  String drivTxt = "Driv";
+  String drivTxt = "Drive";
   String ioTxt = "io";
   String logInTxt = "Log in";
   String enterMobileNumberTxt = "Enter mobile number";

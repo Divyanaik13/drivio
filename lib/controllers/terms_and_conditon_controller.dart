@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
-import '../models/terms_and_condition_model.dart';
+import '../model/terms_and_condition_model.dart';
 
 class TermsAndConditionController extends GetxController {
   var termsData = Rxn<TermsAndConditionsModel>();

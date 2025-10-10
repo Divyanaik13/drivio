@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_places_flutter/google_places_flutter.dart';
 import 'package:sizer/sizer.dart';
-
 import '../../controllers/HomeController.dart';
 import '../../utils/CommonFunctions.dart';
 import '../../utils/ConstColors.dart';
+import '../../utils/widgets/SavedAddressBottomSheet.dart';
 
 class OneWayTripScreen extends StatefulWidget {
   const OneWayTripScreen({super.key});
@@ -403,7 +403,7 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
                                 }
                               },
                               child: Container(
-                                padding: EdgeInsets.all(15),
+                                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(30),
                                   color: ConstColors().themeColor,
@@ -411,12 +411,32 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
                                 child: Text(
                                   "Current location",
                                   style: TextStyle(
-                                      fontSize: 15.sp,
+                                      fontSize: 14.sp,
                                       fontWeight: FontWeight.w600,
                                       color: Colors.white),
                                 ),
                               ),
-                            )
+                            ),
+                      SizedBox(height: 10,),
+                      InkWell(
+                        onTap: (){
+                          showAddressBottomSheet(context);
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            color: ConstColors().themeColor,
+                          ),
+                          child: Text(
+                            "Add location manually",
+                            style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ],

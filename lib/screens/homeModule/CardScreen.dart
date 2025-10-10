@@ -1,7 +1,10 @@
+import 'package:drivio_sarthi/network/RazorePayApi.dart';
 import 'package:drivio_sarthi/utils/RouteHelper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+
+import '../../controllers/RazorPayController.dart';
 
 class CardScreen extends StatefulWidget {
   const CardScreen({super.key});
@@ -11,6 +14,9 @@ class CardScreen extends StatefulWidget {
 }
 
 class _CardScreenState extends State<CardScreen> {
+  final paymentCtrl = Get.put(RazorPayController(PaymentApi()));
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -108,6 +114,7 @@ class _CardScreenState extends State<CardScreen> {
                         fontWeight: FontWeight.w500),
                   ),
                   SizedBox(height: 8),
+                  
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
@@ -116,14 +123,45 @@ class _CardScreenState extends State<CardScreen> {
                       minimumSize: Size(double.infinity, 50),
                     ),
                     onPressed: () {
-                      Get.toNamed(RouteHelper().getOrderPlacedSuccessScreen());
+                      paymentCtrl.startPayment(
+                        amountInRupees: 1,
+                        platform: 'android',
+                        name: 'Kanita Verma',
+                        phone: '07489704225',
+                        email: '',
+                      );
+                     // Get.toNamed(RouteHelper().getOrderPlacedSuccessScreen());
                     },
                     child: Text(
                       "Pay · ₹100",
                       style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
                   ),
-                ],
+
+             /* ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  minimumSize: Size(double.infinity, 50),
+                ),
+                onPressed: () {
+                  paymentCtrl.startPayment(
+                    amountInRupees: cartController.totalAmount.value,  // dynamic amount
+                    platform: Platform.isAndroid ? 'android' : 'ios',  // platform detect
+                    name: userController.userName.value,               // user name from profile
+                    phone: userController.userPhone.value,             // user phone
+                    email: userController.userEmail.value,             // user email
+                  );
+                },
+                child: Obx(() => Text(
+                  "Pay · ₹${cartController.totalAmount.value}",
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                )),
+              );*/
+
+              ],
               ),
             ),
           ],

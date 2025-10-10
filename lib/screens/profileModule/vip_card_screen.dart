@@ -1,5 +1,4 @@
 import 'package:drivio_sarthi/controllers/vip_card_controller.dart';
-import 'package:drivio_sarthi/screens/homeModule/notification_screen.dart';
 import 'package:drivio_sarthi/screens/profileModule/terms_and_conditions.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -22,17 +21,20 @@ class VipCardScreen extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
           child: Padding(
-        padding: const EdgeInsets.all(10.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             WgLefticonText(
-              icon: Icons.arrow_back,
-              text: "Doc vip card",
+              icon: Icons.arrow_back,iconSize: 25,
+              text: "Vip card", fontSize: 17.sp,
               onTap: () {
-                Get.to(NotificationScreen());
+                Get.back();
               },
               isBold: true,
+            ),
+            SizedBox(
+              height: 10,
             ),
             ClipRRect(
                 borderRadius: BorderRadius.circular(30),
@@ -108,39 +110,52 @@ class VipCardScreen extends StatelessWidget {
                 },
               );
             }),
-SizedBox(height: 22.h,),
-Column(
-  children: [
-    WgIconText(text: "Apply promo code percent ", icon: Icons.local_offer_outlined, iconSize: 20, iconColor: Colors.red, textSize: 14, textColor: Colors.black, onTap: (){debugPrint("user tap on promo code");}),
-    RichText(text: TextSpan(
-        children: [
-          TextSpan(
-              text: "Not Applicable on Outstation drives ",
-              style: TextStyle(
-                color: Colors.black,
-              )
-          ),
-          TextSpan(
-              text: " *Terms & condition",
-              style: TextStyle(
-                color: Colors.red,
-                decoration: TextDecoration.underline,
-              ),
-              recognizer: TapGestureRecognizer() ..onTap = (){
-                Get.to(TermsAndConditions());
-              }
-
-          ),
-        ]
-
-    )),
-    SizedBox(height: 2.h,),
-    WgButton(text: "Get Drivio VIP at  ₹599/month", onTap: (){
-      debugPrint("user tap on get vip");
-    },height: 4,width: 400,),
-  ],
-)
-
+            SizedBox(
+              height: 22.h,
+            ),
+            Column(
+              children: [
+                WgIconText(
+                    text: "Apply promo code percent ",
+                    icon: Icons.local_offer_outlined,
+                    iconSize: 20,
+                    iconColor: Colors.red,
+                    textSize: 14,
+                    textColor: Colors.black,
+                    onTap: () {
+                      debugPrint("user tap on promo code");
+                    }),
+                RichText(
+                    text: TextSpan(children: [
+                  TextSpan(
+                      text: "Not Applicable on Outstation drives ",
+                      style: TextStyle(
+                        color: Colors.black,
+                      )),
+                  TextSpan(
+                      text: " *Terms & condition",
+                      style: TextStyle(
+                        color: Colors.red,
+                        decoration: TextDecoration.underline,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          Get.to(TermsAndConditions());
+                        }),
+                ])),
+                SizedBox(
+                  height: 2.h,
+                ),
+                WgButton(
+                  text: "Get Drive-o-call VIP at  ₹599/month",
+                  onTap: () {
+                    debugPrint("user tap on get vip");
+                  },
+                  height: 4,
+                  width: 400,
+                ),
+              ],
+            )
           ],
         ),
       )),

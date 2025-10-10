@@ -157,7 +157,7 @@ class CommonWidgets {
               child: Center(
                 child: Text(text,
                     style: CommonFunctions()
-                        .commonTextStyle(FontWeight.w600, 16, colors: color)),
+                        .commonTextStyle(FontWeight.w600, 16.sp, colors: color)),
               ),
             ),
           ),

@@ -177,7 +177,7 @@ class CommonFunctions {
                   textAlign: TextAlign.center,
                   style: CommonFunctions().commonTextStyle(
                     FontWeight.w600,
-                    17.sp,
+                    16.sp,
                     colors: ConstColors().blackColor,
                   ),
                 ),
@@ -208,6 +208,11 @@ class CommonFunctions {
       Function(String otp) onOtpSubmit,
       VoidCallback onResendTap,) async {
      final authController = Get.find<AuthController>();
+
+     /// Reset OTP state every time
+     authController.otpTextController.clear();
+     authController.otpCode.value = "";
+
      await authController.startOtpListener();
 
     await Get.bottomSheet(
@@ -234,7 +239,6 @@ class CommonFunctions {
             const SizedBox(height: 6),
             Text("OTP sent to +91 $mobileNumber"),
             const SizedBox(height: 35),
-
             Obx(() => PinFieldAutoFill(
               controller: authController.otpTextController,
               codeLength: 4,

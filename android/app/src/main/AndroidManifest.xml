@@ -19,7 +19,7 @@
 
 
     <application
-        android:label="Drivio Sarthi"
+        android:label="DRIVE-O-CALL"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 

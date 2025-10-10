@@ -55,115 +55,6 @@ class HomeController extends GetxController {
   }
 
   ///Create booking Api Function
-/*  Future<void> createBookingApi(
-      String userName,
-      phoneNumber,
-      email,
-      type,
-      pickUp,
-      expectedEnd,
-      amount,
-      startDate,
-      startTime,
-      carName,
-      carType,
-      ) async {
-    CommonFunctions().showLoader();
-    var response;
-    try {
-      response = await _homeRepo.createBookingRepo(
-          userName,
-          phoneNumber,
-          email,
-          type,
-          pickUp,
-          expectedEnd,
-          amount,
-          startDate,
-          startTime,
-          carName,
-          carType,
-          );
-      CommonFunctions().hideLoader();
-      print("create Booking Api response :-- $response");
-      var data = response.data;
-
-      print("create Booking Api response :-- $data");
-
-      if (data["status"] == 1 ||
-          data["message"] == "Booking created successfully") {
-        Get.bottomSheet(
-          const DriverSearchingBottomSheet(
-            statusText: "Searching for nearby drivers...",
-          ),
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-        );
-      } else {
-        //data["message"] ?? "Booking failed",
-
-    }
-    }catch (e) {
-      CommonFunctions().hideLoader();
-      print("create Booking Api error :-- $e");
-    }
-    return response;
-  }*/
-  /// Create Booking API Function
-  /*Future<bool> createBookingApi(
-      String userName,
-      String phoneNumber,
-      String email,
-      String type,
-      String pickUp,
-      int expectedEnd,
-      int amount,
-      String startDate,
-      String startTime,
-      String carName,
-      String carType,
-      ) async {
-    CommonFunctions().showLoader();
-    var response;
-    try {
-      response = await _homeRepo.createBookingRepo(
-        userName,
-        phoneNumber,
-        email,
-        type,
-        pickUp,
-        expectedEnd,
-        amount,
-        startDate,
-        startTime,
-        carName,
-        carType,
-      );
-
-      CommonFunctions().hideLoader();
-      print("create Booking Api response :-- $response");
-      var data = response.data;
-      print("create Booking Api data :-- $data");
-      bookingID.value = data["id"].toString();
-      print("booking id :-- ${bookingID.value}");
-      if (data["status"] == 1 ||
-          data["message"] == "Booking created successfully") {
-        return data;
-      } else {
-        CommonFunctions().alertDialog(
-          "Booking Failed",
-          data["message"] ?? "Please try again later.",
-          "OK",
-              () => Get.back(),
-        );
-        return false;
-      }
-    } catch (e) {
-      CommonFunctions().hideLoader();
-      print("create Booking Api error :-- $e");
-      return false;
-    }
-  }*/
   Future<int?> createBookingApi(
       String userName,
       String phoneNumber,
@@ -220,6 +111,22 @@ class HomeController extends GetxController {
     }
   }
 
+  ///get save address Api Function
+  Future<void> getSaveAddressApi(
+      String userNumber, userEmail, buildingName, nearBylandmark, area, pincode, city, state) async {
+    CommonFunctions().showLoader();
+    var response;
+    try {
+      response = await _homeRepo.getSaveAddressRepo(
+           userNumber, userEmail, buildingName, nearBylandmark, area, pincode, city, state);
+      CommonFunctions().hideLoader();
+      print("get Save Address Api response :-- $response");
+    } catch (e) {
+      CommonFunctions().hideLoader();
+      print("get Save Address Api error :-- $e");
+    }
+    return response;
+  }
 
 
 }

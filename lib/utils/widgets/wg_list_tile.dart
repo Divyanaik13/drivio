@@ -1,3 +1,4 @@
+import 'package:drivio_sarthi/utils/AssetsImages.dart';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
@@ -31,24 +32,26 @@ class WgListTile extends StatelessWidget {
         width: width.w,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(20)),
+        //  color: Colors.grey.shade100,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             CircleAvatar(
-              backgroundImage: NetworkImage("https://i.postimg.cc/cCsYDjvj/user-2.png"),
+              child: Image.asset(AssetsImages().profileImage),
+            //  backgroundImage: NetworkImage("https://i.postimg.cc/cCsYDjvj/user-2.png"),
               radius: 35,
             ),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(headingText),
-                Text(subHeadingText1,style: TextStyle(color: Colors.grey),),
-                Text(subHeadingText2,style: TextStyle(color: Colors.grey),),
+                Text(headingText,style: TextStyle(color: Colors.black,fontSize: 15.sp),),
+                Text(subHeadingText1,style: TextStyle(color: Colors.grey,fontSize: 14.sp),),
+                Text(subHeadingText2,style: TextStyle(color: Colors.grey,fontSize: 14.sp),),
                 Row(
                   children: [
-                    Text(subHeadingText3,style: TextStyle(color: Colors.grey),),
+                    Text(subHeadingText3,style: TextStyle(color: Colors.grey,fontSize: 14.sp),),
                     SizedBox(width: 40.w,),
                     Text(subHeadingTextLeft,style: TextStyle(color: Colors.red),),
                   ],
@@ -60,6 +63,7 @@ class WgListTile extends StatelessWidget {
         ),
 
       ),
+
     );
   }
 }

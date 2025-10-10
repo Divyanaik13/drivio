@@ -22,7 +22,7 @@ class VipCardController extends GetxController {
       carouselImages.assignAll(data.carouselImages);
       price.value = data.price;
     } catch (e) {
-      Get.snackbar("Error", e.toString());
+     // Get.snackbar("Error", e.toString());
     } finally {
       isLoading(false);
     }

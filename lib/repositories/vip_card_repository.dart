@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:drivio_sarthi/models/vip_card_model.dart';
+import 'package:drivio_sarthi/model/vip_card_model.dart';
 import 'package:drivio_sarthi/network/ApiService.dart';
 import 'package:drivio_sarthi/network/WebService.dart';
 import 'package:get/get.dart';

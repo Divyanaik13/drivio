@@ -58,13 +58,13 @@ class _LoginScreenState extends State<LoginScreen>{
                 Center(
                   child: RichText(
                     text: TextSpan(
-                      text: ConstStrings().drivTxt,
-                      style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700, color: Colors.black),
+                      text: "DRIVE-O-CALL",
+                      style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w600, color: Colors.black),
                       children: [
-                        TextSpan(
+                      /*  TextSpan(
                           text: ConstStrings().ioTxt,
                           style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700, color: ConstColors().themeColor),
-                        ),
+                        ),*/
                       ],
                     ),
                   ),
@@ -111,11 +111,16 @@ class _LoginScreenState extends State<LoginScreen>{
                         final data = response.data;
                         print("login value :-- $data");
                         if (data is Map && data['success'] == 1) {
+                         /* authController.otpTextController.clear();
+                          authController.otpCode.value = "";*/
                           CommonFunctions().showOtpBottomSheet(
                             numberController.text.trim(),
                             "login", (otp){
                               authController.verifyOtpApi(numberController.text.trim(), otp, "login");
                           }, () {
+                            if (_formKey.currentState!.validate()){
+                              authController.loginApi(numberController.text.trim());
+                            }
                               print("Resend OTP clicked");
                         },
                           );
@@ -129,7 +134,7 @@ class _LoginScreenState extends State<LoginScreen>{
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                   Text(ConstStrings().dontHaveAnAccountTxt),
+                   Text(ConstStrings().dontHaveAnAccountTxt, style: TextStyle(fontSize: 14.5.sp),),
                   InkWell(
                     onTap: (){
                       Get.toNamed(RouteHelper().getSignUpScreen());
@@ -138,7 +143,8 @@ class _LoginScreenState extends State<LoginScreen>{
                       ConstStrings().signUpTxt,
                       style: TextStyle(
                           color: ConstColors().themeColor,
-                          fontWeight: FontWeight.w700
+                          fontWeight: FontWeight.w700,
+                        fontSize: 14.5.sp
                       ),
                     ),
                   ),

@@ -2,9 +2,11 @@ import 'package:another_telephony/telephony.dart';
 import 'package:drivio_sarthi/utils/AssetsImages.dart';
 import 'package:drivio_sarthi/utils/ConstColors.dart';
 import 'package:drivio_sarthi/utils/RouteHelper.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:sizer/sizer.dart';
 import '../../controllers/AuthController.dart';
 import '../../utils/CommonFunctions.dart';
 import '../../utils/CommonWidgets.dart';
@@ -67,21 +69,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   Center(
                     child: RichText(
                       text: TextSpan(
-                        text: ConstStrings().drivTxt,
+                        text: "DRIVE-O-CALL",
                         style: TextStyle(
-                          fontSize: 40,
+                          fontSize: 20.sp,
                           fontWeight: FontWeight.w700,
                           color: Colors.black,
                         ),
                         children: [
-                          TextSpan(
+                        /*  TextSpan(
                             text: ConstStrings().ioTxt,
                             style: TextStyle(
                               fontSize: 40,
                               fontWeight: FontWeight.w700,
                               color: ConstColors().themeColor,
                             ),
-                          ),
+                          ),*/
                         ],
                       ),
                     ),
@@ -172,27 +174,35 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         style: TextStyle(
                             color: Colors.black38,
                             fontWeight: FontWeight.w400,
-                            fontSize: 12),
+                            fontSize: 13.5.sp),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 50),
                     child: RichText(
                       textAlign: TextAlign.center,
                       text: TextSpan(
                         text: ConstStrings().bySigningInYouAgreeToYourTxt,
-                        style: TextStyle(fontSize: 15, color: Colors.black),
+                        style: TextStyle(fontSize: 15.sp, color: Colors.black),
                         children: [
                           TextSpan(
                             text: ConstStrings().termsAndConditionsTxt,
                             style: TextStyle(color: ConstColors().themeColor),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                Get.toNamed(RouteHelper().getTermsAndConditions());
+                              },
                           ),
                           TextSpan(text: ConstStrings().andTxt),
                           TextSpan(
                             text: ConstStrings().privacyPolicyTxt,
                             style: TextStyle(color: ConstColors().themeColor),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                Get.toNamed(RouteHelper().getPrivacyPolicyScreen());
+                              },
                           ),
                         ],
                       ),
@@ -237,37 +247,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           }, (){
 
                           }
-                           /* (otp) {
-                              print("OTP submitted: $otp");
-                              // if (authController
-                              //     .otpTextController.text.isEmpty) {
-                              //   CommonFunctions().alertDialog(
-                              //       "Alert", "Please enter OTP", "Ok", () {
-                              //     Get.back();
-                              //   });
-                              // } else if (authController
-                              //         .otpTextController.text.length <
-                              //     4) {
-                              //   CommonFunctions().alertDialog(
-                              //       "Alert", "Please enter correct OTP", "Ok",
-                              //       () {
-                              //     Get.back();
-                              //   });
-                              // } else {
-                              //   authController.verifyOtpApi(
-                              //       mobileController.text.trim(),
-                              //       authController.otpTextController.text
-                              //           .trim(),
-                              //       "signup");
-                              // }
-                              authController.verifyOtpApi(
-                                  mobileController.text.trim(),
-                                  otp,
-                                  "signup");
-                            },
-                            () {
-                              // resend otp tab
-                            },*/
                           );
                         }
                       });
@@ -281,7 +260,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(ConstStrings().alreadyHaveAnAccountTxt),
+                  Text(ConstStrings().alreadyHaveAnAccountTxt, style: TextStyle(fontSize: 14.5.sp),),
                   InkWell(
                     onTap: () {
                       Get.toNamed(RouteHelper().getLoginScreen());
@@ -290,7 +269,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ConstStrings().loginTxt,
                       style: TextStyle(
                         color: ConstColors().themeColor,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w700, fontSize: 14.5.sp
                       ),
                     ),
                   ),

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:another_telephony/telephony.dart';
 import 'package:flutter/material.dart';
-import 'package:drivio_sarthi/screens/homeModule/HomeScreen.dart';
 import 'package:drivio_sarthi/utils/LocalStorage.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
@@ -49,21 +48,9 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.red,
+      backgroundColor: Colors.black,
       body: Center(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              height: 8.h,
-              width: 50.w,
-              padding: EdgeInsets.only(right: 30.w),
-              child: Image.asset(AssetsImages().splashIcon, height: 50),
-            ),
-            Image.asset(AssetsImages().drivioIcon, height: 50),
-          ],
-        ),
+        child: Image.asset(AssetsImages().docLogoImage, height: 70.h, width: 100.w,),
       ),
     );
   }

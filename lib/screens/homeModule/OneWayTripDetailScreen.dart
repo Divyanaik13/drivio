@@ -8,10 +8,14 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
 import '../../controllers/HomeController.dart';
+import '../../model/DriverInfoModel.dart';
 import '../../network/SocketService.dart';
 import '../../utils/CommonFunctions.dart';
 import '../../utils/LocalStorage.dart';
 import '../../utils/widgets/DriverSearchingBootmSheet.dart';
+
+final GlobalKey<DriverSearchingBottomSheetState> bottomSheetKey =
+    GlobalKey<DriverSearchingBottomSheetState>();
 
 class OneWayTripDetailScreen extends StatefulWidget {
   const OneWayTripDetailScreen({super.key});
@@ -24,7 +28,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
   TextEditingController sourceController = TextEditingController();
   TextEditingController destinationController = TextEditingController();
   var homeController = Get.find<HomeController>();
- // String? selectedHour;
+  // String? selectedHour;
   final TextEditingController manualController = TextEditingController();
 
   String selectedHour = "2 hour";
@@ -35,6 +39,10 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
   var phoneNumber = "";
   var email = "";
   RxString selectedTransmission = "Manual".obs;
+  RxString selectedCar = "Xuv 700".obs;
+  RxList<String> carList = ["Xuv 700", "Ford", "Baleno"].obs;
+  // Sentinel for Add New
+  String kAddNewSentinel = "__ADD__";
 
   LocalStorage ls = LocalStorage();
 
@@ -105,11 +113,11 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
             markerId: const MarkerId("source"),
             position: sourceLocation.value!,
             infoWindow: const InfoWindow(title: "Current Location"),
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueGreen),
           ),
         );
       }
-
     } else {
       /// Default pickup & drop
       sourceLocation.value = const LatLng(
@@ -131,7 +139,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
           child: const Icon(Icons.arrow_back, color: Colors.black),
         ),
         title: const Text(
-          "One way trip ↻",
+          "Trip details",
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
         ),
         centerTitle: true,
@@ -175,7 +183,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                   children: [
                     Container(
                       padding:
-                      EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                          EdgeInsets.symmetric(horizontal: 10, vertical: 20),
                       decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(15)),
@@ -183,26 +191,35 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Column(
-                            children:  [
+                            children: [
                               SizedBox(height: 15),
                               Icon(Icons.circle, color: Colors.red, size: 14),
-                              isNavigator != true ? SizedBox(height: 15) : SizedBox(height: 15),
-                              isNavigator != true ? Icon(Icons.more_vert,
-                                  size: 20, color: Colors.black):SizedBox(width: 10,),
-                              isNavigator != true ? SizedBox(height: 15) : SizedBox(height: 0),
-                              isNavigator != true ? Icon(Icons.circle, color: Colors.green, size: 14) : SizedBox(width: 10)
+                              isNavigator != true
+                                  ? SizedBox(height: 15)
+                                  : SizedBox(height: 15),
+                              isNavigator != true
+                                  ? Icon(Icons.more_vert,
+                                      size: 20, color: Colors.black)
+                                  : SizedBox(
+                                      width: 10,
+                                    ),
+                              isNavigator != true
+                                  ? SizedBox(height: 15)
+                                  : SizedBox(height: 0),
+                              isNavigator != true
+                                  ? Icon(Icons.circle,
+                                      color: Colors.green, size: 14)
+                                  : SizedBox(width: 10)
                             ],
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
                               children: [
-                                _customTextField(
-                                     sourceController),
+                                _customTextField(sourceController),
                                 const SizedBox(height: 12),
-                                if(isNavigator != true)
-                                  _customTextField(
-                                      destinationController),
+                                if (isNavigator != true)
+                                  _customTextField(destinationController),
                               ],
                             ),
                           )
@@ -214,82 +231,170 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
 
                     /// Today's vehicle
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisAlignment: isNavigator != true
+                          ? MainAxisAlignment.spaceBetween
+                          : MainAxisAlignment.end,
                       children: [
-                        Icon(Icons.access_time,
-                            size: 18.sp, color: Colors.red),
-                        SizedBox(width: 5),
-                        Text(selectedDateTime!,
-                            style: TextStyle(
-                                fontSize: 15.sp,
-                                fontWeight: FontWeight.w400)),
+                        if (isNavigator != true)
+                          Text(
+                              "Distance ${tripDistance?.toStringAsFixed(1)} km",
+                              style: TextStyle(
+                                  fontSize: 15.sp,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.grey)),
+                        Row(
+                          children: [
+                            Icon(Icons.access_time,
+                                size: 18.sp, color: Colors.red),
+                            SizedBox(width: 5),
+                            Text(selectedDateTime!,
+                                style: TextStyle(
+                                    fontSize: 15.sp,
+                                    fontWeight: FontWeight.w400)),
+                          ],
+                        ),
                       ],
                     ),
-                    const SizedBox(height: 10),
-                    if(isNavigator != true) Text("Distance ${tripDistance?.toStringAsFixed(1)} km",
-                        style: TextStyle(
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.grey)),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 15),
 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
                           width: 45.w,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 15),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
                             border: Border.all(color: Colors.black),
                             color: Colors.white,
                           ),
-                          child: Row(
-                            children: [
-                              Icon(Icons.directions_car,
-                                  color: ConstColors().themeColor,
-                                  size: 18.5.sp),
-                              SizedBox(
-                                width: 3.w,
-                              ),
-                              InkWell(
-                                onTap: (){
-                                  carDetailPopup();
-                                },
-                                child: Text("Xuv 700",
-                                    style: TextStyle(
-                                      fontSize: 14.5.sp,
-                                      fontWeight: FontWeight.w700,
-                                    )),
-                              ),
-                            ],
-                          ),
+                          child: Obx(() => Row(
+                                children: [
+                                  Icon(Icons.directions_car,
+                                      color: ConstColors().themeColor,
+                                      size: 18.5.sp),
+                                  SizedBox(width: 3.w),
+                                  Expanded(
+                                    child: DropdownButtonHideUnderline(
+                                      child: DropdownButton<String>(
+                                        isExpanded: true,
+                                        value: selectedCar.value,
+                                        dropdownColor:
+                                            Colors.white, // popup white
+                                        icon: const Icon(
+                                            Icons.arrow_drop_down_outlined),
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.5.sp,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                        items: [
+                                          // current cars
+                                          ...carList
+                                              .map((c) => DropdownMenuItem(
+                                                  value: c, child: Text(c)))
+                                              .toList(),
+                                          // add new sentinel
+                                          DropdownMenuItem(
+                                            value: kAddNewSentinel,
+                                            child: Row(
+                                              children: [
+                                                Icon(Icons.add,
+                                                    color: Colors.redAccent,
+                                                    size: 18),
+                                                SizedBox(width: 6),
+                                                Text("Add new car",
+                                                    style: TextStyle(
+                                                        color: Colors.redAccent,
+                                                        fontWeight:
+                                                            FontWeight.w600)),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                        onChanged: (value) async {
+                                          if (value == null) return;
+
+                                          if (value == kAddNewSentinel) {
+                                            // 👇 navigate with GetX
+                                            // Replace with your actual route helper
+                                            final newCarName =
+                                                await Get.toNamed(
+                                              RouteHelper()
+                                                  .getMyCarScreen(), // e.g. '/add-car'
+                                              arguments: {
+                                                "preFill": "", // optional
+                                              },
+                                            );
+
+                                            // Expect a String back from AddCar screen
+                                            if (newCarName is String &&
+                                                newCarName.trim().isNotEmpty) {
+                                              final name = newCarName.trim();
+                                              if (!carList.contains(name)) {
+                                                carList.add(name);
+                                              }
+                                              selectedCar.value = name;
+                                            }
+                                          } else {
+                                            selectedCar.value = value;
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )),
                         ),
                         Container(
                           width: 45.w,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 15),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
-                            border: Border.all(color: Colors.black26),
-                            color: Colors.white,
+                            border: Border.all(color: Colors.black),
+                            color: Colors.white, // box background
                           ),
-                          child: Row(
-                            children: [
-                              Icon(Icons.format_line_spacing,
-                                  color: ConstColors().themeColor,
-                                  size: 18.5.sp),
-                              SizedBox(
-                                width: 3.w,
-                              ),
-                              Text("Manual",
-                                  style: TextStyle(
-                                    fontSize: 14.5.sp,
-                                    fontWeight: FontWeight.w700,
-                                  )),
-                            ],
-                          ),
+                          child: Obx(() => Row(
+                                children: [
+                                  Icon(Icons.format_line_spacing,
+                                      color: ConstColors().themeColor,
+                                      size: 18.5.sp),
+                                  SizedBox(width: 3.w),
+                                  Expanded(
+                                    child: DropdownButtonHideUnderline(
+                                      child: DropdownButton<String>(
+                                        isExpanded: true,
+                                        value: selectedTransmission.value,
+                                        dropdownColor: Colors.white,
+                                        style: TextStyle(
+                                          color: Colors.black, // text color
+                                          fontSize: 15.5.sp,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        items: const [
+                                          DropdownMenuItem(
+                                            value: "Manual",
+                                            child: Text("Manual"),
+                                          ),
+                                          DropdownMenuItem(
+                                            value: "Automatic",
+                                            child: Text("Automatic"),
+                                          ),
+                                        ],
+                                        onChanged: (value) {
+                                          if (value != null) {
+                                            selectedTransmission.value = value;
+                                          }
+                                        },
+                                        icon: const Icon(
+                                            Icons.arrow_drop_down_outlined),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )),
                         ),
                       ],
                     ),
@@ -305,7 +410,8 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                     const SizedBox(height: 10),
                     Container(
                       width: 100.w,
-                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(15),
@@ -318,7 +424,8 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                             child: DropdownButtonFormField<String>(
                               value: selectedHour,
                               decoration: InputDecoration(
-                                contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 15, vertical: 10),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
@@ -334,12 +441,12 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                               onChanged: (value) {
                                 setState(() {
                                   selectedHour = value!;
-                                  manualController.clear(); // clear manual input if dropdown selected
+                                  manualController.clear();
                                 });
                               },
                             ),
                           ),
-                        /*  SizedBox(width: 10),
+                          /*  SizedBox(width: 10),
                           // OR manual entry
                           Expanded(
                             flex: 1,
@@ -363,7 +470,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                         ],
                       ),
                     ),
-                   /* Container(
+                    /* Container(
                       width: 100.w,
                       padding:
                       EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -436,14 +543,14 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Drivio",
+                                  "DRIVE-O-CALL",
                                   style: TextStyle(
                                       fontSize: 14.sp,
                                       fontWeight: FontWeight.w700),
                                 ),
                                 SizedBox(height: 0.3.h),
                                 Text(
-                                  "Verified and Tested Driver",
+                                  "Verified and tested driver",
                                   style: TextStyle(
                                       fontSize: 15.sp,
                                       fontWeight: FontWeight.w400),
@@ -451,17 +558,20 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                               ],
                             ),
                           ),
-                      InkWell(
-                        onTap: () {
-                          final breakdown = _calculatePaymentBreakdown();
-                          Get.toNamed(
-                            RouteHelper().getPaymentBreakdownScreen(),
-                            arguments: breakdown,
-                          );
-                        },
-                        child: Icon(Icons.info_outline, color: ConstColors().themeColor),
-                      ),
-                          SizedBox(width: 10,),
+                          InkWell(
+                            onTap: () {
+                              final breakdown = _calculatePaymentBreakdown();
+                              Get.toNamed(
+                                RouteHelper().getPaymentBreakdownScreen(),
+                                arguments: breakdown,
+                              );
+                            },
+                            child: Icon(Icons.info_outline,
+                                color: ConstColors().themeColor),
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
                           Text(
                             "₹100",
                             style: TextStyle(
@@ -499,11 +609,16 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                             ),
                           ],
                         ),
-                        Text("Apply now",
-                            style: TextStyle(
-                                fontSize: 15.sp,
-                                color: ConstColors().themeColor,
-                                fontWeight: FontWeight.w700)),
+                        InkWell(
+                          onTap: () {
+                            //Get.toNamed(RouteHelper().getMyCarScreen());
+                          },
+                          child: Text("Apply now",
+                              style: TextStyle(
+                                  fontSize: 15.sp,
+                                  color: ConstColors().themeColor,
+                                  fontWeight: FontWeight.w700)),
+                        ),
                       ],
                     ),
 
@@ -541,13 +656,12 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
 
                 // Date & Time
                 DateTime selectedDT =
-                DateFormat("d MMM, h:mm a").parse(selectedDateTime!);
+                    DateFormat("d MMM, h:mm a").parse(selectedDateTime!);
                 String startDate = DateFormat("yyyy-MM-dd").format(selectedDT);
                 String startTime = DateFormat("HH:mm:ss").format(selectedDT);
 
-                // Vehicle info
-                String carName = "Xuv 700";
-                String carType = "Manual";
+                print("startDate :-- $startDate");
+                print("startTime :-- $startTime");
 
                 // Hours
                 int expectedEnd = int.parse(selectedHour.split(" ")[0]);
@@ -555,55 +669,6 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                 // Amount
                 String amount = "300";
 
-                // Call API
-              /*  bool success = await homeController.createBookingApi(
-                  userNme,
-                  phoneNumber,
-                  email,
-                  "hourly",
-                  pickUp,
-                  expectedEnd,
-                  300,
-                  startDate,
-                  startTime,
-                  carName,
-                  carType,
-                );*/
-
-               /* if (success) {
-                  // Initialize Socket
-                  SocketService().initSocket();
-                  print(" Socket initialized successfully");
-                  // Show Bottom Sheet
-                  Get.bottomSheet(
-                    const DriverSearchingBottomSheet(
-                      statusText: "Searching for nearby drivers...",
-                    ),
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                  );
-
-                  // Listen for real-time updates from backend
-                  SocketService().listenEvent('joinBooking', (eventData) {
-                    print("Driver assigned event: $eventData");
-
-                    // Update your UI or bottom sheet dynamically
-                    Get.bottomSheet(
-                      DriverSearchingBottomSheet(
-                        statusText: eventData['status'] ?? "Driver assigned!",
-                      ),
-                      isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                    );
-                  });
-                } else {
-                  CommonFunctions().alertDialog(
-                    "Booking Failed",
-                    "Please try again later",
-                    "OK",
-                        () => Get.back(),
-                  );
-                }*/
                 final bookingId = await homeController.createBookingApi(
                   userNme,
                   phoneNumber,
@@ -612,17 +677,18 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                   pickUp,
                   expectedEnd,
                   300,
-                  startDate,
+                  selectedDateTime!,
                   startTime,
-                  carName,
-                  carType,
+                  selectedCar.value,
+                  selectedTransmission.value,
                 );
 
                 if (bookingId != null) {
                   print('Booking created successfully with ID: $bookingId');
 
                   // Initialize & connect socket
-                  SocketService().initSocket(baseUrl: 'https://docapi.nuke.co.in');
+                  SocketService()
+                      .initSocket(baseUrl: 'https://docapi.nuke.co.in');
                   SocketService().connect();
 
                   // Join the booking room using the correct ID
@@ -630,7 +696,8 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
 
                   // Show searching UI
                   Get.bottomSheet(
-                    const DriverSearchingBottomSheet(
+                    DriverSearchingBottomSheet(
+                      key: bottomSheetKey,
                       statusText: "Searching for nearby drivers...",
                     ),
                     isScrollControlled: true,
@@ -639,27 +706,18 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
 
                   // Listen for assignment
                   SocketService().onDriverAssigned((eventData) {
-                    print("Driver assigned: $eventData");
-                    final driverName = eventData['driverName'] ?? "Unknown";
-                    final status = eventData['bookingStatus'] ?? "pending";
-
-                    Get.bottomSheet(
-                      DriverSearchingBottomSheet(
-                        statusText: "Driver $driverName ($status)",
-                      ),
-                      isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                    );
+                    debugPrint("Driver assigned: $eventData");
+                    final driver = DriverInfo.fromMap(eventData);
+                    bottomSheetKey.currentState?.showAssignedDriver(driver);
                   });
                 } else {
                   CommonFunctions().alertDialog(
                     "Booking Failed",
                     "Please try again later",
                     "OK",
-                        () => Get.back(),
+                    () => Get.back(),
                   );
                 }
-
               },
               child: const Text(
                 "Request for Driver",
@@ -672,12 +730,12 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
     );
   }
 
-  Widget _customTextField( TextEditingController controller) {
+  Widget _customTextField(TextEditingController controller) {
     return TextField(
       controller: controller,
       style: const TextStyle(fontSize: 14),
       decoration: InputDecoration(
-       // hintText: hint,
+        // hintText: hint,
         prefixIcon: const Icon(Icons.location_on_outlined, size: 20),
         contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
         border: OutlineInputBorder(
@@ -705,7 +763,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
           const SizedBox(width: 6),
           Text(text,
               style:
-              const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                  const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -720,7 +778,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
         "Alert",
         "Location permission denied",
         "Ok",
-            () => Get.back(),
+        () => Get.back(),
       );
       return;
     }
@@ -821,11 +879,12 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
   /// convert meters to km
   double calculateDistance(LatLng start, LatLng end) {
     return Geolocator.distanceBetween(
-      start.latitude,
-      start.longitude,
-      end.latitude,
-      end.longitude,
-    ) / 1000;
+          start.latitude,
+          start.longitude,
+          end.latitude,
+          end.longitude,
+        ) /
+        1000;
   }
 
   @override
@@ -833,7 +892,6 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
     _mapController?.dispose();
     super.dispose();
   }
-
 
   /// Calculate the payment for the ride
   Map<String, dynamic> _calculatePaymentBreakdown() {
@@ -848,7 +906,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
     double lateNightCharges = 0;
     if (selectedDateTime != null) {
       DateTime selectedDT =
-      DateFormat("d MMM, h:mm a").parse(selectedDateTime!);
+          DateFormat("d MMM, h:mm a").parse(selectedDateTime!);
       int hour = selectedDT.hour;
       if (hour >= 21 || hour < 4) {
         lateNightCharges = 100;
@@ -872,8 +930,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
     };
   }
 
-
-  Future carDetailPopup(){
+  Future carDetailPopup() {
     return showDialog(
       context: context,
       builder: (context) {
@@ -893,16 +950,16 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                     Center(
-                       child: Text(
+                    Center(
+                      child: Text(
                         "Select Car & Transmission",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16.sp,
                         ),
-                       ),
-                     ),
-                     SizedBox(height: 2.h),
+                      ),
+                    ),
+                    SizedBox(height: 2.h),
                     Text(
                       "Transmission",
                       style: TextStyle(
@@ -910,14 +967,15 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                         fontSize: 15.sp,
                       ),
                     ),
-                     SizedBox(height: 1.h),
+                    SizedBox(height: 1.h),
                     // Transmission section
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Expanded(
                           child: GestureDetector(
-                            onTap: () => setState(() => selectedTransmission = "Manual"),
+                            onTap: () =>
+                                setState(() => selectedTransmission = "Manual"),
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 15),
                               decoration: BoxDecoration(
@@ -945,9 +1003,10 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                                       color: selectedTransmission == "Manual"
                                           ? Colors.redAccent
                                           : Colors.black54,
-                                      fontWeight: selectedTransmission == "Manual"
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
+                                      fontWeight:
+                                          selectedTransmission == "Manual"
+                                              ? FontWeight.bold
+                                              : FontWeight.normal,
                                     ),
                                   ),
                                 ],
@@ -958,8 +1017,8 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: GestureDetector(
-                            onTap: () =>
-                                setState(() => selectedTransmission = "Automatic"),
+                            onTap: () => setState(
+                                () => selectedTransmission = "Automatic"),
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 15),
                               decoration: BoxDecoration(
@@ -987,9 +1046,10 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                                       color: selectedTransmission == "Automatic"
                                           ? Colors.redAccent
                                           : Colors.black54,
-                                      fontWeight: selectedTransmission == "Automatic"
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
+                                      fontWeight:
+                                          selectedTransmission == "Automatic"
+                                              ? FontWeight.bold
+                                              : FontWeight.normal,
                                     ),
                                   ),
                                 ],
@@ -1000,9 +1060,9 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                       ],
                     ),
 
-                     SizedBox(height: 2.h),
+                    SizedBox(height: 2.h),
 
-                     Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         "My car",
@@ -1013,7 +1073,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                       ),
                     ),
 
-                     SizedBox(height: 1.h),
+                    SizedBox(height: 1.h),
 
                     // Car cards
                     Row(
@@ -1022,7 +1082,8 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                         // Car 1
                         Expanded(
                           child: GestureDetector(
-                            onTap: () => setState(() => selectedCar = "Xuv 700"),
+                            onTap: () =>
+                                setState(() => selectedCar = "Xuv 700"),
                             child: Container(
                               padding: const EdgeInsets.all(10),
                               margin: const EdgeInsets.only(right: 10),
@@ -1056,8 +1117,10 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                                               color: Colors.white,
                                               shape: BoxShape.circle,
                                             ),
-                                            child: const Icon(Icons.check_circle,
-                                                size: 16, color: Colors.redAccent),
+                                            child: const Icon(
+                                                Icons.check_circle,
+                                                size: 16,
+                                                color: Colors.redAccent),
                                           ),
                                         ),
                                     ],
@@ -1113,8 +1176,10 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                                               color: Colors.white,
                                               shape: BoxShape.circle,
                                             ),
-                                            child: const Icon(Icons.check_circle,
-                                                size: 16, color: Colors.redAccent),
+                                            child: const Icon(
+                                                Icons.check_circle,
+                                                size: 16,
+                                                color: Colors.redAccent),
                                           ),
                                         ),
                                     ],
@@ -1147,7 +1212,8 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                               ),
                               child: Column(
                                 children: const [
-                                  Icon(Icons.add, size: 40, color: Colors.black45),
+                                  Icon(Icons.add,
+                                      size: 40, color: Colors.black45),
                                   SizedBox(height: 6),
                                   Text(
                                     "Add",
@@ -1163,7 +1229,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                       ],
                     ),
 
-                     SizedBox(height: 3.h),
+                    SizedBox(height: 3.h),
 
                     // Confirm Button
                     GestureDetector(
@@ -1204,5 +1270,4 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
       },
     );
   }
-
 }

@@ -7,18 +7,20 @@ class WebService{
   WebService._internal();
 
 
-  var baseUrl = "https://docapi.nuke.co.in/api/user";
+  var baseUrl = "https://docapi.nuke.co.in/api/";
 
-  var signUpApi = "/auth/register";
-  var loginApi = "/auth/login";
-  var verifyTopApi = "/auth/verify-otp";
-  var logoutApi = "/auth/logout";
-  var editProfileApi = "/auth/updateUser";
-  var deleteUserApi = "/auth/deleteUser";
-  var getReferCodeApi = "/auth/getReferCode";
-  var getSearchHistoryApi = "/search-history";
-  var vipCardApi = "/search-history"; //endpoint has to be change
-  var updateProfile = "/auth/uploadProfile";
-  var profileOtpVerify = "/auth/verifyOTPforUpdate";
-  var bookingBeforeAcceptApi = "/auth/bookingBeforeAccept";
+  var signUpApi = "user/auth/register";
+  var loginApi = "user/auth/login";
+  var verifyTopApi = "user/auth/verify-otp";
+  var logoutApi = "user/auth/logout";
+  var editProfileApi = "user/auth/updateUser";
+  var deleteUserApi = "user/auth/deleteUser";
+  var getReferCodeApi = "user/auth/getReferCode";
+  var getSearchHistoryApi = "user/search-history";
+  var vipCardApi = "user/search-history"; //endpoint has to be change
+  var updateProfile = "user/auth/uploadProfile";
+  var profileOtpVerify = "user/auth/verifyOTPforUpdate";
+  var bookingBeforeAcceptApi = "user/auth/bookingBeforeAccept";
+  var getCalculatedPaymentApi = "user/auth/getCalculatedPaymentBreakdown";
+  var getSaveAddressApi = "user/auth/saveAddress";
 }

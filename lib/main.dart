@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
    return Sizer(builder: (context, orientation, screenType){
       return GetMaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Drivio/Sarthi',
+        title: 'Drivio-O-Call',
         theme: ThemeData(
           useMaterial3: true,
           fontFamily: 'Poppins',

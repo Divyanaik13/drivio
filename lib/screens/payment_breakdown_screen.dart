@@ -10,7 +10,7 @@ class PaymentBreakdownScreen extends StatelessWidget {
 
   final List<Map<String, String>> paymentList = [
     {'title': 'Price', 'amount': '₹279.00'},
-    {'title': 'Drivio secure fee', 'amount': '₹15'},
+    {'title': 'Drive secure fee', 'amount': '₹15'},
     {'title': 'Taxes & fees', 'amount': '₹30.00'},
     {'title': 'Subtotal', 'amount': '₹324'},
     {'title': 'Total amount', 'amount': '₹324'},
