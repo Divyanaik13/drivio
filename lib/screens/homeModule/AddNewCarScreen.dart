@@ -1,13 +1,20 @@
+import 'package:drivio_sarthi/utils/AssetsImages.dart';
+import 'package:drivio_sarthi/utils/CommonWidgets.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:sizer/sizer.dart';
 
-class MyCarScreen extends StatefulWidget {
-  const MyCarScreen({super.key});
+import '../../utils/RouteHelper.dart';
+
+class AddNewCarScreen extends StatefulWidget {
+  const AddNewCarScreen({super.key});
 
   @override
-  State<MyCarScreen> createState() => _MyCarScreenState();
+  State<AddNewCarScreen> createState() => _AddNewCarScreenState();
 }
 
-class _MyCarScreenState extends State<MyCarScreen> {
+class _AddNewCarScreenState extends State<AddNewCarScreen> {
   // Colors
   static const Color _primary = Color(0xFFFF3B22);
   static const Color _textDark = Color(0xFF111111);
@@ -24,12 +31,15 @@ class _MyCarScreenState extends State<MyCarScreen> {
 
   final List<String> _nicknames = [
     "Enter nick name of your car",
-    "Beast",
-    "Silver Arrow",
-    "Road Runner",
-    "Thunder",
+    "Ford",
+    "Audi",
+    "Swift",
+    "Hector",
+    "XUV",
+    "Alto800",
+    "Other",
   ];
-  final List<String> _transmissions = ["Automatic", "Manual", "AMT", "CVT", "DCT"];
+  final List<String> _transmissions = ["Automatic", "Manual",];
 
   // Common input border
   OutlineInputBorder _border(Color color) => OutlineInputBorder(
@@ -39,12 +49,12 @@ class _MyCarScreenState extends State<MyCarScreen> {
 
   Widget _label(String text, {bool required = false}) {
     return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 8, top: 16),
+      padding: const EdgeInsets.only(bottom: 8, top: 16),
       child: RichText(
         text: TextSpan(
           text: text,
-          style: const TextStyle(
-            fontSize: 12.5,
+          style: TextStyle(
+            fontSize: 14.sp,
             color: _textDark,
             fontWeight: FontWeight.w600,
           ),
@@ -70,8 +80,8 @@ class _MyCarScreenState extends State<MyCarScreen> {
       filled: true,
       fillColor: Colors.white,
       hintText: hint,
-      hintStyle: const TextStyle(color: _hint, fontSize: 13.5),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      hintStyle: TextStyle(color: _hint, fontSize: 14.sp),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
       prefixIcon: prefixIcon,
       suffixIcon: suffixIcon,
       enabledBorder: _border(const Color(0xFFE0E0E0)),
@@ -93,44 +103,24 @@ class _MyCarScreenState extends State<MyCarScreen> {
     final bg = Theme.of(context).scaffoldBackgroundColor;
 
     return Scaffold(
-      backgroundColor: bg,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: bg,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87),
-          onPressed: () => Navigator.of(context).maybePop(),
-          tooltip: 'Back',
-        ),
-        title: const Text(
-          "Add new car",
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
-        ),
-      ),
+      backgroundColor: Colors.white,
+      appBar: CommonWidgets.appBarWidget("Add new car"),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding:  EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Top car photo
               Container(
-                width: 64,
-                height: 64,
-                margin: const EdgeInsets.only(bottom: 8),
+                width: 25.w,
+                height: 10.h,
+                margin: EdgeInsets.only(bottom: 8),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  image: const DecorationImage(
+                  image: DecorationImage(
                     fit: BoxFit.cover,
-                    image: NetworkImage(
-                      // Sample image; replace with your asset or picked image
-                      "https://images.unsplash.com/photo-1549921296-3a6b3e75d216?q=80&w=400",
-                    ),
+                    image: Image.asset(AssetsImages().carImage).image,
                   ),
                 ),
               ),
@@ -147,7 +137,7 @@ class _MyCarScreenState extends State<MyCarScreen> {
                 },
                 icon: const Icon(Icons.keyboard_arrow_down_rounded),
                 decoration: _decoration(),
-                style: const TextStyle(fontSize: 14, color: _textDark),
+                style: TextStyle(fontSize: 14.sp, color: _textDark),
               ),
 
               // Owner name
@@ -197,10 +187,7 @@ class _MyCarScreenState extends State<MyCarScreen> {
           height: 48,
           child: ElevatedButton(
             onPressed: () {
-              // TODO: handle submit
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Car added!")),
-              );
+              Get.back();
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: _primary,

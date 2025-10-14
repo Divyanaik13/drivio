@@ -67,15 +67,15 @@ class _HomeScreenState extends State<HomeScreen> {
     Future.delayed(Duration.zero, () {
       homeController.searchHistoryListApi(
           LocalStorage().getStringValue(LocalStorage().mobileNumber), 1, 20);
-      final savedImage = LocalStorage().getStringValue(LocalStorage().profileImg);
+      final savedImage =
+          LocalStorage().getStringValue(LocalStorage().profileImg);
       if (savedImage.isNotEmpty) {
         profileController.profileImageUrl.value = savedImage;
       } else {
-        profileController.updateProfileApi(profileController.profileImageUrl.value);
+        profileController
+            .updateProfileApi(profileController.profileImageUrl.value);
       }
-
     });
-
   }
 
   @override
@@ -95,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             print("latitude.value 1111 >> ${latitude.value}");
             print("location.value 1111 >> ${location.value}");
-           // await storeListApi();
+            // await storeListApi();
           } else {
             print("on resume else");
 
@@ -105,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 longitude.value = ConstStrings().longitude.value;
                 location.value = ConstStrings().location.value;
                 print("on resume else ${ConstStrings().location.value}");
-               // storeListApi();
+                // storeListApi();
               }
             });
           }
@@ -152,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Stack(
                       children: [
                         InkWell(
-                          onTap: (){
+                          onTap: () {
                             Get.toNamed(RouteHelper().getNotificationScreen());
                           },
                           child: const Icon(
@@ -181,7 +181,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         Get.toNamed(RouteHelper().getProfileScreen());
                       },
                       child: Obx(() {
-                        if (profileController.profileImageUrl.value.isNotEmpty) {
+                        if (profileController
+                            .profileImageUrl.value.isNotEmpty) {
                           return ClipRRect(
                             borderRadius: BorderRadius.circular(30),
                             child: Image.network(
@@ -190,7 +191,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               width: 4.h,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) =>
-                                  Image.asset(AssetsImages().profileImage, height: 4.h),
+                                  Image.asset(AssetsImages().profileImage,
+                                      height: 4.h),
                             ),
                           );
                         } else {
@@ -209,60 +211,68 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             const SizedBox(height: 4),
-        Obx(() => Row(
-              children: [
-                Text(ConstStrings().location.value,
-                    style: TextStyle(color: Colors.black54, fontSize: 14.sp, fontWeight: FontWeight.w400)),
-              ],
-            )),
+            Obx(() => Row(
+                  children: [
+                    Text(ConstStrings().location.value,
+                        style: TextStyle(
+                            color: Colors.black54,
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w400),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                )),
             const SizedBox(height: 16),
             SizedBox(
-              height: 30.h,
-              width: double.infinity,
-              child: Stack(
-                children: [
-                  Obx(() {
-                    if (ConstStrings().isLocationLoading.value) {
-                      return const Center(
-                        child: CircularProgressIndicator(), // Loader until location fetched
-                      );
-                    }
+                height: 30.h,
+                width: double.infinity,
+                child: Stack(
+                  children: [
+                    Obx(() {
+                      if (ConstStrings().isLocationLoading.value) {
+                        return const Center(
+                          child:
+                              CircularProgressIndicator(), // Loader until location fetched
+                        );
+                      }
 
-                    if (ConstStrings().latitude.value == 0.0 ||
-                        ConstStrings().longitude.value == 0.0) {
-                      return const Center(
-                        child: Text('Fetching location...'),
-                      );
-                    }
+                      if (ConstStrings().latitude.value == 0.0 ||
+                          ConstStrings().longitude.value == 0.0) {
+                        return const Center(
+                          child: Text('Fetching location...'),
+                        );
+                      }
 
-                    return ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: GoogleMap(
-                        initialCameraPosition: CameraPosition(
-                          target: LatLng(
-                            ConstStrings().latitude.value,
-                            ConstStrings().longitude.value,
-                          ),
-                          zoom: 15.0,
-                        ),
-                        mapType: MapType.normal,
-                        onMapCreated: (GoogleMapController controller) {},
-                        markers: {
-                          Marker(
-                            markerId: const MarkerId('source'),
-                            position: LatLng(
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: GoogleMap(
+                          initialCameraPosition: CameraPosition(
+                            target: LatLng(
                               ConstStrings().latitude.value,
                               ConstStrings().longitude.value,
                             ),
-                            infoWindow: const InfoWindow(title: 'Current Location'),
+                            zoom: 15.0,
                           ),
-                        },
-                      ),
-                    );
-                  }),
-                ],
-              )
-              /*Stack(
+                          mapType: MapType.normal,
+                          onMapCreated: (GoogleMapController controller) {},
+                          markers: {
+                            Marker(
+                              markerId: const MarkerId('source'),
+                              position: LatLng(
+                                ConstStrings().latitude.value,
+                                ConstStrings().longitude.value,
+                              ),
+                              infoWindow:
+                                  const InfoWindow(title: 'Current Location'),
+                            ),
+                          },
+                        ),
+                      );
+                    }),
+                  ],
+                )
+                /*Stack(
                 children: [
                   // Google Map
                   Obx(
@@ -293,7 +303,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),*/
-            ),
+                ),
             const SizedBox(height: 16),
             Expanded(
               child: SingleChildScrollView(
@@ -302,24 +312,33 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     /// Trip Options
                     Obx(() => Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        tripButton("One Way", Icons.keyboard_arrow_down_outlined, (){
-                          selectedTrip.value = "One Way";
-                          Get.toNamed(RouteHelper().getOneWayTripScreen(), arguments: true);
-                        },
-                      selectedTrip.value == "One Way",),
-                         SizedBox(width: 10.sp),
-                        tripButton("OutStation", Icons.add_road, (){
-                          selectedTrip.value = "OutStation";
-                          Get.toNamed(RouteHelper().getOneWayTripScreen());
-                        },
-                          selectedTrip.value == "OutStation",),
-                      ],
-                    ) ),
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            tripButton(
+                              "One Way",
+                              Icons.keyboard_arrow_down_outlined,
+                              () {
+                                selectedTrip.value = "One Way";
+                                Get.toNamed(RouteHelper().getOneWayTripScreen(),
+                                    arguments: true);
+                              },
+                              selectedTrip.value == "One Way",
+                            ),
+                            SizedBox(width: 10.sp),
+                            tripButton(
+                              "OutStation",
+                              Icons.add_road,
+                              () {
+                                selectedTrip.value = "OutStation";
+                                Get.toNamed(
+                                    RouteHelper().getOneWayTripScreen());
+                              },
+                              selectedTrip.value == "OutStation",
+                            ),
+                          ],
+                        )),
 
-
-                 /*   const SizedBox(height: 16),
+                    /*   const SizedBox(height: 16),
 
                     Container(
                       padding: const EdgeInsets.all(16),
@@ -341,7 +360,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           const SizedBox(height: 12),
 
                           // Search bar with clock button
-                        *//*  Row(
+                        */ /*  Row(
                             children: [
                               Expanded(
                                 child: InkWell(
@@ -396,7 +415,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
 
-                          const SizedBox(height: 16),*//*
+                          const SizedBox(height: 16),*/ /*
 
                           // My Location
                           Obx(
@@ -494,17 +513,19 @@ class _HomeScreenState extends State<HomeScreen> {
                               scrollDirection: Axis.horizontal,
                               children: [
                                 InkWell(
-                                  onTap: (){
-                                    Get.toNamed(RouteHelper().getVipCardScreen());
-                          },
+                                  onTap: () {
+                                    Get.toNamed(
+                                        RouteHelper().getVipCardScreen());
+                                  },
                                   child: serviceItem(
                                       AssetsImages().walletIcon, "Vip Card"),
                                 ),
                                 serviceItem(
                                     AssetsImages().handIcon, "Refer & Earn"),
                                 InkWell(
-                                  onTap: (){
-                                    Get.toNamed(RouteHelper().getMyCoinsScreen());
+                                  onTap: () {
+                                    Get.toNamed(
+                                        RouteHelper().getMyCoinsScreen());
                                   },
                                   child: serviceItem(
                                       AssetsImages().rupeesIcon, "My Coins"),
@@ -603,7 +624,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget tripButton(String text, IconData icon, VoidCallback onTap, bool isSelected) {
+  Widget tripButton(
+      String text, IconData icon, VoidCallback onTap, bool isSelected) {
     return GestureDetector(
       onTap: onTap,
       child: Container(

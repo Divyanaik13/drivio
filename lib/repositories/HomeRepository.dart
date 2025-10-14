@@ -92,14 +92,14 @@ class HomeRepo {
     var response;
     try {
       Map<String, dynamic> body = {
-        "userNumber": "9876543210",
-        "userEmail": "harshitarya0611@gmail.com",
-        "buildingName": "Green Apartment",
-        "nearBylandmark": "Near Park",
-        "area": "Sector 5",
-        "pincode": "462001",
-        "city": "Bhopal",
-        "state": "Madhya Pradesh"
+        "userNumber": userNumber,
+        "userEmail": userEmail,
+        "buildingName": buildingName,
+        "nearBylandmark": nearBylandmark,
+        "area": area,
+        "pincode": pincode,
+        "city": city,
+        "state": state
       };
       print("get Save Address Repo body :-- $body");
       response = await DioServices().postMethod(

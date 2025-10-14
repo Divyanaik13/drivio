@@ -4,16 +4,19 @@ import '../screens/authModule/PrivacyPolicy.dart';
 import '../screens/authModule/SignUpScreen.dart';
 import '../screens/authModule/loginScreen.dart';
 import '../screens/authModule/onBoardingScreen.dart';
+import '../screens/homeModule/AddNewCarScreen.dart';
 import '../screens/homeModule/CardScreen.dart';
 import '../screens/homeModule/HomeScreen.dart';
-import '../screens/homeModule/MyCarScreen.dart';
 import '../screens/homeModule/OneWayTrip.dart';
 import '../screens/homeModule/OneWayTripDetailScreen.dart';
 import '../screens/homeModule/OrderPlacedSuccessScreen.dart';
 import '../screens/homeModule/PaymentBreakdownScreen.dart';
+import '../screens/homeModule/SelectLocationScreen.dart';
 import '../screens/homeModule/my_coins_screen.dart';
 import '../screens/homeModule/notification_screen.dart';
+import '../screens/profileModule/MyCarScreen.dart';
 import '../screens/profileModule/ProfileScreen.dart';
+import '../screens/profileModule/SavedAddressScreen.dart';
 import '../screens/profileModule/terms_and_conditions.dart';
 import '../screens/profileModule/vip_card_screen.dart';
 
@@ -37,11 +40,14 @@ class RouteHelper{
   String orderPlacedSuccessScreen = "/OrderPlacedSuccessScreen";
   String paymentBreakdownScreen = "/PaymentBreakdownScreen";
   String vipCardScreen = "/VipCardScreen";
-  String myCarScreen = "/MyCarScreen";
+  String addNewCarScreen = "/AddNewCarScreen";
   String privacyPolicyScreen = "/PrivacyPolicyScreen";
   String notificationScreen = "/NotificationScreen";
   String termsAndConditions = "/TermsAndConditions";
   String myCoinsScreen = "/MyCoinsScreen";
+  String savedAddressScreen = "/SavedAddressScreen";
+  String myCarScreen = "/MyCarScreen";
+  String selectLocationScreen = "/SelectLocationScreen";
 
   String getSplashScreen() => splashScreen;
   String getLoginScreen() => loginScreen;
@@ -55,11 +61,14 @@ class RouteHelper{
   String getOrderPlacedSuccessScreen() => orderPlacedSuccessScreen;
   String getPaymentBreakdownScreen() => paymentBreakdownScreen;
   String getVipCardScreen() => vipCardScreen;
-  String getMyCarScreen() => myCarScreen;
+  String getAddNewCarScreen() => addNewCarScreen;
   String getPrivacyPolicyScreen() => privacyPolicyScreen;
   String getNotificationScreen() => notificationScreen;
   String getTermsAndConditions() => termsAndConditions;
   String getMyCoinsScreen() => myCoinsScreen;
+  String getSavedAddressScreen() => savedAddressScreen;
+  String getMyCarScreen() => myCarScreen;
+  String getSelectLocationScreen() => selectLocationScreen;
 
   List<GetPage> get pageList => [
     GetPage(name: splashScreen, page: () => SplashScreen()),
@@ -75,11 +84,14 @@ class RouteHelper{
     GetPage(name: orderPlacedSuccessScreen, page: () => OrderPlacedSuccessScreen()),
     GetPage(name: paymentBreakdownScreen, page: () => PaymentBreakdownScreen()),
     GetPage(name: vipCardScreen, page: () => VipCardScreen()),
-    GetPage(name: myCarScreen, page: () => MyCarScreen()),
+    GetPage(name: addNewCarScreen, page: () => AddNewCarScreen()),
     GetPage(name: privacyPolicyScreen, page: () => PrivacyPolicyScreen()),
     GetPage(name: notificationScreen, page: () => NotificationScreen()),
     GetPage(name: termsAndConditions, page: () => TermsAndConditions()),
     GetPage(name: myCoinsScreen, page: () => MyCoinsScreen()),
+    GetPage(name: savedAddressScreen, page: () => SavedAddressScreen()),
+    GetPage(name: myCarScreen, page: () => MyCarScreen()),
+    GetPage(name: selectLocationScreen, page: () => SelectLocationScreen()),
   ];
 
 }

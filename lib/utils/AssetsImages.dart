@@ -26,4 +26,5 @@ class AssetsImages{
   String contact = "assets/images/qlementine-icons_resume-16.png";
   String questionMark = "assets/images/questionMark.png";
   String docLogoImage = "assets/images/docLogo.png";
+  String carImage = "assets/images/audi.png";
 }

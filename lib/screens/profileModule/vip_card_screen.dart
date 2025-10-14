@@ -1,10 +1,10 @@
 import 'package:drivio_sarthi/controllers/vip_card_controller.dart';
 import 'package:drivio_sarthi/screens/profileModule/terms_and_conditions.dart';
+import 'package:drivio_sarthi/utils/CommonWidgets.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
-
 import '../../utils/widgets/wg_button.dart';
 import '../../utils/widgets/wg_carousel_slider.dart';
 import '../../utils/widgets/wg_lefticon_text.dart';
@@ -19,20 +19,14 @@ class VipCardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: CommonWidgets.appBarWidget("Vip Card"),
       body: SafeArea(
           child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            WgLefticonText(
-              icon: Icons.arrow_back,iconSize: 25,
-              text: "Vip card", fontSize: 17.sp,
-              onTap: () {
-                Get.back();
-              },
-              isBold: true,
-            ),
+           padding: const EdgeInsets.all(20.0),
+           child: Column(
+           crossAxisAlignment: CrossAxisAlignment.center,
+           children: [
             SizedBox(
               height: 10,
             ),

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:sizer/sizer.dart';
-
 import '../../controllers/HomeController.dart';
 
 var homeController = Get.find<HomeController>();
@@ -27,59 +25,36 @@ class _AddressSheet extends StatefulWidget {
 }
 
 class _AddressSheetState extends State<_AddressSheet> {
-  final _nameCtrl = TextEditingController(text: "Divya");
-  final _phoneCtrl = TextEditingController(text: "+91 7642056753");
+  final _nameCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
   final _emailCtrl = TextEditingController(text: "divya@gmail.com");
   final _cityCtrl = TextEditingController();
+  final _stateCtrl = TextEditingController();
   final _pinCodeCtrl = TextEditingController();
-  final _areaCtrl = TextEditingController(text: "Priyadarshini");
+  final _areaCtrl = TextEditingController();
+  final _buildingCtrl = TextEditingController();
   final _landmarkCtrl = TextEditingController();
-
-  String _orderingFor = "Myself";
-  String _addressTag = "Home";
 
   InputDecoration _dec(String hint, {IconData? icon, Widget? suffix}) {
     return InputDecoration(
       hintText: hint,
+      hintStyle: TextStyle(fontSize: 14.sp, color: Colors.grey.shade500),
       prefixIcon: icon == null ? null : Icon(icon),
       suffixIcon: suffix,
       filled: true,
       fillColor: const Color(0xFFF6F7F9),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Color(0xFFE6E8EB)),
+        borderRadius: BorderRadius.circular(30),
+        borderSide: const BorderSide(color: Colors.grey),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Color(0xFFE6E8EB)),
+        borderRadius: BorderRadius.circular(30),
+        borderSide: const BorderSide(color: Colors.grey),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Color(0xFF10A310), width: 1.2),
-      ),
-    );
-  }
-
-  Widget _chip(String label, IconData icon) {
-    final selected = _addressTag == label;
-    return ChoiceChip(
-      label: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16),
-          const SizedBox(width: 6),
-          Text(label),
-        ],
-      ),
-      selected: selected,
-      onSelected: (_) => setState(() => _addressTag = label),
-      selectedColor: const Color(0xFFE7F6E7),
-      backgroundColor: const Color(0xFFF1F3F5),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      labelStyle: TextStyle(
-        color: selected ? const Color(0xFF0E8F0E) : Colors.black87,
-        fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+        borderRadius: BorderRadius.circular(30),
+        borderSide: const BorderSide(color: Colors.grey, width: 1.2),
       ),
     );
   }
@@ -134,9 +109,15 @@ class _AddressSheetState extends State<_AddressSheet> {
               ),
               const SizedBox(height: 12),
               TextField(
-                controller: _cityCtrl,
-                decoration: _dec("City and state",
+                controller: _buildingCtrl,
+                decoration: _dec("Building name / house no.",
                     icon: Icons.location_city_outlined),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _cityCtrl,
+                decoration:
+                    _dec("City and state", icon: Icons.location_city_outlined),
               ),
               const SizedBox(height: 12),
               TextField(
@@ -147,12 +128,12 @@ class _AddressSheetState extends State<_AddressSheet> {
 
               TextField(
                 controller: _landmarkCtrl,
-                decoration:
-                _dec("Nearby landmark (optional)", icon: Icons.flag_outlined),
+                decoration: _dec("Nearby landmark (optional)",
+                    icon: Icons.flag_outlined),
               ),
 
               const SizedBox(height: 16),
-               Text(
+              Text(
                 "Enter your details",
                 style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15.sp),
               ),
@@ -166,15 +147,15 @@ class _AddressSheetState extends State<_AddressSheet> {
                 controller: _phoneCtrl,
                 keyboardType: TextInputType.phone,
                 decoration:
-                _dec("Your phone number", icon: Icons.phone_outlined),
+                    _dec("Your phone number", icon: Icons.phone_outlined),
               ),
-              const SizedBox(height: 10),
-              TextField(
+              const SizedBox(height: 18),
+              /*  TextField(
                 controller: _emailCtrl,
                 decoration: _dec("Your email", icon: Icons.email_outlined),
               ),
 
-              const SizedBox(height: 18),
+              const SizedBox(height: 18),*/
               SizedBox(
                 width: double.infinity,
                 height: 48,
@@ -187,62 +168,28 @@ class _AddressSheetState extends State<_AddressSheet> {
                     elevation: 0,
                   ),
                   onPressed: () {
-                    homeController.getSaveAddressApi("","","","","","","","");
+                    homeController.getSaveAddressApi(
+                        _phoneCtrl.text,
+                        "",
+                        _buildingCtrl.text,
+                        _landmarkCtrl.text,
+                        _areaCtrl.text,
+                        _pinCodeCtrl.text,
+                        _cityCtrl.text,
+                        "",
+                        );
                   },
                   child: Text(
                     "Save address",
                     style: TextStyle(
-                        color: Colors.white, fontSize: 15.sp, fontWeight: FontWeight.w600),
+                        color: Colors.white,
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _RadioPill<T> extends StatelessWidget {
-  final T value;
-  final T? groupValue;
-  final ValueChanged<T?> onChanged;
-  const _RadioPill({required this.value, required this.groupValue, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    final selected = value == groupValue;
-    return InkWell(
-      onTap: () => onChanged(value),
-      borderRadius: BorderRadius.circular(24),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? const Color(0xFFE7F6E7) : const Color(0xFFF1F3F5),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: selected ? const Color(0xFF10A310) : const Color(0xFFE1E4E8),
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Radio<T>(
-              value: value,
-              groupValue: groupValue,
-              onChanged: onChanged,
-              visualDensity: VisualDensity.compact,
-              activeColor: const Color(0xFF10A310),
-            ),
-            Text(
-              "$value",
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: selected ? const Color(0xFF0E8F0E) : Colors.black87,
-              ),
-            ),
-          ],
         ),
       ),
     );

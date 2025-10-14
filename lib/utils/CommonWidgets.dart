@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:sizer/sizer.dart';
 
 import 'CommonFunctions.dart';
 import 'ConstColors.dart';
 
 class CommonWidgets {
-
 
   static Widget customTextField({
     required TextEditingController controller,
@@ -188,4 +189,19 @@ class CommonWidgets {
       ),
     );
   }
+
+  static PreferredSizeWidget appBarWidget(String title){
+    return  AppBar(
+      elevation: 0,
+      backgroundColor: Colors.white,
+      foregroundColor: Colors.black,
+      centerTitle: true,
+      title: Text(title, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 17.sp)),
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () => Get.back(),
+      ),
+    );
+  }
+
 }

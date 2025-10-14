@@ -1,3 +1,4 @@
+import 'package:drivio_sarthi/utils/CommonWidgets.dart';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import '../../utils/AssetsImages.dart';
@@ -13,13 +14,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            "Notifications",
-            style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w500),
-          ),
-          centerTitle: true,
-        ),
+      backgroundColor: Colors.white,
+        appBar: CommonWidgets.appBarWidget("Notifications"),
         body: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(

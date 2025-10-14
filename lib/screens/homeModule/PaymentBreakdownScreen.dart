@@ -39,7 +39,7 @@ class _PaymentBreakdownScreenState extends State<PaymentBreakdownScreen> {
             backgroundColor: Colors.white,
             centerTitle: true,
             title: Text(
-              "Payment Breakdown",
+              "Payment",
               style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.w600,

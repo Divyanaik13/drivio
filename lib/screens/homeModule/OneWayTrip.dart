@@ -9,7 +9,6 @@ import 'package:sizer/sizer.dart';
 import '../../controllers/HomeController.dart';
 import '../../utils/CommonFunctions.dart';
 import '../../utils/ConstColors.dart';
-import '../../utils/widgets/SavedAddressBottomSheet.dart';
 
 class OneWayTripScreen extends StatefulWidget {
   const OneWayTripScreen({super.key});
@@ -41,7 +40,8 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
   @override
   void initState() {
     isNavigator = Get.arguments;
-    phoneNumber.value = LocalStorage().getStringValue(LocalStorage().mobileNumber);
+    phoneNumber.value =
+        LocalStorage().getStringValue(LocalStorage().mobileNumber);
     homeController.searchHistoryListApi(phoneNumber.value, 1, 20);
     super.initState();
   }
@@ -49,24 +49,10 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        leading: InkWell(
-            onTap: () {
-              Get.back();
-            },
-            child: Icon(Icons.arrow_back, color: Colors.black)),
-        title: Text(
-          isNavigator == true ?"One-way trip" : "Out station trip",
-          style: TextStyle(
-            fontSize: 17.sp,
-            fontWeight: FontWeight.w500,
-            color: Colors.black,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 0,
+      appBar: CommonWidgets.appBarWidget(
+        isNavigator == true ? "One-way trip" : "Out station trip",
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -115,7 +101,7 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
                           debounceTime: 400,
                           isLatLngRequired: true,
                           inputDecoration: InputDecoration(
-                            hintText: "Where from?",
+                            hintText: "Pickup location",
                             hintStyle: TextStyle(
                               fontWeight: FontWeight.w500,
                               fontSize: 15.px,
@@ -191,10 +177,13 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
                                     arguments: {
                                       "sourceLatitude": sourceLatitude.value,
                                       "sourceLongitude": sourceLongitude.value,
-                                      "destinationLatitude": destinationLatitude.value,
-                                      "destinationLongitude": destinationLongitude.value,
+                                      "destinationLatitude":
+                                          destinationLatitude.value,
+                                      "destinationLongitude":
+                                          destinationLongitude.value,
                                       "sourceLocation": sourceController.text,
-                                      "destinationLocation": destinationController.text,
+                                      "destinationLocation":
+                                          destinationController.text,
                                       "dateTime": selectedDateTime.toString(),
                                       "isNavigator": isNavigator,
                                     },
@@ -215,7 +204,6 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-
 
                       /// Destination field
                       isNavigator != true
@@ -371,26 +359,25 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
                                             "Selected date and time: $selectedDateTime");
                                         dateTime.value = selectedDateTime;
 
-
                                         /// Navigate to next screen
                                         Get.toNamed(
                                             RouteHelper()
                                                 .getOneWayTripDetailScreen(),
                                             arguments: {
                                               "sourceLatitude":
-                                              sourceLatitude.value,
+                                                  sourceLatitude.value,
                                               "sourceLongitude":
-                                              sourceLongitude.value,
+                                                  sourceLongitude.value,
                                               "destinationLatitude":
-                                              destinationLatitude.value,
+                                                  destinationLatitude.value,
                                               "destinationLongitude":
-                                              destinationLongitude.value,
+                                                  destinationLongitude.value,
                                               "sourceLocation":
-                                              sourceController.text,
+                                                  sourceController.text,
                                               "destinationLocation":
-                                              destinationController.text,
+                                                  destinationController.text,
                                               "dateTime":
-                                              selectedDateTime.toString(),
+                                                  selectedDateTime.toString(),
                                               "isNavigator": isNavigator,
                                             });
                                       }
@@ -403,7 +390,8 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
                                 }
                               },
                               child: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 15, vertical: 10),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(30),
                                   color: ConstColors().themeColor,
@@ -417,7 +405,7 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
                                 ),
                               ),
                             ),
-                      SizedBox(height: 10,),
+                      /*  SizedBox(height: 10,),
                       InkWell(
                         onTap: (){
                           showAddressBottomSheet(context);
@@ -436,11 +424,108 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
                                 color: Colors.white),
                           ),
                         ),
-                      ),
+                      ),*/
                     ],
                   ),
                 ],
               ),
+
+              /* Row(
+                children: [
+                  // Current location
+                  Expanded(
+                    child: InkWell(
+                      onTap: () async {
+                        CommonFunctions().showLoader();
+                        try {
+                          var position = await CommonFunctions().getCurrentLocation();
+                          if (position != null) {
+                            sourceLatitude.value = position.latitude;
+                            sourceLongitude.value = position.longitude;
+
+                            await CommonFunctions().getAddress(position.latitude, position.longitude);
+
+                            sourceLocation.value = ConstStrings().location.value;
+                            sourceController.text = ConstStrings().location.value;
+
+                            if (isNavigator == true) {
+                              CommonWidgets.keyboardHide();
+                              DateTime? selectedDateTime = await CommonFunctions()
+                                  .dateTimePicker(barrierDismissible: false);
+                              if (selectedDateTime != null) {
+                                dateTime.value = selectedDateTime;
+                                Get.toNamed(
+                                  RouteHelper().getOneWayTripDetailScreen(),
+                                  arguments: {
+                                    "sourceLatitude": sourceLatitude.value,
+                                    "sourceLongitude": sourceLongitude.value,
+                                    "destinationLatitude": destinationLatitude.value,
+                                    "destinationLongitude": destinationLongitude.value,
+                                    "sourceLocation": sourceController.text,
+                                    "destinationLocation": destinationController.text,
+                                    "dateTime": selectedDateTime.toString(),
+                                    "isNavigator": isNavigator,
+                                  },
+                                );
+                              }
+                            }
+                          }
+                        } catch (e) {
+                          print("current location error :-- $e");
+                        } finally {
+                          CommonFunctions().hideLoader();
+                        }
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          color: ConstColors().themeColor,
+                        ),
+                        child: Text(
+                          "Current location",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 10),
+
+                  // Add location manually
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        showAddressBottomSheet(context);
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          color: ConstColors().themeColor,
+                        ),
+                        child: Text(
+                          "Add location manually",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),*/
+
               const SizedBox(height: 20),
               Text(
                 "Search history",
@@ -470,20 +555,41 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
                                 color: Colors.black,
                               ),
                             ),
-                            /* Text(
-                        "837 Howard St, india , CA 94103, Indore",
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.grey[600],
-                        ),
-                      ),*/
                             SizedBox(height: 20)
                           ],
                         );
                       }),
                 );
-              })
+              }),
+              InkWell(
+                onTap: (){
+                  Get.toNamed(RouteHelper().getSelectLocationScreen(),);
+                },
+                child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.add_location_sharp,
+                      color: Colors.red,
+                      size: 20,
+                    ),
+                    SizedBox(
+                      width: 1.w,
+                    ),
+                    Text(
+                      "Select location on Map",
+                      style: TextStyle(
+                          fontSize: 14.5.sp,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.red),
+                    ),
+                  ],
+                )),
+              ),
+              SizedBox(
+                height: 1.h,
+              )
             ],
           ),
         ),

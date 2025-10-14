@@ -1,3 +1,4 @@
+import 'package:drivio_sarthi/utils/CommonWidgets.dart';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
@@ -7,6 +8,8 @@ class MyCoinsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: CommonWidgets.appBarWidget("My Coins"),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -14,24 +17,6 @@ class MyCoinsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header Row
-              Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    "My Coins",
-                    style: TextStyle(
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
               const SizedBox(height: 20),
 
               // Balance Row

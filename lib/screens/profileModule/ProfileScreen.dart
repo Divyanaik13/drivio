@@ -70,8 +70,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
-          title: Text(ConstStrings().profileTxt),
+          title: Text(ConstStrings().profileTxt, style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w600),),
           centerTitle: true,
           backgroundColor: Colors.white,
           elevation: 0,
@@ -351,6 +352,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(height: 30),
                       ListTile(
+                        onTap: () {
+                          Get.toNamed(RouteHelper().getMyCarScreen());
+                        },
                         leading: Image.asset(
                           AssetsImages().mapCarWash,
                           height: 35,
@@ -362,9 +366,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         subtitle: Text(
                           ConstStrings().addAndManageYourVehiclesTxt,
                         ),
-                        onTap: () {},
                       ),
                       ListTile(
+                        onTap: () {
+                          Get.toNamed(RouteHelper().getSavedAddressScreen());
+                          print("saved address");
+                        },
                         leading: Image.asset(
                           AssetsImages().locationIcon,
                           height: 35,
@@ -375,9 +382,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         subtitle: const Text("You can edit your address"),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                        onTap: () {},
                       ),
                       ListTile(
+                        onTap: () {
+                          Get.toNamed(RouteHelper().getPaymentBreakdownScreen());
+                        },
                         leading: Image.asset(
                           AssetsImages().contact,
                           height: 35,
@@ -388,7 +397,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         subtitle: const Text("manage your payment"),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                        onTap: () {},
                       ),
                       ListTile(
                         leading: Image.asset(
@@ -461,7 +469,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             );
           }
         }),
-        backgroundColor: const Color(0xFFFAFAF4),
       ),
     );
   }

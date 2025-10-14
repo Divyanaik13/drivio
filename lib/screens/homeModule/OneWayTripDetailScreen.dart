@@ -153,7 +153,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: SizedBox(
-                height: 200,
+                height: 300,
                 child: GoogleMap(
                   initialCameraPosition: CameraPosition(
                     target: sourceLocation.value!,
@@ -322,7 +322,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                                             final newCarName =
                                                 await Get.toNamed(
                                               RouteHelper()
-                                                  .getMyCarScreen(), // e.g. '/add-car'
+                                                  .getAddNewCarScreen(), // e.g. '/add-car'
                                               arguments: {
                                                 "preFill": "", // optional
                                               },
@@ -611,7 +611,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                         ),
                         InkWell(
                           onTap: () {
-                            //Get.toNamed(RouteHelper().getMyCarScreen());
+                            //Get.toNamed(RouteHelper().getAddNewCarScreen());
                           },
                           child: Text("Apply now",
                               style: TextStyle(
@@ -746,26 +746,6 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
         FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
         LengthLimitingTextInputFormatter(100),
       ],
-    );
-  }
-
-  Widget _chip(IconData icon, String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.black26),
-        borderRadius: BorderRadius.circular(30),
-        color: Colors.white,
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 16, color: Colors.black),
-          const SizedBox(width: 6),
-          Text(text,
-              style:
-                  const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
-        ],
-      ),
     );
   }
 
