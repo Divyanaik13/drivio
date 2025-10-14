@@ -14,9 +14,11 @@ import '../screens/homeModule/PaymentBreakdownScreen.dart';
 import '../screens/homeModule/SelectLocationScreen.dart';
 import '../screens/homeModule/my_coins_screen.dart';
 import '../screens/homeModule/notification_screen.dart';
+import '../screens/profileModule/FAQScreen.dart';
 import '../screens/profileModule/MyCarScreen.dart';
 import '../screens/profileModule/ProfileScreen.dart';
 import '../screens/profileModule/SavedAddressScreen.dart';
+import '../screens/profileModule/refer_screen.dart';
 import '../screens/profileModule/terms_and_conditions.dart';
 import '../screens/profileModule/vip_card_screen.dart';
 
@@ -48,6 +50,8 @@ class RouteHelper{
   String savedAddressScreen = "/SavedAddressScreen";
   String myCarScreen = "/MyCarScreen";
   String selectLocationScreen = "/SelectLocationScreen";
+  String referAndEarnPage = "/ReferAndEarnPage";
+  String faqScreen = "/FaqScreen";
 
   String getSplashScreen() => splashScreen;
   String getLoginScreen() => loginScreen;
@@ -69,6 +73,8 @@ class RouteHelper{
   String getSavedAddressScreen() => savedAddressScreen;
   String getMyCarScreen() => myCarScreen;
   String getSelectLocationScreen() => selectLocationScreen;
+  String getReferAndEarnPage() => referAndEarnPage;
+  String getFaqScreen() => faqScreen;
 
   List<GetPage> get pageList => [
     GetPage(name: splashScreen, page: () => SplashScreen()),
@@ -92,6 +98,8 @@ class RouteHelper{
     GetPage(name: savedAddressScreen, page: () => SavedAddressScreen()),
     GetPage(name: myCarScreen, page: () => MyCarScreen()),
     GetPage(name: selectLocationScreen, page: () => SelectLocationScreen()),
+    GetPage(name: referAndEarnPage, page: () => ReferAndEarnPage()),
+    GetPage(name: faqScreen, page: () => FaqScreen()),
   ];
 
 }

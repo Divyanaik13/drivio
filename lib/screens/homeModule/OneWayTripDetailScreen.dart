@@ -786,7 +786,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
   }
 
   /// Create Map with Polyline
-  void _onMapCreated(
+/*  void _onMapCreated(
       GoogleMapController controller, LatLng source, LatLng destination) {
     _mapController = controller;
 
@@ -854,7 +854,99 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
     }
 
     setState(() {});
+  }*/
+  void _onMapCreated(GoogleMapController controller, LatLng source, LatLng destination) {
+    _mapController = controller;
+
+    markers.clear();
+    polylines.clear();
+
+    markers.add(
+      Marker(
+        markerId: const MarkerId("source"),
+        position: source,
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+        infoWindow: InfoWindow(
+          title: "Pickup",
+          snippet: "Tap to edit",
+          onTap: () {
+            // OneWayTripScreen
+            Get.offNamed(
+              RouteHelper().getOneWayTripScreen(),
+              arguments: {
+                "isNavigator": isNavigator,
+                "editTarget": "source",
+                "prefill": {
+                  "address": sourceController.text,
+                  "lat": source.latitude,
+                  "lng": source.longitude,
+                },
+              },
+            );
+          },
+        ),
+        onTap: () {
+        },
+      ),
+    );
+
+    if (isNavigator != true) {
+      // DROP marker with Edit action
+      markers.add(
+        Marker(
+          markerId: const MarkerId("destination"),
+          position: destination,
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+          infoWindow: InfoWindow(
+            title: "Drop",
+            snippet: "Tap to edit",
+            onTap: () {
+              Get.offNamed(
+                RouteHelper().getOneWayTripScreen(),
+                arguments: {
+                  "isNavigator": isNavigator,
+                  "editTarget": "destination",
+                  "prefill": {
+                    "address": destinationController.text,
+                    "lat": destination.latitude,
+                    "lng": destination.longitude,
+                  },
+                },
+              );
+            },
+          ),
+        ),
+      );
+
+      polylines.add(
+        Polyline(
+          polylineId: const PolylineId("route"),
+          color: Colors.black,
+          width: 4,
+          points: [source, destination],
+        ),
+      );
+    }
+
+    if (isNavigator) {
+      _mapController?.animateCamera(CameraUpdate.newLatLngZoom(source, 14));
+    } else {
+      final bounds = LatLngBounds(
+        southwest: LatLng(
+          source.latitude <= destination.latitude ? source.latitude : destination.latitude,
+          source.longitude <= destination.longitude ? source.longitude : destination.longitude,
+        ),
+        northeast: LatLng(
+          source.latitude >= destination.latitude ? source.latitude : destination.latitude,
+          source.longitude >= destination.longitude ? source.longitude : destination.longitude,
+        ),
+      );
+      _mapController?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+    }
+
+    setState(() {});
   }
+
 
   /// convert meters to km
   double calculateDistance(LatLng start, LatLng end) {

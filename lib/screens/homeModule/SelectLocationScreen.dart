@@ -4,7 +4,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../utils/LocalStorage.dart';
 import '../../utils/widgets/SavedAddressBottomSheet.dart';
+import 'package:get/get.dart';
 
 class SelectLocationScreen extends StatefulWidget {
   const SelectLocationScreen({super.key});
@@ -14,12 +16,16 @@ class SelectLocationScreen extends StatefulWidget {
 }
 
 class _SelectLocationScreenState extends State<SelectLocationScreen> {
+  LocalStorage ls = LocalStorage();
+
   GoogleMapController? _map;
   LatLng? _initial;
   LatLng? _cameraTarget;
   bool _loading = true;
   bool _resolving = false;
+
   String _address = "";
+  Placemark? _place;
 
   @override
   void initState() {
@@ -37,8 +43,8 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
       perm = await Geolocator.requestPermission();
     }
     if (perm == LocationPermission.deniedForever || perm == LocationPermission.denied) {
-      // fallback to a default city center if permission denied
-      _initial = const LatLng(22.7196, 75.8577); // Indore
+      // fallback: Indore
+      _initial = const LatLng(22.7196, 75.8577);
       _cameraTarget = _initial;
       setState(() => _loading = false);
       return;
@@ -60,6 +66,7 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
       final placemarks = await placemarkFromCoordinates(point.latitude, point.longitude);
       if (placemarks.isNotEmpty) {
         final p = placemarks.first;
+        _place = p; // store it
         final line = [
           if (p.name != null && p.name!.isNotEmpty) p.name,
           if (p.subLocality != null && p.subLocality!.isNotEmpty) p.subLocality,
@@ -71,7 +78,10 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
         setState(() => _address = line);
       }
     } catch (_) {
-      setState(() => _address = "");
+      setState(() {
+        _address = "";
+        _place = null;
+      });
     } finally {
       setState(() => _resolving = false);
     }
@@ -103,16 +113,15 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
             myLocationButtonEnabled: true,
             zoomControlsEnabled: false,
             compassEnabled: false,
-            // Optional: if you also want tap-to-drop, keep a marker set and update it in onTap.
           ),
 
-          // Center pin (not a Google marker — draws above the map and feels snappier)
-          IgnorePointer(
+          // Center pin UI
+          const IgnorePointer(
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(Icons.location_pin, size: 44, color: Colors.green,),       // red pin
+                children: [
+                  Icon(Icons.pin_drop, size: 44, color: Colors.red),
                   SizedBox(height: 2),
                 ],
               ),
@@ -134,18 +143,18 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Select your location",style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),),
+                  Text("Select your location", style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500)),
                   SizedBox(height: 1.h),
                   Container(
-                    padding: EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade100,
                       border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(30)
+                      borderRadius: BorderRadius.circular(30),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.place, color: Colors.green),
+                        const Icon(Icons.place, color: Colors.red),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -157,20 +166,33 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
                             style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14.sp),
                           ),
                         ),
-                      /*  TextButton(onPressed: () async {
-                          // if you want a search screen, push it here
-                        }, child: const Text("Change")),*/
                       ],
                     ),
                   ),
                   const SizedBox(height: 10),
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (_cameraTarget == null) return;
-                      final sel = _cameraTarget!;
 
-                      /// Address bottom sheet
-                      showAddressBottomSheet(context);
+                      final prefill = AddressPrefill(
+                        formatted: _address,
+                        area: _place?.subLocality ?? _place?.name ?? "",
+                        building: "",
+                        city: _place?.locality ?? "",
+                        state: _place?.administrativeArea ?? "",
+                        pinCode: _place?.postalCode ?? "",
+                        landmark: "",
+                        lat: _cameraTarget!.latitude,
+                        lng: _cameraTarget!.longitude,
+                      );
+
+                      // Bottom sheet → wait for result
+                      final picked = await showAddressBottomSheet(context, prefill: prefill);
+
+                      // If user saved successfully, close SelectLocation with result
+                      if (picked != null) {
+                        Get.back(result: picked);
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFFFAF1A),

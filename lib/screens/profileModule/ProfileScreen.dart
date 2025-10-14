@@ -383,7 +383,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         subtitle: const Text("You can edit your address"),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                       ),
-                      ListTile(
+                      /*  ListTile(
                         onTap: () {
                           Get.toNamed(RouteHelper().getPaymentBreakdownScreen());
                         },
@@ -398,7 +398,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         subtitle: const Text("manage your payment"),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                       ),
-                      ListTile(
+                    ListTile(
                         leading: Image.asset(
                           AssetsImages().driverDostImage,
                           height: 35,
@@ -411,8 +411,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             "Join as driver partner Drive together, earn together"),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                         onTap: () {},
-                      ),
+                      ),*/
                       ListTile(
+                        onTap: () {
+                          Get.toNamed(RouteHelper().getReferAndEarnPage());
+                        },
                         leading: Image.asset(
                           AssetsImages().rupeesIcon,
                           height: 35,
@@ -424,9 +427,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         subtitle: const Text(
                             "Share your referral code with friends."),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                        onTap: () {},
                       ),
                       ListTile(
+                        onTap: () {
+                          Get.toNamed(RouteHelper().getFaqScreen());
+                        },
                         leading: Image.asset(
                           AssetsImages().questionMark,
                           height: 35,
@@ -438,7 +443,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         subtitle: const Text(
                             "Share your referral code with friends."),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                        onTap: () {},
                       ),
                       ListTile(
                         leading: const Icon(Icons.logout, color: Colors.red),

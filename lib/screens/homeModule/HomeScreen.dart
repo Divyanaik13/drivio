@@ -176,7 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                     const SizedBox(width: 7),
-                    InkWell(
+                   /* InkWell(
                       onTap: () {
                         Get.toNamed(RouteHelper().getProfileScreen());
                       },
@@ -205,7 +205,29 @@ class _HomeScreenState extends State<HomeScreen> {
                           );
                         }
                       }),
+                    ),*/
+                    InkWell(
+                      onTap: () => Get.toNamed(RouteHelper().getProfileScreen()),
+                      child: Obx(() {
+                        final url = profileController.profileImageUrl.value;
+                        return ClipRRect(
+                          borderRadius: BorderRadius.circular(30),
+                          child: url.isNotEmpty
+                              ? Image.network(
+                            url,
+                            height: 4.h, width: 4.h, fit: BoxFit.cover,
+                            // Small cache-bust if you update same URL often:
+                            key: ValueKey(url),
+                            loadingBuilder: (c, child, progress) =>
+                            progress == null ? child : Image.asset(AssetsImages().profileImage, height: 4.h),
+                            errorBuilder: (c, e, s) =>
+                                Image.asset(AssetsImages().profileImage, height: 4.h),
+                          )
+                              : Image.asset(AssetsImages().profileImage, height: 4.h),
+                        );
+                      }),
                     ),
+
                   ],
                 ),
               ],
@@ -233,10 +255,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       if (ConstStrings().isLocationLoading.value) {
                         return const Center(
                           child:
-                              CircularProgressIndicator(), // Loader until location fetched
+                              CircularProgressIndicator(),
                         );
                       }
-
                       if (ConstStrings().latitude.value == 0.0 ||
                           ConstStrings().longitude.value == 0.0) {
                         return const Center(
@@ -520,8 +541,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: serviceItem(
                                       AssetsImages().walletIcon, "Vip Card"),
                                 ),
-                                serviceItem(
-                                    AssetsImages().handIcon, "Refer & Earn"),
+                                InkWell(
+                                  onTap: (){
+                                   // Get.toNamed(RouteHelper().getReferAndEarnPage());
+                                  },
+                                  child: serviceItem(
+                                      AssetsImages().handIcon, "Refer & Earn"),
+                                ),
                                 InkWell(
                                   onTap: () {
                                     Get.toNamed(

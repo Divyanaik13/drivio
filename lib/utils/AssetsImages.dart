@@ -27,4 +27,5 @@ class AssetsImages{
   String questionMark = "assets/images/questionMark.png";
   String docLogoImage = "assets/images/docLogo.png";
   String carImage = "assets/images/audi.png";
+  String referCodeImage = "assets/images/refralCodeImage.png";
 }
