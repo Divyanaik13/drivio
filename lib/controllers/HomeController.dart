@@ -1,7 +1,7 @@
 import 'package:drivio_sarthi/model/SearchHistoryListModel.dart';
 import 'package:drivio_sarthi/utils/CommonFunctions.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
+import '../model/VipCardModel.dart';
 import '../repositories/HomeRepository.dart';
 
 class HomeController extends GetxController {
@@ -13,6 +13,8 @@ class HomeController extends GetxController {
   var searchHistoryListModel = Rxn<SearchHistoryListModel>();
   var lastSearch = "".obs;
   var bookingID = 0.obs;
+  var vipCardModel = Rxn<VipCardModel>();
+  var vipCardList = <VipCardList>[].obs;
 
   ///Search History List Repo Function
   Future<void> searchHistoryListApi(String phoneNumber, int page, limit) async {
@@ -128,5 +130,24 @@ class HomeController extends GetxController {
     return response;
   }
 
+  /// Get vip card Api Function
+  Future<void> getVipCardApi(String type) async {
+    CommonFunctions().showLoader();
+    var response;
+    try {
+      response =
+      await _homeRepo.getVipCardRepo(type);
+      CommonFunctions().hideLoader();
+      print("get Vip Card Api response :-- $response");
+      vipCardModel.value = VipCardModel.fromJson(response.data);
+      vipCardList.value = vipCardModel.value!.data;
+      print("vipCardModel.value :-- ${vipCardModel.value}");
+      print("vipCardList.value :-- ${vipCardList.value}");
+    } catch (e) {
+      CommonFunctions().hideLoader();
+      print("get Vip Card Api error :-- $e");
+    }
+    return response;
+  }
 
 }

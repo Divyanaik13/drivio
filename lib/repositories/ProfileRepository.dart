@@ -72,16 +72,54 @@ class ProfileRepo {
     }
   }
 
-  Future<dynamic> profileNumberOtpVerify() async{
+  /// Profile number otp verify
+  Future<dynamic> profileNumberOtpVerify() async {
     var response;
-    Map<String, dynamic> bodyMap = {
-
-    };
-    try{
-      response = await DioServices().postMethod(WebService().profileOtpVerify, bodyMap, await DioServices().getAllHeaders());
-    }catch(e){
+    Map<String, dynamic> bodyMap = {};
+    try {
+      response = await DioServices().postMethod(WebService().profileOtpVerify,
+          bodyMap, await DioServices().getAllHeaders());
+    } catch (e) {
       print("profileNumberOtpVerify error : $e");
     }
   }
+
+  /// Create car collection repo function
+  Future<dynamic> addCarRepo(String carname, ownername, carNumber,
+      transmissionType, mobileNumber) async {
+    var response;
+    Map<String, dynamic> bodyMap = {
+      "carname": carname,
+      "ownername": ownername,
+      "carNumber": carNumber,
+      "transmissionType": transmissionType,
+      "mobileNumber": mobileNumber,
+    };
+    try {
+      response = await DioServices().postMethod(
+          WebService().addCarApi, bodyMap, await DioServices().getAllHeaders());
+      print("add Car Repo response :-- $response");
+    } catch (e) {
+      print("add Car Repo error : $e");
+    }
+    return response;
+  }
+
+  /// get all car collection repo function
+  Future<dynamic> getCarCollectionRepo(String mobileNumber) async {
+    var response;
+    var url = "${WebService().getAllCarCollection}?mobileNumber=$mobileNumber";
+    try {
+      response = await DioServices().getMethod(
+        url, await DioServices().getAllHeaders(),
+      );
+      print("get Car Collection Repo :-- $response");
+    } catch (e) {
+      print("error get Car Collection Repo :-- $e");
+    }
+    return response;
+  }
+
+
 
 }

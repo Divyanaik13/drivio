@@ -80,9 +80,24 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
 
     phoneNumber.value =
         LocalStorage().getStringValue(LocalStorage().mobileNumber);
-    homeController.searchHistoryListApi(phoneNumber.value, 1, 20);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      homeController.searchHistoryListApi(phoneNumber.value, 1, 20);
+    });
 
     // Prefill pickup with current location if available
+    if (args is Map && args["existingDrop"] != null) {
+      final Map drop = args["existingDrop"] as Map;
+      final String dAddr = (drop["address"] ?? "") as String;
+      final double dLat  = ((drop["lat"] ?? 0.0) as num).toDouble();
+      final double dLng  = ((drop["lng"] ?? 0.0) as num).toDouble();
+
+      if (dAddr.isNotEmpty) {
+        destinationController.text = dAddr;
+        destinationLocation.value  = dAddr;
+        destinationLatitude.value  = dLat;
+        destinationLongitude.value = dLng;
+      }
+    }
     if (sourceController.text.isEmpty &&
         ConstStrings().location.value.isNotEmpty &&
         ConstStrings().latitude.value != 0.0 &&
@@ -123,7 +138,7 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
           sourceLongitude.value = lng;
 
           Future.microtask(() {
-            if (mounted) FocusScope.of(context).requestFocus(destinationFocusNode);
+            if (mounted) FocusScope.of(context).requestFocus(sourceFocusNode);
           });
         } else if (target == "destination") {
           destinationController.text = addr;
@@ -138,7 +153,7 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
       } else {
         if (target == "source") {
           Future.microtask(() {
-            if (mounted) FocusScope.of(context).requestFocus(destinationFocusNode);
+            if (mounted) FocusScope.of(context).requestFocus(sourceFocusNode);
           });
         } else if (target == "destination") {
           Future.microtask(() {
@@ -646,7 +661,7 @@ class _OneWayTripScreenState extends State<OneWayTripScreen> {
 
               child: Text(
                 "Confirm address",
-                style: TextStyle(fontSize: 15.sp, color: Colors.white),
+                style: TextStyle(fontSize: 16.sp, color: Colors.white),
               ),
             ),
           ),

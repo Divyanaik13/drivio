@@ -181,7 +181,7 @@ class _ReferAndEarnPageState extends State<ReferAndEarnPage> {
             child: Text(
               "Invite Friends",
               style: TextStyle(
-                fontSize: 15.sp,
+                fontSize: 16.sp,
                 fontWeight: FontWeight.w700,
               ),
             ),

@@ -14,13 +14,18 @@ class _NotificationScreenState extends State<NotificationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+        backgroundColor: Colors.white,
         appBar: CommonWidgets.appBarWidget("Notifications"),
         body: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ListView.separated(
+              Center(
+                  child: Text("No notification available",
+                      style: TextStyle(
+                          fontSize: 14.sp, fontWeight: FontWeight.w400))),
+              /*  ListView.separated(
                   shrinkWrap: true,
                   itemBuilder: (context, index) {
                     return Container(
@@ -94,8 +99,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     );
                   },
                   separatorBuilder: (context, index) => SizedBox(height: 15.sp),
-                  itemCount: 2)
+                  itemCount: 2)*/
             ],
           ),
         ));
-  }}
+  }
+}

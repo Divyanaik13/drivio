@@ -6,6 +6,8 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../controllers/profileController.dart';
+
 class MyCarScreen extends StatefulWidget {
   const MyCarScreen({super.key});
 
@@ -14,6 +16,9 @@ class MyCarScreen extends StatefulWidget {
 }
 
 class _MyCarScreenState extends State<MyCarScreen> {
+  var profileController = Get.find<ProfileController>();
+
+
   @override
   Widget build(BuildContext context) {
     final cars = <CarItem>[
@@ -88,7 +93,7 @@ class _MyCarScreenState extends State<MyCarScreen> {
                   ),
                   child: Text(
                     "Add new car",
-                    style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white, fontSize: 14.sp),
+                    style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 16.sp),
                   ),
                 ),
               ),

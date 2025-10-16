@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:drivio_sarthi/utils/AssetsImages.dart';
 import 'package:drivio_sarthi/utils/CommonFunctions.dart';
 import 'package:drivio_sarthi/utils/LocalStorage.dart';
@@ -176,7 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                     const SizedBox(width: 7),
-                   /* InkWell(
+                    /* InkWell(
                       onTap: () {
                         Get.toNamed(RouteHelper().getProfileScreen());
                       },
@@ -207,27 +208,33 @@ class _HomeScreenState extends State<HomeScreen> {
                       }),
                     ),*/
                     InkWell(
-                      onTap: () => Get.toNamed(RouteHelper().getProfileScreen()),
+                      onTap: () =>
+                          Get.toNamed(RouteHelper().getProfileScreen()),
                       child: Obx(() {
                         final url = profileController.profileImageUrl.value;
                         return ClipRRect(
                           borderRadius: BorderRadius.circular(30),
                           child: url.isNotEmpty
                               ? Image.network(
-                            url,
-                            height: 4.h, width: 4.h, fit: BoxFit.cover,
-                            // Small cache-bust if you update same URL often:
-                            key: ValueKey(url),
-                            loadingBuilder: (c, child, progress) =>
-                            progress == null ? child : Image.asset(AssetsImages().profileImage, height: 4.h),
-                            errorBuilder: (c, e, s) =>
-                                Image.asset(AssetsImages().profileImage, height: 4.h),
-                          )
-                              : Image.asset(AssetsImages().profileImage, height: 4.h),
+                                  url,
+                                  height: 4.h, width: 4.h, fit: BoxFit.cover,
+                                  // Small cache-bust if you update same URL often:
+                                  key: ValueKey(url),
+                                  loadingBuilder: (c, child, progress) =>
+                                      progress == null
+                                          ? child
+                                          : Image.asset(
+                                              AssetsImages().profileImage,
+                                              height: 4.h),
+                                  errorBuilder: (c, e, s) => Image.asset(
+                                      AssetsImages().profileImage,
+                                      height: 4.h),
+                                )
+                              : Image.asset(AssetsImages().profileImage,
+                                  height: 4.h),
                         );
                       }),
                     ),
-
                   ],
                 ),
               ],
@@ -235,13 +242,14 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 4),
             Obx(() => Row(
                   children: [
-                    Text(ConstStrings().location.value,
-                        style: TextStyle(
-                            color: Colors.black54,
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w400),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    Text(
+                      ConstStrings().location.value,
+                      style: TextStyle(
+                          color: Colors.black54,
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w400),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 )),
@@ -254,8 +262,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Obx(() {
                       if (ConstStrings().isLocationLoading.value) {
                         return const Center(
-                          child:
-                              CircularProgressIndicator(),
+                          child: CircularProgressIndicator(),
                         );
                       }
                       if (ConstStrings().latitude.value == 0.0 ||
@@ -335,26 +342,31 @@ class _HomeScreenState extends State<HomeScreen> {
                     Obx(() => Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            tripButton(
-                              "One Way",
-                              Icons.keyboard_arrow_down_outlined,
-                              () {
-                                selectedTrip.value = "One Way";
-                                Get.toNamed(RouteHelper().getOneWayTripScreen(),
-                                    arguments: true);
-                              },
-                              selectedTrip.value == "One Way",
+                            Expanded(
+                              child: tripButton(
+                                "One Way",
+                                Icons.arrow_upward_outlined,
+                                () {
+                                  selectedTrip.value = "One Way";
+                                  Get.toNamed(
+                                      RouteHelper().getOneWayTripScreen(),
+                                      arguments: true);
+                                },
+                                selectedTrip.value == "One Way",
+                              ),
                             ),
-                            SizedBox(width: 10.sp),
-                            tripButton(
-                              "OutStation",
-                              Icons.add_road,
-                              () {
-                                selectedTrip.value = "OutStation";
-                                Get.toNamed(
-                                    RouteHelper().getOneWayTripScreen());
-                              },
-                              selectedTrip.value == "OutStation",
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: tripButton(
+                                "OutStation",
+                                Icons.add_road,
+                                () {
+                                  selectedTrip.value = "OutStation";
+                                  Get.toNamed(
+                                      RouteHelper().getOneWayTripScreen());
+                                },
+                                selectedTrip.value == "OutStation",
+                              ),
                             ),
                           ],
                         )),
@@ -494,7 +506,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),*/
 
                     const SizedBox(height: 16),
-                    Container(
+                    /*Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -514,14 +526,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              Text(
+                              */ /*Text(
                                 "See all",
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   color: Colors.red,
                                   fontWeight: FontWeight.w500,
                                 ),
-                              ),
+                              ),*/ /*
                             ],
                           ),
                           const SizedBox(height: 16),
@@ -543,7 +555,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 InkWell(
                                   onTap: (){
-                                   // Get.toNamed(RouteHelper().getReferAndEarnPage());
+                                    Get.toNamed(RouteHelper().getReferAndEarnPage());
                                   },
                                   child: serviceItem(
                                       AssetsImages().handIcon, "Refer & Earn"),
@@ -561,7 +573,56 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ],
                       ),
+                    ),*/
+                    Container(
+                      padding: const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Services",
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              // Slightly smaller width for compact look
+                              double itemWidth =
+                                  (constraints.maxWidth - 20) / 3;
+                              return Wrap(
+                                spacing: 10,
+                                runSpacing: 10,
+                                children: [
+                                  serviceItem(
+                                      AssetsImages().walletIcon, "Vip Card",
+                                      width: itemWidth,
+                                      onTap: () => Get.toNamed(
+                                          RouteHelper().getVipCardScreen())),
+                                  serviceItem(
+                                      AssetsImages().handIcon, "Refer & Earn",
+                                      width: itemWidth,
+                                      onTap: () => Get.toNamed(
+                                          RouteHelper().getReferAndEarnPage())),
+                                  serviceItem(
+                                      AssetsImages().rupeesIcon, "My Coins",
+                                      width: itemWidth,
+                                      onTap: () => Get.toNamed(
+                                          RouteHelper().getMyCoinsScreen())),
+                                ],
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ),
+
                     const SizedBox(height: 16),
                     SizedBox(
                       height: 15.h,
@@ -655,27 +716,28 @@ class _HomeScreenState extends State<HomeScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: isSelected ? ConstColors().themeColor : Colors.white,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(color: Colors.black12),
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              color: isSelected ? Colors.white : Colors.black,
-            ),
-            SizedBox(
-              width: 10.sp,
-            ),
-            Text(
-              text,
-              style: TextStyle(
+            Icon(icon, color: isSelected ? Colors.white : Colors.black),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                text,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
                   color: isSelected ? Colors.white : Colors.black,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14.5.sp),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14.sp,
+                ),
+              ),
             ),
           ],
         ),
@@ -683,7 +745,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget serviceItem(String image, String title) {
+  /*Widget serviceItem(String image, String title) {
     return SizedBox(
       height: 110.h,
       child: Column(
@@ -713,7 +775,57 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }*/
+
+  Widget serviceItem(String image, String title,
+      {double? width, VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(5),
+        width: width ?? 100, // smaller card width
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(6), // tighter box
+              decoration: BoxDecoration(
+                color: const Color(0xFFEFEFEF), // subtle grey
+                borderRadius: BorderRadius.circular(20), // smaller radius
+              ),
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Padding(
+                  padding: const EdgeInsets.all(15), // minimal inner padding
+                  child: Image.asset(
+                    image,
+                    fit: BoxFit.contain,
+                    width: 10, // fixed smaller icon size
+                    height: 10,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 13.5.sp, // smaller text
+                fontWeight: FontWeight.w500,
+                color: Colors.black,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
+
+
 
   @override
   void dispose() {

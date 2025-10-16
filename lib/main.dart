@@ -50,10 +50,12 @@ class MyApp extends StatelessWidget {
         getPages: RouteHelper().pageList,
         initialBinding: BindingClass(),
         builder: (context, child) {
-          final mediaQuery =
-          MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(1.0));
+          final mq = MediaQuery.of(context);
+          double scale = mq.textScaler.scale(1.0);
+          if (scale < 0.85) scale = 0.85;
+          if (scale > 1.15) scale = 1.15;
           return MediaQuery(
-            data: mediaQuery,
+            data: mq.copyWith(textScaler: TextScaler.linear(scale)),
             child: EasyLoading.init()(context, child),
           );
         },

@@ -198,7 +198,7 @@ class _AddressSheetState extends State<_AddressSheet> {
               const SizedBox(height: 12),
               TextField(
                   controller: _buildingCtrl,
-                  decoration: _dec("Building name / house no.",
+                  decoration: _dec("Building name / house no. (Optional)",
                       icon: Icons.location_city_outlined)),
               const SizedBox(height: 12),
 
@@ -229,19 +229,19 @@ class _AddressSheetState extends State<_AddressSheet> {
                       icon: Icons.flag_outlined)),
 
               const SizedBox(height: 16),
-              Text("Enter your details",
+              Text("Add receiver's details",
                   style:
-                  TextStyle(fontWeight: FontWeight.w500, fontSize: 15.sp)),
+                  TextStyle(fontWeight: FontWeight.w700, fontSize: 15.sp)),
               const SizedBox(height: 10),
               TextField(
                   controller: _nameCtrl,
-                  decoration: _dec("Your name", icon: Icons.person_outline)),
+                  decoration: _dec("Enter name", icon: Icons.person_outline)),
               const SizedBox(height: 12),
               TextField(
                   controller: _phoneCtrl,
                   keyboardType: TextInputType.phone,
                   decoration:
-                  _dec("Your phone number", icon: Icons.phone_outlined)),
+                  _dec("Enter phone number", icon: Icons.phone_outlined)),
 
               const SizedBox(height: 18),
               SizedBox(
@@ -251,7 +251,7 @@ class _AddressSheetState extends State<_AddressSheet> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
+                        borderRadius: BorderRadius.circular(30)),
                     elevation: 0,
                   ),
                   onPressed: () async {
@@ -300,8 +300,8 @@ class _AddressSheetState extends State<_AddressSheet> {
                     "Save address",
                     style: TextStyle(
                         color: Colors.white,
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.w600),
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w700),
                   ),
                 ),
               ),

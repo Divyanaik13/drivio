@@ -23,4 +23,7 @@ class WebService{
   var bookingBeforeAcceptApi = "user/auth/bookingBeforeAccept";
   var getCalculatedPaymentApi = "user/auth/getCalculatedPaymentBreakdown";
   var getSaveAddressApi = "user/auth/saveAddress";
+  var addCarApi = "user/auth/createcar";
+  var getAllCarCollection = "user/auth/getAllCarByMobileNumber";
+  var getVipOffer = "user/auth/getOffers";
 }

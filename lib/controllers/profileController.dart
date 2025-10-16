@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:drivio_sarthi/utils/CommonFunctions.dart';
 import 'package:get/get.dart';
+import '../model/CarCollectionModel.dart';
 import '../repositories/ProfileRepository.dart';
 import '../utils/LocalStorage.dart';
 import '../utils/RouteHelper.dart';
@@ -14,7 +15,11 @@ class ProfileController extends GetxController {
   LocalStorage ls = LocalStorage();
   var imageFile = Rxn<File>();
   var profileImageUrl = "".obs;
+  var calCollectionModel = Rxn<CarCollectionModel>();
+  var car = Rxn<Car>();
 
+
+  /// update/edit profile function
   Future<dynamic> updateUserDataApi(
       String id, fullname, mobileNumber, email) async {
     CommonFunctions().showLoader();
@@ -49,7 +54,7 @@ class ProfileController extends GetxController {
     }
     return response;
   }
-
+ /// Update profile (image)
   Future<dynamic> updateProfileApi(String filePath) async {
     CommonFunctions().showLoader();
     try {
@@ -78,7 +83,7 @@ class ProfileController extends GetxController {
       return null;
     }
   }
-
+ /// Delete api function
   Future<dynamic> deleteApi(String id) async {
     CommonFunctions().showLoader();
     var response;
@@ -99,4 +104,45 @@ class ProfileController extends GetxController {
     }
     return response;
   }
+
+  /// Add car api function
+  Future<dynamic> addCarApi(String carname, ownername, carNumber,
+      transmissionType, mobileNumber) async {
+    CommonFunctions().showLoader();
+    var response;
+    try {
+      response = await _profileRepo.addCarRepo(carname, ownername, carNumber,
+          transmissionType, mobileNumber);
+      print("response add car :-- $response");
+      CommonFunctions().hideLoader();
+      if (response != null && response['success'] == 1) {
+        print("add car success");
+      }
+    } catch (e) {
+      print("add car Api error :-- $e");
+      CommonFunctions().hideLoader();
+    }
+    return response;
+  }
+
+  /// Get all car collection api function
+ Future<dynamic> getCarCollectionApi(String mobileNumber) async {
+      CommonFunctions().showLoader();
+      var response;
+      try {
+        response = await _profileRepo.getCarCollectionRepo(mobileNumber);
+        print("response get car collection :-- $response");
+        CommonFunctions().hideLoader();
+        if (response != null && response['success'] == 1) {
+          print("get car collection success");
+          calCollectionModel.value = CarCollectionModel.fromJson(response.data);
+          car.value = calCollectionModel.value!.data.car;
+          print("car collection :-- ${car.value!.carname}");
+        }
+      } catch (e) {
+        print("get car collection Api error :-- $e");
+        CommonFunctions().hideLoader();
+      }
+      return response;
+    }
 }

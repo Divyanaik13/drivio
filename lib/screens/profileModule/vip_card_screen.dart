@@ -1,21 +1,28 @@
-import 'package:drivio_sarthi/controllers/vip_card_controller.dart';
 import 'package:drivio_sarthi/screens/profileModule/terms_and_conditions.dart';
-import 'package:drivio_sarthi/utils/CommonWidgets.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
+import '../../controllers/vip_card_controller.dart';
+import '../../utils/CommonWidgets.dart';
 import '../../utils/widgets/wg_button.dart';
 import '../../utils/widgets/wg_carousel_slider.dart';
 import '../../utils/widgets/wg_lefticon_text.dart';
 
-class VipCardScreen extends StatelessWidget {
-  VipCardScreen({super.key});
+class VipCardScreen extends StatefulWidget {
+  const VipCardScreen({super.key});
+
+  @override
+  State<VipCardScreen> createState() => _VipCardScreenState();
+}
+
+class _VipCardScreenState extends State<VipCardScreen> {
   final List<String> crouselImages = [
     "assets/images/vipcardd.png",
     "assets/images/vipcardd.png",
   ];
   final VipCardController vipCardController = Get.put(VipCardController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,136 +30,139 @@ class VipCardScreen extends StatelessWidget {
       appBar: CommonWidgets.appBarWidget("Vip Card"),
       body: SafeArea(
           child: Padding(
-           padding: const EdgeInsets.all(20.0),
-           child: Column(
-           crossAxisAlignment: CrossAxisAlignment.center,
-           children: [
-            SizedBox(
-              height: 10,
-            ),
-            ClipRRect(
-                borderRadius: BorderRadius.circular(30),
-                child: Image.asset(
-                  "assets/images/vipcardd.png",
-                  height: 20.h,
-                  width: 200.w,
-                  fit: BoxFit.fill,
-                )),
-            SizedBox(
-              height: 2.h,
-            ),
-            Obx(() {
-              if (vipCardController.isLoading.value) {
-                return Center(child: CircularProgressIndicator());
-              }
-              return RichText(
-                  text: TextSpan(children: [
-                TextSpan(
-                  text: "Unlimited",
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
+            padding: const EdgeInsets.all(20.0),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 10,
                   ),
-                ),
-                TextSpan(
-                  text: " Comfort,",
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.red,
-                  ),
-                ),
-                TextSpan(
-                  text: " Just ₹ 599/month.",
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                )
-              ]));
-            }),
-            Text(
-              "Enjoy priority rides, zero extra fees, and exclusive savings every month. Upgrade to VIP and make every journey smoother, safer, and smarter",
-              style: TextStyle(color: Colors.grey, fontSize: 14.sp),
-              textAlign: TextAlign.center,
-            ),
-            WgTextRightTextButton(
-              prfixText: 'Ongoing Benefits',
-              suffixText: 'See all',
-              onTap: () {},
-              pFontSize: 14.sp,
-              sFontSize: 14.sp,
-              isBold: true,
-            ),
-            Obx(() {
-              if (vipCardController.isLoading.value) {
-                return SizedBox.shrink();
-              }
-              if (crouselImages.isEmpty) {
-                return Center(child: Text("no image is available"));
-              }
-              return WgCarouselSlider(
-                crouselImages: crouselImages,
-                onTap: (index) {
-                  if (index == 0) {
-                    print("user tap ${crouselImages[index]}");
-                  } else if (index == 1) {
-                    print("user Tap on second image${crouselImages[index]}");
-                  }
-                },
-              );
-            }),
-            SizedBox(
-              height: 22.h,
-            ),
-            Column(
-              children: [
-                WgIconText(
-                    text: "Apply promo code percent ",
-                    icon: Icons.local_offer_outlined,
-                    iconSize: 20,
-                    iconColor: Colors.red,
-                    textSize: 14,
-                    textColor: Colors.black,
-                    onTap: () {
-                      debugPrint("user tap on promo code");
-                    }),
-                RichText(
-                    text: TextSpan(children: [
-                  TextSpan(
-                      text: "Not Applicable on Outstation drives ",
-                      style: TextStyle(
-                        color: Colors.black,
+                  ClipRRect(
+                      borderRadius: BorderRadius.circular(30),
+                      child: Image.asset(
+                        "assets/images/vipcardd.png",
+                        height: 20.h,
+                        width: 200.w,
+                        fit: BoxFit.fill,
                       )),
-                  TextSpan(
-                      text: " *Terms & condition",
-                      style: TextStyle(
-                        color: Colors.red,
-                        decoration: TextDecoration.underline,
+                  SizedBox(
+                    height: 2.h,
+                  ),
+                  Obx(() {
+                    if (vipCardController.isLoading.value) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    return RichText(
+                        text: TextSpan(children: [
+                          TextSpan(
+                            text: "Unlimited",
+                            style: TextStyle(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                          TextSpan(
+                            text: " Comfort,",
+                            style: TextStyle(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red,
+                            ),
+                          ),
+                          TextSpan(
+                            text: " Just ₹ 599/month.",
+                            style: TextStyle(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          )
+                        ]));
+                  }),
+                  Text(
+                    "Enjoy priority rides, zero extra fees, and exclusive savings every month. Upgrade to VIP and make every journey smoother, safer, and smarter",
+                    style: TextStyle(color: Colors.grey, fontSize: 14.sp),
+                    textAlign: TextAlign.center,
+                  ),
+                  WgTextRightTextButton(
+                    prfixText: 'Ongoing Benefits',
+                    suffixText: 'See all',
+                    onTap: () {},
+                    pFontSize: 14.sp,
+                    sFontSize: 14.sp,
+                    isBold: true,
+                  ),
+                  Obx(() {
+                    if (vipCardController.isLoading.value) {
+                      return SizedBox.shrink();
+                    }
+                    if (crouselImages.isEmpty) {
+                      return Center(child: Text("no image is available"));
+                    }
+                    return WgCarouselSlider(
+                      crouselImages: crouselImages,
+                      onTap: (index) {
+                        if (index == 0) {
+                          print("user tap ${crouselImages[index]}");
+                        } else if (index == 1) {
+                          print("user Tap on second image${crouselImages[index]}");
+                        }
+                      },
+                    );
+                  }),
+                  SizedBox(
+                    height: 22.h,
+                  ),
+                  Column(
+                    children: [
+                      WgIconText(
+                          text: "Apply promo code percent ",
+                          icon: Icons.local_offer_outlined,
+                          iconSize: 20,
+                          iconColor: Colors.red,
+                          textSize: 14,
+                          textColor: Colors.black,
+                          onTap: () {
+                            debugPrint("user tap on promo code");
+                          }),
+                      RichText(
+                          text: TextSpan(children: [
+                            TextSpan(
+                                text: "Not Applicable on Outstation drives ",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                )),
+                            TextSpan(
+                                text: " *Terms & condition",
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  decoration: TextDecoration.underline,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    Get.to(TermsAndConditions());
+                                  }),
+                          ])),
+                      SizedBox(
+                        height: 2.h,
                       ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () {
-                          Get.to(TermsAndConditions());
-                        }),
-                ])),
-                SizedBox(
-                  height: 2.h,
-                ),
-                WgButton(
-                  text: "Get Drive-o-call VIP at  ₹599/month",
-                  onTap: () {
-                    debugPrint("user tap on get vip");
-                  },
-                  height: 4,
-                  width: 400,
-                ),
-              ],
-            )
-          ],
-        ),
-      )),
+                      WgButton(
+                        text: "Get Drive-o-call VIP at  ₹599/month",
+                        onTap: () {
+                          debugPrint("user tap on get vip");
+                        },
+                        height: 4,
+                        width: 400,
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          )),
     );
   }
 }
+

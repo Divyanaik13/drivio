@@ -44,20 +44,19 @@ class HomeRepo {
     return response;
   }
 
-
   Future<dynamic> createBookingRepo(
-      String userName,
-      String phoneNumber,
-      String email,
-      String type,
-      String pickUp,
-      int expectedEnd,
-      int amount,
-      String startDate,
-      String startTime,
-      String carName,
-      String carType,
-      ) async {
+    String userName,
+    String phoneNumber,
+    String email,
+    String type,
+    String pickUp,
+    int expectedEnd,
+    int amount,
+    String startDate,
+    String startTime,
+    String carName,
+    String carType,
+  ) async {
     var response;
     try {
       Map<String, dynamic> body = {
@@ -87,8 +86,8 @@ class HomeRepo {
     return response;
   }
 
-  Future<dynamic> getSaveAddressRepo(
-      String userNumber, userEmail, buildingName, nearBylandmark, area, pincode, city, state) async {
+  Future<dynamic> getSaveAddressRepo(String userNumber, userEmail, buildingName,
+      nearBylandmark, area, pincode, city, state) async {
     var response;
     try {
       Map<String, dynamic> body = {
@@ -102,10 +101,8 @@ class HomeRepo {
         "state": state
       };
       print("get Save Address Repo body :-- $body");
-      response = await DioServices().postMethod(
-          WebService().getSaveAddressApi,
-          body,
-          await DioServices().getAllHeaders());
+      response = await DioServices().postMethod(WebService().getSaveAddressApi,
+          body, await DioServices().getAllHeaders());
       print("get Save Address Repo response :-- $response");
     } catch (e) {
       print("get Save Address Repo error :-- $e");
@@ -113,5 +110,18 @@ class HomeRepo {
     return response;
   }
 
-
+  /// Get vip offer repo
+  Future<dynamic> getVipCardRepo(String type) async {
+    var response;
+    try {
+      var url = "${WebService().getVipOffer}?type=$type";
+      print("get Vip card Repo :-- $url");
+      response = await DioServices()
+          .getMethod(url, await DioServices().getAllHeaders());
+      log("get Vip card Repo response :-- $response");
+    } catch (e) {
+      print("get Vip card Repo error :-- $e");
+    }
+    return response;
+  }
 }

@@ -4,7 +4,7 @@ import '../screens/authModule/PrivacyPolicy.dart';
 import '../screens/authModule/SignUpScreen.dart';
 import '../screens/authModule/loginScreen.dart';
 import '../screens/authModule/onBoardingScreen.dart';
-import '../screens/homeModule/AddNewCarScreen.dart';
+import '../screens/profileModule/AddNewCarScreen.dart';
 import '../screens/homeModule/CardScreen.dart';
 import '../screens/homeModule/HomeScreen.dart';
 import '../screens/homeModule/OneWayTrip.dart';

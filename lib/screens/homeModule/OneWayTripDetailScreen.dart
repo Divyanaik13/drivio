@@ -258,143 +258,131 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                     const SizedBox(height: 15),
 
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          width: 45.w,
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(color: Colors.black),
-                            color: Colors.white,
-                          ),
-                          child: Obx(() => Row(
-                                children: [
-                                  Icon(Icons.directions_car,
-                                      color: ConstColors().themeColor,
-                                      size: 18.5.sp),
-                                  SizedBox(width: 3.w),
-                                  Expanded(
-                                    child: DropdownButtonHideUnderline(
-                                      child: DropdownButton<String>(
-                                        isExpanded: true,
-                                        value: selectedCar.value,
-                                        dropdownColor:
-                                            Colors.white, // popup white
-                                        icon: const Icon(
-                                            Icons.arrow_drop_down_outlined),
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 14.5.sp,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                        items: [
-                                          // current cars
-                                          ...carList
-                                              .map((c) => DropdownMenuItem(
-                                                  value: c, child: Text(c)))
-                                              .toList(),
-                                          // add new sentinel
-                                          DropdownMenuItem(
-                                            value: kAddNewSentinel,
-                                            child: Row(
-                                              children: [
-                                                Icon(Icons.add,
-                                                    color: Colors.redAccent,
-                                                    size: 18),
-                                                SizedBox(width: 6),
-                                                Text("Add new car",
-                                                    style: TextStyle(
-                                                        color: Colors.redAccent,
-                                                        fontWeight:
-                                                            FontWeight.w600)),
-                                              ],
-                                            ),
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(color: Colors.black),
+                            ),
+                            child: Obx(() => DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                value: selectedCar.value,
+                                isExpanded: true,
+                                icon: const Icon(Icons.arrow_drop_down),
+                                dropdownColor: Colors.white,
+                                items: [
+                                  // existing car list
+                                  ...carList
+                                      .map(
+                                        (e) => DropdownMenuItem(
+                                      value: e,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          e,
+                                          style: TextStyle(
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w600,
                                           ),
-                                        ],
-                                        onChanged: (value) async {
-                                          if (value == null) return;
-
-                                          if (value == kAddNewSentinel) {
-                                            // 👇 navigate with GetX
-                                            // Replace with your actual route helper
-                                            final newCarName =
-                                                await Get.toNamed(
-                                              RouteHelper()
-                                                  .getAddNewCarScreen(), // e.g. '/add-car'
-                                              arguments: {
-                                                "preFill": "", // optional
-                                              },
-                                            );
-
-                                            // Expect a String back from AddCar screen
-                                            if (newCarName is String &&
-                                                newCarName.trim().isNotEmpty) {
-                                              final name = newCarName.trim();
-                                              if (!carList.contains(name)) {
-                                                carList.add(name);
-                                              }
-                                              selectedCar.value = name;
-                                            }
-                                          } else {
-                                            selectedCar.value = value;
-                                          }
-                                        },
+                                        ),
                                       ),
+                                    ),
+                                  )
+                                      .toList(),
+
+                                  // 🆕 Add new car option at the bottom
+                                  DropdownMenuItem(
+                                    value: kAddNewSentinel,
+                                    child: Row(
+                                      children: const [
+                                        Icon(Icons.add, color: Colors.redAccent, size: 18),
+                                        SizedBox(width: 6),
+                                        Text(
+                                          "Add new car",
+                                          style: TextStyle(
+                                            color: Colors.redAccent,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
-                              )),
+                                onChanged: (value) async {
+                                  if (value == null) return;
+
+                                  if (value == kAddNewSentinel) {
+                                    // Navigate to Add New Car screen
+                                    final newCarName = await Get.toNamed(
+                                      RouteHelper().getAddNewCarScreen(),
+                                      arguments: {
+                                        "preFill": "", // optional prefill if needed
+                                      },
+                                    );
+
+                                    // Wait for return from AddCar screen
+                                    if (newCarName is String &&
+                                        newCarName.trim().isNotEmpty) {
+                                      final name = newCarName.trim();
+                                      if (!carList.contains(name)) {
+                                        carList.add(name);
+                                      }
+                                      selectedCar.value = name;
+                                    }
+                                  } else {
+                                    selectedCar.value = value;
+                                  }
+                                },
+                              ),
+                            )),
+                          ),
                         ),
-                        Container(
-                          width: 45.w,
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(color: Colors.black),
-                            color: Colors.white, // box background
-                          ),
-                          child: Obx(() => Row(
-                                children: [
-                                  Icon(Icons.format_line_spacing,
-                                      color: ConstColors().themeColor,
-                                      size: 18.5.sp),
-                                  SizedBox(width: 3.w),
-                                  Expanded(
-                                    child: DropdownButtonHideUnderline(
-                                      child: DropdownButton<String>(
-                                        isExpanded: true,
-                                        value: selectedTransmission.value,
-                                        dropdownColor: Colors.white,
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(color: Colors.black),
+                            ),
+                            child: Obx(() => DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                value: selectedTransmission.value,
+                                isExpanded: true,
+                                icon: const Icon(Icons.arrow_drop_down),
+                                dropdownColor: Colors.white,
+                                items: const [
+                                  DropdownMenuItem(
+                                    value: "Manual",
+                                    child: Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text(
+                                        "Manual",
                                         style: TextStyle(
-                                          color: Colors.black, // text color
-                                          fontSize: 15.5.sp,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                        items: const [
-                                          DropdownMenuItem(
-                                            value: "Manual",
-                                            child: Text("Manual"),
-                                          ),
-                                          DropdownMenuItem(
-                                            value: "Automatic",
-                                            child: Text("Automatic"),
-                                          ),
-                                        ],
-                                        onChanged: (value) {
-                                          if (value != null) {
-                                            selectedTransmission.value = value;
-                                          }
-                                        },
-                                        icon: const Icon(
-                                            Icons.arrow_drop_down_outlined),
+                                            fontSize: 14, fontWeight: FontWeight.w600),
+                                      ),
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: "Automatic",
+                                    child: Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text(
+                                        "Automatic",
+                                        style: TextStyle(
+                                            fontSize: 14, fontWeight: FontWeight.w600),
                                       ),
                                     ),
                                   ),
                                 ],
-                              )),
+                                onChanged: (v) => selectedTransmission.value = v!,
+                              ),
+                            )),
+                          ),
                         ),
                       ],
                     ),
@@ -736,8 +724,8 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
       style: const TextStyle(fontSize: 14),
       decoration: InputDecoration(
         // hintText: hint,
-        prefixIcon: const Icon(Icons.location_on_outlined, size: 20),
-        contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+      //  prefixIcon: const Icon(Icons.location_on_outlined, size: 20),
+        contentPadding: const EdgeInsets.only(left: 10, right: 10),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
         ),
@@ -786,75 +774,6 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
   }
 
   /// Create Map with Polyline
-/*  void _onMapCreated(
-      GoogleMapController controller, LatLng source, LatLng destination) {
-    _mapController = controller;
-
-    markers.clear();
-    polylines.clear();
-
-    // Always show source marker
-    markers.add(
-      Marker(
-        markerId: const MarkerId("source"),
-        position: source,
-        infoWindow: const InfoWindow(title: "Current Location"),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-      ),
-    );
-
-    if (isNavigator != true) {
-      markers.add(
-        Marker(
-          markerId: const MarkerId("destination"),
-          position: destination,
-          infoWindow: const InfoWindow(title: "Drop"),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-        ),
-      );
-
-      polylines.add(
-        Polyline(
-          polylineId: const PolylineId("route"),
-          color: Colors.black,
-          width: 4,
-          points: [source, destination],
-        ),
-      );
-    }
-
-    // Adjust camera bounds based on mode
-    if (isNavigator) {
-      _mapController?.animateCamera(
-        CameraUpdate.newLatLngZoom(source, 14),
-      );
-    } else {
-      final bounds = LatLngBounds(
-        southwest: LatLng(
-          source.latitude <= destination.latitude
-              ? source.latitude
-              : destination.latitude,
-          source.longitude <= destination.longitude
-              ? source.longitude
-              : destination.longitude,
-        ),
-        northeast: LatLng(
-          source.latitude >= destination.latitude
-              ? source.latitude
-              : destination.latitude,
-          source.longitude >= destination.longitude
-              ? source.longitude
-              : destination.longitude,
-        ),
-      );
-
-      _mapController?.animateCamera(
-        CameraUpdate.newLatLngBounds(bounds, 50),
-      );
-    }
-
-    setState(() {});
-  }*/
   void _onMapCreated(GoogleMapController controller, LatLng source, LatLng destination) {
     _mapController = controller;
 
@@ -881,6 +800,13 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                   "lat": source.latitude,
                   "lng": source.longitude,
                 },
+                "existingDrop": (destinationLocation.value != null)
+                    ? {
+                  "address": destinationController.text,
+                  "lat": destinationLocation.value!.latitude,
+                  "lng": destinationLocation.value!.longitude,
+                }
+                    : null,
               },
             );
           },
