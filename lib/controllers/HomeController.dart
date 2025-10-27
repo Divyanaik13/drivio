@@ -16,7 +16,7 @@ class HomeController extends GetxController {
   var vipCardModel = Rxn<VipCardModel>();
   var vipCardList = <VipCardList>[].obs;
 
-  ///Search History List Repo Function
+  ///Search History List Api Function
   Future<void> searchHistoryListApi(String phoneNumber, int page, limit) async {
     CommonFunctions().showLoader();
     searchHistoryList.clear();

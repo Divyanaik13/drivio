@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:drivio_sarthi/utils/AssetsImages.dart';
 import 'package:drivio_sarthi/utils/CommonFunctions.dart';
 import 'package:drivio_sarthi/utils/LocalStorage.dart';
@@ -240,19 +239,15 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             const SizedBox(height: 4),
-            Obx(() => Row(
-                  children: [
-                    Text(
-                      ConstStrings().location.value,
-                      style: TextStyle(
-                          color: Colors.black54,
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w400),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                )),
+            Obx(() => Text(
+              ConstStrings().location.value,
+              style: TextStyle(
+                  color: Colors.black54,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w400),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            )),
             const SizedBox(height: 16),
             SizedBox(
                 height: 30.h,

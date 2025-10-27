@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import '../model/paymentCalculatedModel.dart';
@@ -11,22 +13,53 @@ class PaymentController extends GetxController {
 
   var paymentCalModel = Rxn<PaymentCalModel>();
 
-  Future<dynamic> paymentCalApi(int bookingId, String startTime, String endTime,
-      int expectedEnd, String type, String extra) async {
-    CommonFunctions().showLoader();
+  var totalAmount = 0.obs;
+  var isLoading = false.obs;
+
+  Future<dynamic> paymentCalApi(String bookingId,
+      String startDate,
+      String endDate,
+      String startTime,
+      String endTime,
+      String expectedEnd,
+      String type,
+      String extra,
+      String discount) async {
+   // CommonFunctions().showLoader();
     var response;
     try {
       response = await _paymentRepo.paymentCalRepo(
-          bookingId, startTime, endTime, expectedEnd, type, extra);
+         bookingId,
+         startDate,
+         endDate,
+         startTime,
+         endTime,
+         expectedEnd,
+         type,
+         extra,
+         discount);
       CommonFunctions().hideLoader();
-      print("payment cal Api response :-- $response");
-      if (response != null && response['status'] == true) {
-        paymentCalModel.value = PaymentCalModel.fromJson(response);
-        print("payment cal model :-- ${paymentCalModel.value}");
+      var responseData = response.data;
+      print("payment cal Api response 1:-- ${response.data['success']}");
+      print("payment cal Api response :-- ${jsonEncode(responseData)}");
+
+
+      // CORRECT WAY TO ACCESS RESPONSE
+      if (response != null && responseData['success'] == 1) {
+        // First set the model
+        paymentCalModel.value = PaymentCalModel.fromJson(responseData);
+        print("payment cal model :-- ${jsonEncode(paymentCalModel.value)}");
+
+        // Then extract totalAmount from data
+        if (responseData['data'] != null && responseData['data']['totalAmount'] != null) {
+          totalAmount.value = responseData['data']['totalAmount'];
+          print("Total Amount Updated: ₹${totalAmount.value}");
+        }
       }
     } catch (e) {
       CommonFunctions().hideLoader();
       print("payment cal Api error :-- $e");
+      // Fallback on error
     }
     return response;
   }

@@ -8,6 +8,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
 import '../../controllers/HomeController.dart';
+import '../../controllers/PaymentCalController.dart';
 import '../../model/DriverInfoModel.dart';
 import '../../network/SocketService.dart';
 import '../../utils/CommonFunctions.dart';
@@ -28,21 +29,29 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
   TextEditingController sourceController = TextEditingController();
   TextEditingController destinationController = TextEditingController();
   var homeController = Get.find<HomeController>();
+  var paymentController = Get.find<PaymentController>();
   // String? selectedHour;
   final TextEditingController manualController = TextEditingController();
 
-  String selectedHour = "2 hour";
+  int _hours = 1;
+  String selectedHour = "1";
   String? selectedDateTime;
   double? tripDistance;
   bool isNavigator = false;
   var userNme = "";
   var phoneNumber = "";
   var email = "";
+  var userID = "";
   RxString selectedTransmission = "Manual".obs;
   RxString selectedCar = "Xuv 700".obs;
   RxList<String> carList = ["Xuv 700", "Ford", "Baleno"].obs;
   // Sentinel for Add New
   String kAddNewSentinel = "__ADD__";
+  final startDateTime = Rxn<DateTime>();
+  final endDateTime = Rxn<DateTime>();
+  String startTime = "";
+  String endTime = "";
+  String extra = "";
 
   LocalStorage ls = LocalStorage();
 
@@ -58,17 +67,17 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
     userNme = ls.getStringValue(ls.fullName) ?? "";
     email = ls.getStringValue(ls.email) ?? "";
     phoneNumber = ls.getStringValue(ls.mobileNumber) ?? "";
+    userID = ls.getStringValue(ls.userId) ?? "";
   }
 
   @override
   void initState() {
     super.initState();
-    _loadUserData(); // Load user info
+    _loadUserData();
 
     final args = Get.arguments;
 
-    print(args);
-    print("args");
+    print("args :-- $args");
     if (args != null) {
       double sourceLat = args["sourceLatitude"];
       double sourceLong = args["sourceLongitude"];
@@ -76,21 +85,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
       double destinationLong = args["destinationLongitude"];
       String sourceLoc = args["sourceLocation"];
       String destinationLoc = args["destinationLocation"];
-      String tempDateTime = args["dateTime"];
       isNavigator = args["isNavigator"] ?? false;
-
-      /*DateTime parsedDate = DateTime.parse(tempDateTime);
-      selectedDateTime = DateFormat("d MMM, h:mm a").format(parsedDate);*/
-      if (tempDateTime != null && tempDateTime.isNotEmpty) {
-        try {
-          DateTime parsedDate = DateTime.parse(tempDateTime);
-          selectedDateTime = DateFormat("d MMM, h:mm a").format(parsedDate);
-        } catch (_) {
-          selectedDateTime = DateFormat("d MMM, h:mm a").format(DateTime.now());
-        }
-      } else {
-        selectedDateTime = DateFormat("d MMM, h:mm a").format(DateTime.now());
-      }
 
       sourceLocation.value = LatLng(sourceLat, sourceLong);
       destinationLocation.value = LatLng(destinationLat, destinationLong);
@@ -118,19 +113,146 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
           ),
         );
       }
+      _callPaymentApi();
     } else {
       /// Default pickup & drop
       sourceLocation.value = const LatLng(
           22.705313624334096, 75.90907346989012); // Lig square indore
       destinationLocation.value = const LatLng(
           22.738078356773574, 75.89032710201927); // Phoenix mall indore
+
+      _callPaymentApi();
     }
   }
+
+  void _incHour() {
+    if (_hours < 12) {
+      setState(() => _hours++);
+      _syncSelectedHour();
+      _callPaymentApi(); // API call after increasing hour
+    }
+  }
+
+  void _decHour() {
+    if (_hours > 1) {
+      setState(() => _hours--);
+      _syncSelectedHour();
+      _callPaymentApi(); // API call after decreasing hour
+    }
+  }
+
+  void _syncSelectedHour() {
+    selectedHour = "${_hours}";
+  }
+
+// New method to call payment API
+//   void _callPaymentApi() {
+//     print("Calling Payment API with:");
+//     print("Distance: ${tripDistance?.round() ?? 0} km");
+//     print("Hours: $_hours");
+//     print("Car Type: ${selectedCar.value}");
+//     // Get current date and time for start time
+//     DateTime? now = startDateTime.value ?? DateTime.now();
+//
+//     // Calculate end time based on selected hours
+//     DateTime formattedendTime = now!.add(Duration(hours: _hours));
+//
+//     // Format dates for API
+//     startTime = DateFormat("HH:mm:ss").format(now);
+//     endTime = DateFormat("HH:mm:ss").format(formattedendTime);
+//
+//     extra = DateTime.now().isAfter(formattedendTime) ? "yes" : "no";
+//
+//     print("startDateTime.value ${startDateTime.value}");
+//     print("StartTime $startTime");
+//     print("EndTime $endTime");
+//     print("selectedHour $selectedHour");
+//     print("extra $extra");
+//
+//     // Call payment calculation API
+//     paymentController.paymentCalApi(
+//         "", "", "", startTime, endTime, selectedHour,isNavigator==true? "hourly":"outStation", extra, "");
+//   }
+
+  void _callPaymentApi() {
+    print("Calling Payment API with:");
+    print("Distance: ${tripDistance?.round() ?? 0} km");
+    print("Hours: $_hours");
+    print("Car Type: ${selectedCar.value}");
+
+    // Get start time/date from picker (fallback to now)
+    DateTime startDT = startDateTime.value ?? DateTime.now();
+    DateTime endDT = endDateTime.value ?? startDT.add(Duration(hours: _hours));
+
+    // Format for API
+    String startDate = DateFormat("yyyy-MM-dd").format(startDT);
+    String startTime = DateFormat("HH:mm:ss").format(startDT);
+    String endDate = DateFormat("yyyy-MM-dd").format(endDT);
+    String endTime = DateFormat("HH:mm:ss").format(endDT);
+
+    // Extra condition
+    extra = DateTime.now().isAfter(endDT) ? "yes" : "no";
+
+    print("🕐 startDate: $startDate | startTime: $startTime");
+    print("🕐 endDate: $endDate | endTime: $endTime");
+    print("isNavigator: $isNavigator → type: ${isNavigator ? "hourly" : "outstation"}");
+    print("Hours: $_hours | extra: $extra");
+
+    // Decide body based on trip type
+    if (isNavigator) {
+      // HOURLY TRIP BODY
+      final body = {
+        "type": "hourly",
+        "startTime": startTime,
+        "endTime": endTime,
+        "expectedEnd": _hours,
+        "extra": extra,
+      };
+      print("📦 HOURLY Payload → $body");
+
+      paymentController.paymentCalApi(
+        "", // bookingId (if not required)
+        "", // startDate (not needed for hourly)
+        "", // endDate (not needed for hourly)
+        startTime,
+        endTime,
+        "$_hours",
+        "hourly",
+        extra,
+        "",
+      );
+    } else {
+      // OUTSTATION TRIP BODY
+      final body = {
+        "type": "outstation",
+        "startDate": startDate,
+        "endDate": endDate,
+        "startTime": startTime,
+        "endTime": endTime,
+        "extra": extra,
+        "discount": "ADI666",
+      };
+      print("📦 OUTSTATION Payload → $body");
+
+      paymentController.paymentCalApi(
+        "",
+        startDate,
+        endDate,
+        startTime,
+        endTime,
+        selectedHour,
+        "outStation",
+        extra,
+        "ADI666",
+      );
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xfff5f5f5),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -181,6 +303,21 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    /// Today's vehicle
+                    Row(
+                      mainAxisAlignment: isNavigator != true
+                          ? MainAxisAlignment.spaceBetween
+                          : MainAxisAlignment.end,
+                      children: [
+                        if (isNavigator != true)
+                          Text(
+                              "Distance ${tripDistance?.toStringAsFixed(1)} km",
+                              style: TextStyle(
+                                  fontSize: 15.sp,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.grey)),
+                      ],
+                    ),
                     Container(
                       padding:
                           EdgeInsets.symmetric(horizontal: 10, vertical: 20),
@@ -195,7 +332,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                               SizedBox(height: 15),
                               Icon(Icons.circle, color: Colors.red, size: 14),
                               isNavigator != true
-                                  ? SizedBox(height: 15)
+                                  ? SizedBox(height: 17)
                                   : SizedBox(height: 15),
                               isNavigator != true
                                   ? Icon(Icons.more_vert,
@@ -204,7 +341,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                                       width: 10,
                                     ),
                               isNavigator != true
-                                  ? SizedBox(height: 15)
+                                  ? SizedBox(height: 17)
                                   : SizedBox(height: 0),
                               isNavigator != true
                                   ? Icon(Icons.circle,
@@ -226,86 +363,73 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                         ],
                       ),
                     ),
+                    SizedBox(height: 1.h),
 
-                    const SizedBox(height: 20),
-
-                    /// Today's vehicle
-                    Row(
-                      mainAxisAlignment: isNavigator != true
-                          ? MainAxisAlignment.spaceBetween
-                          : MainAxisAlignment.end,
-                      children: [
-                        if (isNavigator != true)
-                          Text(
-                              "Distance ${tripDistance?.toStringAsFixed(1)} km",
-                              style: TextStyle(
-                                  fontSize: 15.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.grey)),
-                        Row(
-                          children: [
-                            Icon(Icons.access_time,
-                                size: 18.sp, color: Colors.red),
-                            SizedBox(width: 5),
-                            Text(selectedDateTime!,
-                                style: TextStyle(
-                                    fontSize: 15.sp,
-                                    fontWeight: FontWeight.w400)),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 15),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(30),
-                              border: Border.all(color: Colors.black),
-                            ),
-                            child: Obx(() => DropdownButtonHideUnderline(
-                              child: DropdownButton<String>(
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        children: [
+                          /// ---- Car Dropdown ----
+                          Expanded(
+                            flex: 1,
+                            child: Obx(
+                              () => DropdownButtonFormField<String>(
                                 value: selectedCar.value,
-                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  labelText: 'Car name/type',
+                                  labelStyle: TextStyle(
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black54,
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 16),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                    borderSide: const BorderSide(
+                                        color: Colors.black54, width: 1),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                    borderSide: const BorderSide(
+                                        color: Colors.black, width: 1.3),
+                                  ),
+                                ),
                                 icon: const Icon(Icons.arrow_drop_down),
                                 dropdownColor: Colors.white,
+                                isExpanded: true,
                                 items: [
-                                  // existing car list
                                   ...carList
                                       .map(
                                         (e) => DropdownMenuItem(
-                                      value: e,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(
-                                          e,
-                                          style: TextStyle(
-                                            fontSize: 14.sp,
-                                            fontWeight: FontWeight.w600,
+                                          value: e,
+                                          child: Text(
+                                            e,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              fontSize: 15.sp,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                  )
+                                      )
                                       .toList(),
-
-                                  // 🆕 Add new car option at the bottom
-                                  DropdownMenuItem(
-                                    value: kAddNewSentinel,
+                                  const DropdownMenuItem(
+                                    value: "__ADD__",
                                     child: Row(
-                                      children: const [
-                                        Icon(Icons.add, color: Colors.redAccent, size: 18),
-                                        SizedBox(width: 6),
+                                      children: [
+                                        Icon(Icons.add,
+                                            color: Colors.redAccent, size: 18),
+                                        SizedBox(width: 4),
                                         Text(
                                           "Add new car",
                                           style: TextStyle(
-                                            color: Colors.redAccent,
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                              color: Colors.redAccent,
+                                              fontWeight: FontWeight.w600),
                                         ),
                                       ],
                                     ),
@@ -313,23 +437,30 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                                 ],
                                 onChanged: (value) async {
                                   if (value == null) return;
-
-                                  if (value == kAddNewSentinel) {
-                                    // Navigate to Add New Car screen
+                                  if (value == "__ADD__") {
                                     final newCarName = await Get.toNamed(
                                       RouteHelper().getAddNewCarScreen(),
                                       arguments: {
-                                        "preFill": "", // optional prefill if needed
+                                        "sourceLatitude":
+                                            sourceLocation.value?.latitude,
+                                        "sourceLongitude":
+                                            sourceLocation.value?.longitude,
+                                        "destinationLatitude":
+                                            destinationLocation.value?.latitude,
+                                        "destinationLongitude":
+                                            destinationLocation
+                                                .value?.longitude,
+                                        "sourceLocation": sourceController.text,
+                                        "destinationLocation":
+                                            destinationController.text,
+                                        "isNavigator": isNavigator,
                                       },
                                     );
-
-                                    // Wait for return from AddCar screen
                                     if (newCarName is String &&
                                         newCarName.trim().isNotEmpty) {
                                       final name = newCarName.trim();
-                                      if (!carList.contains(name)) {
+                                      if (!carList.contains(name))
                                         carList.add(name);
-                                      }
                                       selectedCar.value = name;
                                     }
                                   } else {
@@ -337,184 +468,297 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                                   }
                                 },
                               ),
-                            )),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(30),
-                              border: Border.all(color: Colors.black),
-                            ),
-                            child: Obx(() => DropdownButtonHideUnderline(
-                              child: DropdownButton<String>(
-                                value: selectedTransmission.value,
-                                isExpanded: true,
-                                icon: const Icon(Icons.arrow_drop_down),
-                                dropdownColor: Colors.white,
-                                items: const [
-                                  DropdownMenuItem(
-                                    value: "Manual",
-                                    child: Padding(
-                                      padding: EdgeInsets.all(8.0),
-                                      child: Text(
-                                        "Manual",
-                                        style: TextStyle(
-                                            fontSize: 14, fontWeight: FontWeight.w600),
-                                      ),
-                                    ),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "Automatic",
-                                    child: Padding(
-                                      padding: EdgeInsets.all(8.0),
-                                      child: Text(
-                                        "Automatic",
-                                        style: TextStyle(
-                                            fontSize: 14, fontWeight: FontWeight.w600),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                                onChanged: (v) => selectedTransmission.value = v!,
-                              ),
-                            )),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    /// Pay as you go
-                    Text("Pay as you go",
-                        style: TextStyle(
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.grey)),
-                    const SizedBox(height: 10),
-                    Container(
-                      width: 100.w,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Row(
-                        children: [
-                          // Dropdown for selecting hour
-                          Expanded(
-                            flex: 1,
-                            child: DropdownButtonFormField<String>(
-                              value: selectedHour,
-                              decoration: InputDecoration(
-                                contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 15, vertical: 10),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                labelText: 'Select Hour',
-                              ),
-                              items: List.generate(12, (index) {
-                                final hour = '${index + 1} hour';
-                                return DropdownMenuItem(
-                                  value: hour,
-                                  child: Text(hour),
-                                );
-                              }),
-                              onChanged: (value) {
-                                setState(() {
-                                  selectedHour = value!;
-                                  manualController.clear();
-                                });
-                              },
                             ),
                           ),
-                          /*  SizedBox(width: 10),
-                          // OR manual entry
-                          Expanded(
-                            flex: 1,
-                            child: TextField(
-                              controller: manualController,
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                labelText: 'Enter Hour',
-                                hintText: 'e.g. 5',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              onChanged: (value) {
-                                setState(() {
-                                  selectedHour = ""; // clear dropdown if manual entered
-                                });
-                              },
-                            ),
-                          ),*/
                         ],
                       ),
                     ),
-                    /* Container(
-                      width: 100.w,
-                      padding:
-                      EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+
+                    SizedBox(height: 0.5.h),
+
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 16),
                       decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(15)),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                      ),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          "2 hr",
-                          "4 hr",
-                          "6 hr",
-                          "8 hr",
-                        ].map((e) {
-                          final isSelected = selectedHour == e;
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedHour = e;
-                              });
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 18, vertical: 10),
-                              margin: const EdgeInsets.only(right: 8),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? Colors.red.shade100
-                                    : Colors.grey.shade200,
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  color: isSelected
-                                      ? Colors.red
-                                      : Colors.transparent,
-                                  width: 1.5,
-                                ),
-                              ),
-                              child: Text(
-                                e,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: isSelected ? Colors.red : Colors.black,
-                                ),
+                          // ---------------- START DATE & TIME ----------------
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () async {
+                                final DateTime? pickedDate =
+                                    await showDatePicker(
+                                  context: context,
+                                  initialDate:
+                                      startDateTime.value ?? DateTime.now(),
+                                  firstDate: DateTime.now(),
+                                  lastDate: DateTime(2100),
+                                );
+
+                                if (pickedDate != null) {
+                                  final TimeOfDay? pickedTime =
+                                      await showTimePicker(
+                                    context: context,
+                                    initialTime: TimeOfDay.now(),
+                                  );
+
+                                  if (pickedTime != null) {
+                                    startDateTime.value = DateTime(
+                                      pickedDate.year,
+                                      pickedDate.month,
+                                      pickedDate.day,
+                                      pickedTime.hour,
+                                      pickedTime.minute,
+                                    );
+                                    _callPaymentApi();
+                                  }
+                                }
+                              },
+                              child: AbsorbPointer(
+                                child: Obx(() => TextFormField(
+                                      readOnly: true,
+                                      decoration: InputDecoration(
+                                        labelText: 'Select Pickup Date & Time',
+                                        labelStyle: TextStyle(
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black54,
+                                        ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 15, vertical: 16),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(30),
+                                          borderSide: const BorderSide(
+                                              color: Colors.black, width: 1),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(30),
+                                          borderSide: const BorderSide(
+                                              color: Colors.black, width: 1.2),
+                                        ),
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        suffixIcon: const Icon(
+                                            Icons.calendar_month_outlined,
+                                            color: Colors.red),
+                                      ),
+                                      style: TextStyle(
+                                          fontSize: 15.sp,
+                                          fontWeight: FontWeight.w600),
+                                      controller: TextEditingController(
+                                        text: startDateTime.value != null
+                                            ? DateFormat("MMM d, h:mm a")
+                                                .format(startDateTime.value!)
+                                            : '',
+                                      ),
+                                    )),
                               ),
                             ),
-                          );
-                        }).toList(),
-                      ),
-                    ),*/
+                          ),
 
-                    const SizedBox(height: 10),
+                          const SizedBox(width: 10),
+
+                          // ---------------- END DATE & TIME ----------------
+                          isNavigator != true
+                              ? Expanded(
+                                  child: GestureDetector(
+                                    onTap: () async {
+                                      final DateTime? pickedDate =
+                                          await showDatePicker(
+                                        context: context,
+                                        initialDate: endDateTime.value ??
+                                            startDateTime.value ??
+                                            DateTime.now(),
+                                        firstDate: DateTime.now(),
+                                        lastDate: DateTime(2100),
+                                      );
+
+                                      if (pickedDate != null) {
+                                        final TimeOfDay? pickedTime =
+                                            await showTimePicker(
+                                          context: context,
+                                          initialTime: TimeOfDay.now(),
+                                        );
+
+                                        if (pickedTime != null) {
+                                          endDateTime.value = DateTime(
+                                            pickedDate.year,
+                                            pickedDate.month,
+                                            pickedDate.day,
+                                            pickedTime.hour,
+                                            pickedTime.minute,
+                                          );
+                                          _callPaymentApi();
+                                        }
+                                      }
+                                    },
+                                    child: AbsorbPointer(
+                                      child: Obx(() => TextFormField(
+                                            readOnly: true,
+                                            decoration: InputDecoration(
+                                              labelText:
+                                                  'Select End Date & Time',
+                                              labelStyle: TextStyle(
+                                                fontSize: 14.sp,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.black54,
+                                              ),
+                                              contentPadding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 15,
+                                                      vertical: 15),
+                                              enabledBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(30),
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black54,
+                                                    width: 1),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(30),
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black54,
+                                                    width: 1.2),
+                                              ),
+                                              filled: true,
+                                              fillColor: Colors.white,
+                                              suffixIcon: const Icon(
+                                                  Icons.access_time_outlined,
+                                                  color: Colors.red),
+                                            ),
+                                            style: TextStyle(
+                                                fontSize: 15.sp,
+                                                fontWeight: FontWeight.w600),
+                                            controller: TextEditingController(
+                                              text: endDateTime.value != null
+                                                  ? DateFormat("MMM d, h:mm a")
+                                                      .format(
+                                                          endDateTime.value!)
+                                                  : '',
+                                            ),
+                                          )),
+                                    ),
+                                  ),
+                                )
+                              : SizedBox(),
+                        ],
+                      ),
+                    ),
+
+                    isNavigator == true
+                        ? Container(
+                            width: 100.w,
+                            margin: EdgeInsets.symmetric(horizontal: 15),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(color: Colors.black, width: 1),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                /// LEFT — Label
+                                Text(
+                                  "Hours",
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+
+                                /// RIGHT — Stepper control
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // minus button
+                                    InkWell(
+                                      onTap: _decHour,
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: const SizedBox(
+                                        width: 36,
+                                        height: 36,
+                                        child: Center(
+                                          child: Text(
+                                            "−",
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              color: Colors.red,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                    // divider
+                                    Container(
+                                        width: 1,
+                                        height: 28,
+                                        color: Colors.black12),
+
+                                    // value display
+                                    SizedBox(
+                                      width: 48,
+                                      height: 36,
+                                      child: Center(
+                                        child: Text(
+                                          "$_hours",
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                    // divider
+                                    Container(
+                                        width: 1,
+                                        height: 28,
+                                        color: Colors.black12),
+
+                                    // plus button
+                                    InkWell(
+                                      onTap: _incHour,
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: const SizedBox(
+                                        width: 36,
+                                        height: 36,
+                                        child: Center(
+                                          child: Text(
+                                            "+",
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              color: Colors.red,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          )
+                        : SizedBox(),
+                    isNavigator == true ? SizedBox(height: 15) : SizedBox(),
 
                     /// Driver Info
                     Container(
-                      padding: const EdgeInsets.all(20),
+                      margin: EdgeInsets.symmetric(horizontal: 10),
+                      padding: const EdgeInsets.all(15),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(35),
                         border: Border.all(color: Colors.black),
@@ -523,7 +767,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                       child: Row(
                         children: [
                           Icon(Icons.verified_user,
-                              color: Colors.black, size: 20.sp),
+                              color: Colors.green, size: 20.sp),
                           SizedBox(width: 12),
                           Expanded(
                             child: Column(
@@ -549,9 +793,49 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                           InkWell(
                             onTap: () {
                               final breakdown = _calculatePaymentBreakdown();
+
+                              // String startDate = startDateTime.value != null
+                              //     ? DateFormat("yyyy-MM-dd").format(startDateTime.value!)
+                              //     : "";
+                              // print("🕐 startDate: $startDate");
+                              // String endDate = endDateTime.value != null
+                              //     ? DateFormat("yyyy-MM-dd").format(endDateTime.value!)
+                              //     : "";
+                              // print("🕐 endDate: $endDate");
+
+                              // ✅ Format start & end date/time directly from Rxn<DateTime>
+                              String startDate = startDateTime.value != null
+                                  ? DateFormat("yyyy-MM-dd").format(startDateTime.value!)
+                                  : "";
+                              String endDate = endDateTime.value != null
+                                  ? DateFormat("yyyy-MM-dd").format(endDateTime.value!)
+                                  : "";
+
+                              String startTimeFormatted = startDateTime.value != null
+                                  ? DateFormat("HH:mm:ss").format(startDateTime.value!)
+                                  : "";
+                              String endTimeFormatted = endDateTime.value != null
+                                  ? DateFormat("HH:mm:ss").format(endDateTime.value!)
+                                  : "";
+
+                              print("🕐 startDate: $startDate | startTime: $startTimeFormatted");
+                              print("🕐 endDate: $endDate | endTime: $endTimeFormatted");
+
+
                               Get.toNamed(
                                 RouteHelper().getPaymentBreakdownScreen(),
-                                arguments: breakdown,
+                                arguments: {
+                                  "type": isNavigator==true? "hourly":"outStation",
+                                  "startDate": startDate,
+                                  "endDate": endDate,
+                                  // "startTime": startTime,
+                                  // "endTime": endTime,
+                                  "startTime": startTimeFormatted,
+                                  "endTime": endTimeFormatted,
+                                  "extra": extra,
+                                  "discount": "ADI666",
+                                  "expectedEnd": selectedHour
+                                },
                               );
                             },
                             child: Icon(Icons.info_outline,
@@ -560,13 +844,13 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                           SizedBox(
                             width: 10,
                           ),
-                          Text(
-                            "₹100",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black,
-                                fontSize: 17.sp),
-                          ),
+                          Obx(() => Text(
+                                "₹${paymentController.totalAmount.value}",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.black,
+                                    fontSize: 17.sp),
+                              ))
                         ],
                       ),
                     ),
@@ -574,40 +858,47 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                     const SizedBox(height: 20),
 
                     /// Offers
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.camera_rounded, color: Colors.black),
-                            SizedBox(width: 18),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Offers",
-                                    style: TextStyle(
-                                        fontSize: 14.sp,
-                                        fontWeight: FontWeight.w700)),
-                                Text("Latest offers",
-                                    style: TextStyle(
-                                        fontSize: 15.sp,
-                                        fontWeight: FontWeight.w300,
-                                        color: Colors.grey)),
-                              ],
-                            ),
-                          ],
-                        ),
-                        InkWell(
-                          onTap: () {
-                            //Get.toNamed(RouteHelper().getAddNewCarScreen());
-                          },
-                          child: Text("Apply now",
-                              style: TextStyle(
-                                  fontSize: 15.sp,
-                                  color: ConstColors().themeColor,
-                                  fontWeight: FontWeight.w700)),
-                        ),
-                      ],
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.camera_rounded,
+                                color: Colors.red,
+                                size: 35,
+                              ),
+                              SizedBox(width: 5),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text("Offers",
+                                      style: TextStyle(
+                                          fontSize: 15.sp,
+                                          fontWeight: FontWeight.w700)),
+                                  Text("Latest offers",
+                                      style: TextStyle(
+                                          fontSize: 15.sp,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.grey)),
+                                ],
+                              ),
+                            ],
+                          ),
+                          InkWell(
+                            onTap: () {
+                              //Get.toNamed(RouteHelper().getAddNewCarScreen());
+                            },
+                            child: Text("Apply now",
+                                style: TextStyle(
+                                    fontSize: 15.sp,
+                                    color: ConstColors().themeColor,
+                                    fontWeight: FontWeight.w700)),
+                          ),
+                        ],
+                      ),
                     ),
 
                     const SizedBox(height: 30),
@@ -641,12 +932,22 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                 // Pickup & Drop
                 String pickUp = sourceController.text;
                 String drop = isNavigator ? "" : destinationController.text;
+                String startDate = "";
+                String startTime = "";
 
-                // Date & Time
-                DateTime selectedDT =
-                    DateFormat("d MMM, h:mm a").parse(selectedDateTime!);
-                String startDate = DateFormat("yyyy-MM-dd").format(selectedDT);
-                String startTime = DateFormat("HH:mm:ss").format(selectedDT);
+                if (startDateTime.value != null) {
+                  startDate = DateFormat("yyyy-MM-dd").format(startDateTime.value!);
+                  startTime = DateFormat("HH:mm:ss").format(startDateTime.value!);
+                  print("✅ Using selected startDateTime: $startDate $startTime");
+                } else {
+                  DateTime now = DateTime.now();
+                  startDate = DateFormat("yyyy-MM-dd").format(now);
+                  startTime = DateFormat("HH:mm:ss").format(now);
+                  print("⚠️ startDateTime was null, using fallback current time: $startDate $startTime");
+                }
+
+
+
 
                 print("startDate :-- $startDate");
                 print("startTime :-- $startTime");
@@ -656,16 +957,17 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
 
                 // Amount
                 String amount = "300";
+                print("selectedDateTime before parse: $selectedDateTime");
 
                 final bookingId = await homeController.createBookingApi(
                   userNme,
                   phoneNumber,
                   email,
-                  "hourly",
+                  isNavigator == true ? "hourly" : "outStation",
                   pickUp,
                   expectedEnd,
-                  300,
-                  selectedDateTime!,
+                  paymentController.totalAmount.value,
+                  startDate,
                   startTime,
                   selectedCar.value,
                   selectedTransmission.value,
@@ -707,9 +1009,9 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                   );
                 }
               },
-              child: const Text(
+              child: Text(
                 "Request for Driver",
-                style: TextStyle(fontSize: 16, color: Colors.white),
+                style: TextStyle(fontSize: 16.sp, color: Colors.white),
               ),
             ),
           ),
@@ -721,14 +1023,21 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
   Widget _customTextField(TextEditingController controller) {
     return TextField(
       controller: controller,
-      style: const TextStyle(fontSize: 14),
+      readOnly: true,
+      style: TextStyle(fontSize: 14.sp, color: Colors.grey),
       decoration: InputDecoration(
-        // hintText: hint,
-      //  prefixIcon: const Icon(Icons.location_on_outlined, size: 20),
-        contentPadding: const EdgeInsets.only(left: 10, right: 10),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-        ),
+            borderRadius: BorderRadius.circular(30),
+            borderSide: BorderSide(
+              color: Colors.grey,
+            )),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+            borderSide: BorderSide(
+              color: Colors.grey,
+            )),
       ),
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
@@ -774,7 +1083,8 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
   }
 
   /// Create Map with Polyline
-  void _onMapCreated(GoogleMapController controller, LatLng source, LatLng destination) {
+  void _onMapCreated(
+      GoogleMapController controller, LatLng source, LatLng destination) {
     _mapController = controller;
 
     markers.clear();
@@ -802,17 +1112,16 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                 },
                 "existingDrop": (destinationLocation.value != null)
                     ? {
-                  "address": destinationController.text,
-                  "lat": destinationLocation.value!.latitude,
-                  "lng": destinationLocation.value!.longitude,
-                }
+                        "address": destinationController.text,
+                        "lat": destinationLocation.value!.latitude,
+                        "lng": destinationLocation.value!.longitude,
+                      }
                     : null,
               },
             );
           },
         ),
-        onTap: () {
-        },
+        onTap: () {},
       ),
     );
 
@@ -859,12 +1168,20 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
     } else {
       final bounds = LatLngBounds(
         southwest: LatLng(
-          source.latitude <= destination.latitude ? source.latitude : destination.latitude,
-          source.longitude <= destination.longitude ? source.longitude : destination.longitude,
+          source.latitude <= destination.latitude
+              ? source.latitude
+              : destination.latitude,
+          source.longitude <= destination.longitude
+              ? source.longitude
+              : destination.longitude,
         ),
         northeast: LatLng(
-          source.latitude >= destination.latitude ? source.latitude : destination.latitude,
-          source.longitude >= destination.longitude ? source.longitude : destination.longitude,
+          source.latitude >= destination.latitude
+              ? source.latitude
+              : destination.latitude,
+          source.longitude >= destination.longitude
+              ? source.longitude
+              : destination.longitude,
         ),
       );
       _mapController?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
@@ -872,7 +1189,6 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
 
     setState(() {});
   }
-
 
   /// convert meters to km
   double calculateDistance(LatLng start, LatLng end) {
@@ -896,10 +1212,6 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
     double hourlyRate = 188; // example base hourly rate
     int hours = int.parse(selectedHour.split(" ")[0]);
     double basePrice = hours * hourlyRate;
-
-    // GST (18%)
-    double gst = (basePrice * 0.18).roundToDouble();
-
     // Late night charges (₹100 if pickup time between 9 PM and 4 AM)
     double lateNightCharges = 0;
     if (selectedDateTime != null) {
@@ -915,12 +1227,11 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
     double platformFees = basePrice < 200 ? 19 : 0;
 
     // Total
-    double total = basePrice + gst + lateNightCharges + platformFees;
+    double total = basePrice + lateNightCharges + platformFees;
     print("total :-- $total");
 
     return {
       "basePrice": basePrice,
-      "gst": gst,
       "lateNightCharges": lateNightCharges,
       "platformFees": platformFees,
       "total": total,

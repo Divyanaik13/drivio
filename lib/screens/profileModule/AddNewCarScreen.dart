@@ -71,7 +71,7 @@ class _AddNewCarScreenState extends State<AddNewCarScreen> {
               ),
 
               // Owner name
-              _label("Owner name", required: true),
+             /* _label("Owner name", required: true),
               TextFormField(
                 controller: _ownerController,
                 decoration: _decoration(hint: "Enter Car owner name"),
@@ -92,7 +92,7 @@ class _AddNewCarScreenState extends State<AddNewCarScreen> {
                     fontWeight: FontWeight.w500,
                     letterSpacing: 0.2),
                 textCapitalization: TextCapitalization.characters,
-              ),
+              ),*/
 
               // Transmission type (dropdown with gear icon)
               _label("Transmission type"),
@@ -132,13 +132,12 @@ class _AddNewCarScreenState extends State<AddNewCarScreen> {
             onPressed: () {
               profileController.addCarApi(
                   _carNameController.text,
-                  _ownerController.text,
-                  _carNoController.text,
+                  "",
+                  "",
                   _transmission,
                   _mobileNoController.text);
               print("_carNameController :-- ${_carNameController.text}");
               print("_ownerController :-- ${_ownerController.text}");
-              print("_carNoController :-- ${_carNoController.text}");
               print("_mobileNoController :-- ${_mobileNoController.text}");
               print("_transmission :-- ${_transmission}");
             },

@@ -56,6 +56,8 @@ class SearchHistoryList {
   DateTime occurredAt;
   DateTime createdAt;
   DateTime updatedAt;
+  double? latitude;
+  double? longitude;
 
   SearchHistoryList({
     required this.id,
@@ -73,6 +75,8 @@ class SearchHistoryList {
     required this.occurredAt,
     required this.createdAt,
     required this.updatedAt,
+    this.latitude,
+    this.longitude,
   });
 
   factory SearchHistoryList.fromJson(Map<String, dynamic> json) => SearchHistoryList(
@@ -91,6 +95,12 @@ class SearchHistoryList {
     occurredAt: DateTime.parse(json["occurred_at"]),
     createdAt: DateTime.parse(json["created_at"]),
     updatedAt: DateTime.parse(json["updated_at"]),
+    latitude: json["latitude"] != null
+        ? double.tryParse(json["latitude"].toString())
+        : null,
+    longitude: json["longitude"] != null
+        ? double.tryParse(json["longitude"].toString())
+        : null,
   );
 
   Map<String, dynamic> toJson() => {
@@ -109,6 +119,8 @@ class SearchHistoryList {
     "occurred_at": occurredAt.toIso8601String(),
     "created_at": createdAt.toIso8601String(),
     "updated_at": updatedAt.toIso8601String(),
+    "latitude": latitude,
+    "longitude": longitude,
   };
 }
 

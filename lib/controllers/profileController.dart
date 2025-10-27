@@ -115,8 +115,10 @@ class ProfileController extends GetxController {
           transmissionType, mobileNumber);
       print("response add car :-- $response");
       CommonFunctions().hideLoader();
-      if (response != null && response['success'] == 1) {
+      final resData = response?.data;
+      if (resData != null && resData['success'] == 1) {
         print("add car success");
+        Get.toNamed(RouteHelper().getOneWayTripDetailScreen());
       }
     } catch (e) {
       print("add car Api error :-- $e");

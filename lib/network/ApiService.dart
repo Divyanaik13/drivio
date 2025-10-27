@@ -49,6 +49,31 @@ class DioServices extends GetxService {
     return returnResponse(response);
   }
 
+  Future<DIO.Response> getMethod1(String endPoint, dynamic header, Map<String, dynamic> queryParameters) async {
+    var response;
+    if (await checkNetwork()) {
+      print("internet");
+      try {
+        response = await dio.get(WebService().baseUrl + endPoint,
+            queryParameters: queryParameters,
+            options: DIO.Options(headers: header));
+        return returnResponse(response);
+      } catch (e) {
+        if (e is DioException) {
+          if (e.response != null) {
+            response = e.response;
+            return returnResponse(e.response!);
+          }
+        } else {
+          log("No Dio Error: $e");
+        }
+      }
+    } else {
+      print("no internet");
+    }
+    return returnResponse(response);
+  }
+
   //For postMethod
 /*  Future<DIO.Response> postMethod1(
       String endPoint, Map<String, dynamic>? body, header) async {

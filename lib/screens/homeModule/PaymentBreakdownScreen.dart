@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
@@ -11,54 +13,139 @@ class PaymentBreakdownScreen extends StatefulWidget {
 }
 
 class _PaymentBreakdownScreenState extends State<PaymentBreakdownScreen> {
-   var paymentController = Get.find<PaymentController>();
+  var paymentController = Get.find<PaymentController>();
 
+/*  @override
+  void initState() {
+    super.initState();
+    final args = Get.arguments ?? {};
+
+    // Extract each one
+    final String type = args["type"] ?? "";
+    final String startDate = args["startDate"] ?? "";
+    final String endDate = args["endDate"] ?? "";
+    final String startTime = args["startTime"] ?? "";
+    final String endTime = args["endTime"] ?? "";
+    final String extra = args["extra"] ?? "no";
+    final String discount = args["discount"] ?? "";
+    final dynamic expectedEnd = args["expectedEnd"];
+
+    paymentController.paymentCalApi(
+        "", "", "", startTime, endTime, expectedEnd,type, extra, "");
+
+  }*/
 
   @override
   void initState() {
-    paymentController.paymentCalApi(39,"2024-10-10 10:00", "2024-10-10 12:00", 2, "hourly", "");
     super.initState();
+    final args = Get.arguments ?? {};
+
+    // Extract values safely
+    final String type = (args["type"] ?? "").toString();
+    final String startDate = (args["startDate"] ?? "").toString();
+    final String endDate = (args["endDate"] ?? "").toString();
+    final String startTime = (args["startTime"] ?? "").toString();
+    final String endTime = (args["endTime"] ?? "").toString();
+    final String extra = (args["extra"] ?? "no").toString();
+    final String discount = (args["discount"] ?? "").toString();
+    final dynamic expectedEnd = args["expectedEnd"] ?? "";
+
+    print("🔹 PaymentBreakdownScreen init with args:");
+    print("type: $type");
+    print("startDate: $startDate, endDate: $endDate");
+    print("startTime: $startTime, endTime: $endTime");
+    print("expectedEnd: $expectedEnd, extra: $extra, discount: $discount");
+
+    // ✅ Conditional API call
+    if (type.toLowerCase() == "hourly") {
+      // HOURLY API BODY
+      final hourlyBody = {
+        "type": "hourly",
+        "startTime": startTime,
+        "endTime": endTime,
+        "expectedEnd": expectedEnd,
+        "extra": extra,
+      };
+      print("📦 HOURLY payload → $hourlyBody");
+
+      paymentController.paymentCalApi(
+        "", // bookingId if not used
+        "", // startDate not needed for hourly
+        "", // endDate not needed for hourly
+        startTime,
+        endTime,
+        expectedEnd.toString(),
+        "hourly",
+        extra,
+        discount,
+      );
+    } else {
+      // OUTSTATION API BODY
+      final outstationBody = {
+        "type": "outstation",
+        "startDate": startDate,
+        "endDate": endDate,
+        "startTime": startTime,
+        "endTime": endTime,
+        "extra": extra,
+        "discount": discount,
+      };
+      print("📦 OUTSTATION payload → $outstationBody");
+
+      paymentController.paymentCalApi(
+        "", // bookingId if not used
+        startDate,
+        endDate,
+        startTime,
+        endTime,
+        expectedEnd.toString(),
+        "outStation",
+        extra,
+        discount,
+      );
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
-    final args = Get.arguments ?? {};
-    final double basePrice = args["basePrice"] ?? 0;
-    final double gst = args["gst"] ?? 0;
-    final double lateNightCharges = args["lateNightCharges"] ?? 0;
-    final double platformFees = args["platformFees"] ?? 0;
-    final double total = args["total"] ?? 0;
-    final int hours = args["hours"] ?? 0;
-
-    return Sizer(
-      builder: (context, orientation, deviceType) {
-        return Scaffold(
+    return Sizer(builder: (context, orientation, deviceType) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          elevation: 0,
           backgroundColor: Colors.white,
-          appBar: AppBar(
-            elevation: 0,
-            backgroundColor: Colors.white,
-            centerTitle: true,
-            title: Text(
-              "Payment",
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.w600,
-                fontSize: 17.sp,
-              ),
-            ),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
-              onPressed: () => Get.back(),
+          centerTitle: true,
+          title: Text(
+            "Payment Breakdown",
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w600,
+              fontSize: 17.sp,
             ),
           ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
+            onPressed: () => Get.back(),
+          ),
+        ),
+        body: Obx(() {
+          if (paymentController.totalAmount.value == 0) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-          body: Padding(
+          final data = paymentController.paymentCalModel.value!.data;
+
+          print("paymentCalModel data ${jsonEncode(data)}");
+          print("paymentCalModel data ${data?.ratePerHour}");
+
+          return Padding(
             padding: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Pricing Details for a $hours hr Trip",
+                  "Pricing Details for a ${data?.plannedHours} hr Trip",
                   style: TextStyle(
                     fontSize: 15.sp,
                     color: Colors.black,
@@ -67,78 +154,24 @@ class _PaymentBreakdownScreenState extends State<PaymentBreakdownScreen> {
                 ),
                 SizedBox(height: 2.h),
 
-                _buildPriceRow("Base Fare", "₹${basePrice.toStringAsFixed(2)}"),
-                _buildPriceRow("GST (18%)", "₹${gst.toStringAsFixed(2)}"),
-                if (lateNightCharges > 0)
-                  _buildPriceRow("Late Night Charges", "₹${lateNightCharges.toStringAsFixed(2)}"),
-                if (platformFees > 0)
-                  _buildPriceRow("Platform Fees", "₹${platformFees.toStringAsFixed(2)}"),
-
-                const Divider(height: 25, thickness: 1),
-                _buildPriceRow("Total Amount", "₹${total.toStringAsFixed(2)}"),
+                _buildPriceRow("Rate per Hour", "₹${data?.ratePerHour}"),
+                _buildPriceRow("Planned Minutes", "${data?.plannedMinutes} min"),
+                _buildPriceRow("Platform Fees", "₹${data?.platformFees}"),
+                _buildPriceRow("Night Charges", "₹${data?.nightCharges}"),
+                _buildPriceRow("Extra Charges", "₹${data?.extraCharges}"),
+                _buildPriceRow("Subtotal", "₹${data?.subTotal}"),
+                Divider(thickness: 1, height: 20),
+                _buildPriceRow("Total Amount", "₹${data?.totalAmount}",
+                    isBold: true),
               ],
             ),
-          ),
-
-          bottomNavigationBar: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 2.h),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.error_outline, color: Colors.redAccent, size: 18),
-                      SizedBox(width: 1.w),
-                      GestureDetector(
-                        onTap: () {},
-                        child: Text(
-                          "View cancellation policy",
-                          style: TextStyle(
-                            color: Colors.redAccent,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 15.sp,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 2.h),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // TODO: continue
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.redAccent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      padding: EdgeInsets.symmetric(vertical: 1.8.h),
-                    ),
-                    child: Text(
-                      "Continue",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+          );
+        }),
+      );
+    });
   }
 
-
-  Widget _buildPriceRow(String title, String value) {
+  Widget _buildPriceRow(String title, String value, {bool isBold = false}) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 0.7.h),
       child: Row(
@@ -156,7 +189,7 @@ class _PaymentBreakdownScreenState extends State<PaymentBreakdownScreen> {
             style: TextStyle(
               fontSize: 15.sp,
               color: Colors.black,
-              fontWeight: FontWeight.w500,
+              fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
             ),
           ),
         ],
@@ -164,4 +197,3 @@ class _PaymentBreakdownScreenState extends State<PaymentBreakdownScreen> {
     );
   }
 }
-
