@@ -116,9 +116,13 @@ class ProfileController extends GetxController {
       print("response add car :-- $response");
       CommonFunctions().hideLoader();
       final resData = response?.data;
+
       if (resData != null && resData['success'] == 1) {
         print("add car success");
-        Get.toNamed(RouteHelper().getOneWayTripDetailScreen());
+
+        final carData = resData['data']['car'];
+        // Return data to previous screen instead of navigating
+        Get.back(result: carData);
       }
     } catch (e) {
       print("add car Api error :-- $e");
@@ -128,23 +132,44 @@ class ProfileController extends GetxController {
   }
 
   /// Get all car collection api function
- Future<dynamic> getCarCollectionApi(String mobileNumber) async {
-      CommonFunctions().showLoader();
-      var response;
-      try {
-        response = await _profileRepo.getCarCollectionRepo(mobileNumber);
-        print("response get car collection :-- $response");
-        CommonFunctions().hideLoader();
-        if (response != null && response['success'] == 1) {
+  Future<dynamic> getCarCollectionApi(String mobileNumber) async {
+    CommonFunctions().showLoader();
+    var response;
+    try {
+      response = await _profileRepo.getCarCollectionRepo(mobileNumber);
+      print("response get car collection :-- ${response?.data}");
+      CommonFunctions().hideLoader();
+
+      if (response != null && response.data != null) {
+        var resData = response.data;
+
+        if (resData["success"] == 1) {
           print("get car collection success");
-          calCollectionModel.value = CarCollectionModel.fromJson(response.data);
-          car.value = calCollectionModel.value!.data.car;
-          print("car collection :-- ${car.value!.carname}");
+
+          // Parse JSON using your CarCollectionModel
+          calCollectionModel.value = CarCollectionModel.fromJson(resData);
+
+          // extract list of cars
+          var cars = calCollectionModel.value!.data.cars;
+          print("Total cars fetched: ${cars.length}");
+
+          // store first car (optional)
+          if (cars.isNotEmpty) {
+            car.value = cars.first;
+            print("First car: ${car.value!.carname}");
+          }
+
+          return cars;
+        } else {
+          print("get car collection failed :-- ${resData['message']}");
         }
-      } catch (e) {
-        print("get car collection Api error :-- $e");
-        CommonFunctions().hideLoader();
       }
-      return response;
+    } catch (e) {
+      print("get car collection Api error :-- $e");
+      CommonFunctions().hideLoader();
     }
+
+    return [];
+  }
+
 }

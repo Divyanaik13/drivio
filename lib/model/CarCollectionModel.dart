@@ -4,9 +4,11 @@
 
 import 'dart:convert';
 
-CarCollectionModel carCollectionModelFromJson(String str) => CarCollectionModel.fromJson(json.decode(str));
+CarCollectionModel carCollectionModelFromJson(String str) =>
+    CarCollectionModel.fromJson(json.decode(str));
 
-String carCollectionModelToJson(CarCollectionModel data) => json.encode(data.toJson());
+String carCollectionModelToJson(CarCollectionModel data) =>
+    json.encode(data.toJson());
 
 class CarCollectionModel {
   int success;
@@ -21,12 +23,13 @@ class CarCollectionModel {
     required this.error,
   });
 
-  factory CarCollectionModel.fromJson(Map<String, dynamic> json) => CarCollectionModel(
-    success: json["success"],
-    message: json["message"],
-    data: Data.fromJson(json["data"]),
-    error: json["error"],
-  );
+  factory CarCollectionModel.fromJson(Map<String, dynamic> json) =>
+      CarCollectionModel(
+        success: json["success"],
+        message: json["message"],
+        data: Data.fromJson(json["data"]),
+        error: json["error"],
+      );
 
   Map<String, dynamic> toJson() => {
     "success": success,
@@ -37,18 +40,18 @@ class CarCollectionModel {
 }
 
 class Data {
-  Car car;
+  List<Car> cars;
 
   Data({
-    required this.car,
+    required this.cars,
   });
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
-    car: Car.fromJson(json["car"]),
+    cars: List<Car>.from(json["cars"].map((x) => Car.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
-    "car": car.toJson(),
+    "cars": List<dynamic>.from(cars.map((x) => x.toJson())),
   };
 }
 
@@ -61,8 +64,8 @@ class Car {
   int userId;
   String username;
   String userNumber;
-  DateTime updatedAt;
   DateTime createdAt;
+  DateTime updatedAt;
 
   Car({
     required this.id,
@@ -73,21 +76,21 @@ class Car {
     required this.userId,
     required this.username,
     required this.userNumber,
-    required this.updatedAt,
     required this.createdAt,
+    required this.updatedAt,
   });
 
   factory Car.fromJson(Map<String, dynamic> json) => Car(
     id: json["id"],
-    carname: json["carname"],
-    ownername: json["ownername"],
-    carNumber: json["carNumber"],
-    transmissionType: json["transmissionType"],
+    carname: json["carname"] ?? "",
+    ownername: json["ownername"] ?? "",
+    carNumber: json["carNumber"] ?? "",
+    transmissionType: json["transmissionType"] ?? "",
     userId: json["userId"],
-    username: json["username"],
-    userNumber: json["userNumber"],
-    updatedAt: DateTime.parse(json["updated_at"]),
+    username: json["username"] ?? "",
+    userNumber: json["userNumber"] ?? "",
     createdAt: DateTime.parse(json["created_at"]),
+    updatedAt: DateTime.parse(json["updated_at"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -99,7 +102,7 @@ class Car {
     "userId": userId,
     "username": username,
     "userNumber": userNumber,
-    "updated_at": updatedAt.toIso8601String(),
     "created_at": createdAt.toIso8601String(),
+    "updated_at": updatedAt.toIso8601String(),
   };
 }

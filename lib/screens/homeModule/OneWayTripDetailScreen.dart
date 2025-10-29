@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:drivio_sarthi/utils/ConstColors.dart';
 import 'package:drivio_sarthi/utils/RouteHelper.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -9,6 +12,7 @@ import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
 import '../../controllers/HomeController.dart';
 import '../../controllers/PaymentCalController.dart';
+import '../../controllers/profileController.dart';
 import '../../model/DriverInfoModel.dart';
 import '../../network/SocketService.dart';
 import '../../utils/CommonFunctions.dart';
@@ -30,6 +34,8 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
   TextEditingController destinationController = TextEditingController();
   var homeController = Get.find<HomeController>();
   var paymentController = Get.find<PaymentController>();
+  final profileController = Get.find<ProfileController>();
+
   // String? selectedHour;
   final TextEditingController manualController = TextEditingController();
 
@@ -43,8 +49,8 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
   var email = "";
   var userID = "";
   RxString selectedTransmission = "Manual".obs;
-  RxString selectedCar = "Xuv 700".obs;
-  RxList<String> carList = ["Xuv 700", "Ford", "Baleno"].obs;
+  RxString selectedCar = "".obs;
+  RxList<String> carList = <String>[].obs;
   // Sentinel for Add New
   String kAddNewSentinel = "__ADD__";
   final startDateTime = Rxn<DateTime>();
@@ -52,6 +58,11 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
   String startTime = "";
   String endTime = "";
   String extra = "";
+  bool _isRequestRunning = false;
+  int _elapsedSeconds = 0;
+  Timer? _requestTimer;
+  DateTime? _requestStartTime;
+  String? _activeBookingId;
 
   LocalStorage ls = LocalStorage();
 
@@ -70,10 +81,35 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
     userID = ls.getStringValue(ls.userId) ?? "";
   }
 
+  Future<void> _loadCarList() async {
+    try {
+      // get mobile number from local storage
+      final phoneNumber = ls.getStringValue(ls.mobileNumber) ?? "";
+      if (phoneNumber.isEmpty) {
+        print("No mobile number found in LocalStorage");
+        return;
+      }
+      print("Fetching cars for user: $phoneNumber");
+
+      final cars = await profileController.getCarCollectionApi(phoneNumber);
+
+      if (cars.isNotEmpty) {
+        carList.value = cars.map<String>((e) => e.carname.toString()).toList();
+        print("Car list loaded: ${carList}");
+      } else {
+        print("No cars found for this user");
+      }
+    } catch (e) {
+      print("Error loading car list: $e");
+    }
+  }
+
+
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    _loadCarList();
 
     final args = Get.arguments;
 
@@ -122,6 +158,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
           22.738078356773574, 75.89032710201927); // Phoenix mall indore
 
       _callPaymentApi();
+
     }
   }
 
@@ -193,9 +230,10 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
     // Extra condition
     extra = DateTime.now().isAfter(endDT) ? "yes" : "no";
 
-    print("🕐 startDate: $startDate | startTime: $startTime");
-    print("🕐 endDate: $endDate | endTime: $endTime");
-    print("isNavigator: $isNavigator → type: ${isNavigator ? "hourly" : "outstation"}");
+    print("startDate: $startDate | startTime: $startTime");
+    print("endDate: $endDate | endTime: $endTime");
+    print(
+        "isNavigator: $isNavigator → type: ${isNavigator ? "hourly" : "outstation"}");
     print("Hours: $_hours | extra: $extra");
 
     // Decide body based on trip type
@@ -247,7 +285,6 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
       );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -363,116 +400,179 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 1.h),
+                    SizedBox(height: 0.5.h),
 
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        children: [
-                          /// ---- Car Dropdown ----
-                          Expanded(
-                            flex: 1,
-                            child: Obx(
-                              () => DropdownButtonFormField<String>(
-                                value: selectedCar.value,
-                                decoration: InputDecoration(
-                                  labelText: 'Car name/type',
-                                  labelStyle: TextStyle(
-                                    fontSize: 14.sp,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black54,
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 16),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(30),
-                                    borderSide: const BorderSide(
-                                        color: Colors.black54, width: 1),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(30),
-                                    borderSide: const BorderSide(
-                                        color: Colors.black, width: 1.3),
-                                  ),
-                                ),
-                                icon: const Icon(Icons.arrow_drop_down),
-                                dropdownColor: Colors.white,
-                                isExpanded: true,
-                                items: [
-                                  ...carList
-                                      .map(
-                                        (e) => DropdownMenuItem(
-                                          value: e,
-                                          child: Text(
-                                            e,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                              fontSize: 15.sp,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                      .toList(),
-                                  const DropdownMenuItem(
-                                    value: "__ADD__",
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.add,
-                                            color: Colors.redAccent, size: 18),
-                                        SizedBox(width: 4),
-                                        Text(
-                                          "Add new car",
-                                          style: TextStyle(
-                                              color: Colors.redAccent,
-                                              fontWeight: FontWeight.w600),
-                                        ),
-                                      ],
+                  /// ---- Car Dropdown ----
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: Obx(() {
+                            final hasCars = carList.isNotEmpty;
+
+                            // ✅ Build dropdown items
+                            final dropdownItems = <DropdownMenuItem<String>>[];
+
+                            if (hasCars) {
+                              dropdownItems.addAll(
+                                carList.map(
+                                      (e) => DropdownMenuItem(
+                                    value: e,
+                                    child: Text(
+                                      e,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 15.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black,
+                                      ),
                                     ),
                                   ),
-                                ],
-                                onChanged: (value) async {
-                                  if (value == null) return;
-                                  if (value == "__ADD__") {
-                                    final newCarName = await Get.toNamed(
-                                      RouteHelper().getAddNewCarScreen(),
-                                      arguments: {
-                                        "sourceLatitude":
-                                            sourceLocation.value?.latitude,
-                                        "sourceLongitude":
-                                            sourceLocation.value?.longitude,
-                                        "destinationLatitude":
-                                            destinationLocation.value?.latitude,
-                                        "destinationLongitude":
-                                            destinationLocation
-                                                .value?.longitude,
-                                        "sourceLocation": sourceController.text,
-                                        "destinationLocation":
-                                            destinationController.text,
-                                        "isNavigator": isNavigator,
-                                      },
-                                    );
-                                    if (newCarName is String &&
-                                        newCarName.trim().isNotEmpty) {
-                                      final name = newCarName.trim();
-                                      if (!carList.contains(name))
-                                        carList.add(name);
-                                      selectedCar.value = name;
-                                    }
-                                  } else {
-                                    selectedCar.value = value;
-                                  }
-                                },
+                                ),
+                              );
+                            }
+
+                            // ✅ Always include “Add new car” at bottom
+                            dropdownItems.add(
+                              const DropdownMenuItem(
+                                value: "__ADD__",
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.add, color: Colors.redAccent, size: 18),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      "Add new car",
+                                      style: TextStyle(
+                                        color: Colors.redAccent,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ),
-                        ],
-                      ),
+                            );
+
+                            // ✅ Safe handling of null/empty car
+                            final dropdownValue = (selectedCar.value.isEmpty)
+                                ? null
+                                : selectedCar.value;
+
+                            return DropdownButtonFormField2<String>(
+                              value: dropdownValue,
+                              hint: const Text(
+                                "Select car",
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              decoration: InputDecoration(
+                                labelText: 'Car name/type',
+                                labelStyle: TextStyle(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black54,
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 16),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide:
+                                  const BorderSide(color: Colors.black54, width: 1),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide:
+                                  const BorderSide(color: Colors.black, width: 1.3),
+                                ),
+                              ),
+
+                              // 🔽 Arrow style
+                              iconStyleData: const IconStyleData(
+                                icon: Icon(Icons.arrow_drop_down, color: Colors.black54),
+                                iconSize: 24,
+                              ),
+
+                              // 🎨 Popup styling (Rounded + scrollable)
+                              dropdownStyleData: DropdownStyleData(
+                                maxHeight: 300, // around 10 cars visible
+                                width: MediaQuery.of(context).size.width - 60,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              menuItemStyleData: const MenuItemStyleData(
+                                height: 48,
+                                padding: EdgeInsets.symmetric(horizontal: 12),
+                              ),
+
+                              isExpanded: true,
+                              items: dropdownItems,
+
+                              onChanged: (value) async {
+                                if (value == null) return;
+
+                                // 🧩 Case 1: User taps "Add new car"
+                                if (value == "__ADD__") {
+                                  final newCarData = await Get.toNamed(
+                                    RouteHelper().getAddNewCarScreen(),
+                                    arguments: {
+                                      "sourceLatitude": sourceLocation.value?.latitude,
+                                      "sourceLongitude": sourceLocation.value?.longitude,
+                                      "destinationLatitude": destinationLocation.value?.latitude,
+                                      "destinationLongitude": destinationLocation.value?.longitude,
+                                      "sourceLocation": sourceController.text,
+                                      "destinationLocation": destinationController.text,
+                                      "isNavigator": isNavigator,
+                                      "tripDistance": tripDistance,
+                                    },
+                                  );
+
+                                  // 🧠 Handle returned new car data
+                                  if (newCarData != null && newCarData is Map) {
+                                    final carName = newCarData['carname'] ?? '';
+                                    final transmission =
+                                        newCarData['transmissionType'] ?? 'Manual';
+
+                                    if (carName.isNotEmpty) {
+                                      if (!carList.contains(carName)) {
+                                        carList.add(carName);
+                                      }
+                                      selectedCar.value = carName;
+                                    }
+
+                                    selectedTransmission.value = transmission;
+                                    print(
+                                        "✅ Added new car: $carName | Transmission: $transmission");
+                                  }
+                                }
+
+                                // 🧩 Case 2: User selects an existing car
+                                else {
+                                  selectedCar.value = value;
+                                  print("🚗 Selected car: ${selectedCar.value}");
+                                }
+                              },
+                            );
+                          }),
+                        ),
+                      ],
                     ),
+                  ),
 
                     SizedBox(height: 0.5.h),
 
@@ -549,7 +649,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                                             color: Colors.red),
                                       ),
                                       style: TextStyle(
-                                          fontSize: 15.sp,
+                                          fontSize: 14.sp,
                                           fontWeight: FontWeight.w600),
                                       controller: TextEditingController(
                                         text: startDateTime.value != null
@@ -634,7 +734,7 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                                                   color: Colors.red),
                                             ),
                                             style: TextStyle(
-                                                fontSize: 15.sp,
+                                                fontSize: 14.sp,
                                                 fontWeight: FontWeight.w600),
                                             controller: TextEditingController(
                                               text: endDateTime.value != null
@@ -792,44 +892,40 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                           ),
                           InkWell(
                             onTap: () {
-                              final breakdown = _calculatePaymentBreakdown();
-
-                              // String startDate = startDateTime.value != null
-                              //     ? DateFormat("yyyy-MM-dd").format(startDateTime.value!)
-                              //     : "";
-                              // print("🕐 startDate: $startDate");
-                              // String endDate = endDateTime.value != null
-                              //     ? DateFormat("yyyy-MM-dd").format(endDateTime.value!)
-                              //     : "";
-                              // print("🕐 endDate: $endDate");
-
-                              // ✅ Format start & end date/time directly from Rxn<DateTime>
+                              //Format start & end date/time directly from Rxn<DateTime>
                               String startDate = startDateTime.value != null
-                                  ? DateFormat("yyyy-MM-dd").format(startDateTime.value!)
+                                  ? DateFormat("yyyy-MM-dd")
+                                      .format(startDateTime.value!)
                                   : "";
                               String endDate = endDateTime.value != null
-                                  ? DateFormat("yyyy-MM-dd").format(endDateTime.value!)
+                                  ? DateFormat("yyyy-MM-dd")
+                                      .format(endDateTime.value!)
                                   : "";
 
-                              String startTimeFormatted = startDateTime.value != null
-                                  ? DateFormat("HH:mm:ss").format(startDateTime.value!)
-                                  : "";
-                              String endTimeFormatted = endDateTime.value != null
-                                  ? DateFormat("HH:mm:ss").format(endDateTime.value!)
-                                  : "";
+                              String startTimeFormatted =
+                                  startDateTime.value != null
+                                      ? DateFormat("HH:mm:ss")
+                                          .format(startDateTime.value!)
+                                      : "";
+                              String endTimeFormatted =
+                                  endDateTime.value != null
+                                      ? DateFormat("HH:mm:ss")
+                                          .format(endDateTime.value!)
+                                      : "";
 
-                              print("🕐 startDate: $startDate | startTime: $startTimeFormatted");
-                              print("🕐 endDate: $endDate | endTime: $endTimeFormatted");
-
+                              print(
+                                  "startDate: $startDate | startTime: $startTimeFormatted");
+                              print(
+                                  "endDate: $endDate | endTime: $endTimeFormatted");
 
                               Get.toNamed(
                                 RouteHelper().getPaymentBreakdownScreen(),
                                 arguments: {
-                                  "type": isNavigator==true? "hourly":"outStation",
+                                  "type": isNavigator == true
+                                      ? "hourly"
+                                      : "outStation",
                                   "startDate": startDate,
                                   "endDate": endDate,
-                                  // "startTime": startTime,
-                                  // "endTime": endTime,
                                   "startTime": startTimeFormatted,
                                   "endTime": endTimeFormatted,
                                   "extra": extra,
@@ -924,91 +1020,109 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
                 ),
               ),
               onPressed: () async {
-                // Load user data
-                userNme = ls.getStringValue(ls.fullName) ?? "";
-                email = ls.getStringValue(ls.email) ?? "";
-                phoneNumber = ls.getStringValue(ls.mobileNumber) ?? "";
-
-                // Pickup & Drop
-                String pickUp = sourceController.text;
-                String drop = isNavigator ? "" : destinationController.text;
-                String startDate = "";
-                String startTime = "";
-
-                if (startDateTime.value != null) {
-                  startDate = DateFormat("yyyy-MM-dd").format(startDateTime.value!);
-                  startTime = DateFormat("HH:mm:ss").format(startDateTime.value!);
-                  print("✅ Using selected startDateTime: $startDate $startTime");
-                } else {
-                  DateTime now = DateTime.now();
-                  startDate = DateFormat("yyyy-MM-dd").format(now);
-                  startTime = DateFormat("HH:mm:ss").format(now);
-                  print("⚠️ startDateTime was null, using fallback current time: $startDate $startTime");
-                }
-
-
-
-
-                print("startDate :-- $startDate");
-                print("startTime :-- $startTime");
-
-                // Hours
-                int expectedEnd = int.parse(selectedHour.split(" ")[0]);
-
-                // Amount
-                String amount = "300";
-                print("selectedDateTime before parse: $selectedDateTime");
-
-                final bookingId = await homeController.createBookingApi(
-                  userNme,
-                  phoneNumber,
-                  email,
-                  isNavigator == true ? "hourly" : "outStation",
-                  pickUp,
-                  expectedEnd,
-                  paymentController.totalAmount.value,
-                  startDate,
-                  startTime,
-                  selectedCar.value,
-                  selectedTransmission.value,
-                );
-
-                if (bookingId != null) {
-                  print('Booking created successfully with ID: $bookingId');
-
-                  // Initialize & connect socket
-                  SocketService()
-                      .initSocket(baseUrl: 'https://docapi.nuke.co.in');
-                  SocketService().connect();
-
-                  // Join the booking room using the correct ID
-                  SocketService().joinBookingRoom(bookingId: bookingId);
-
-                  // Show searching UI
+                // 🚫 if request already running → reopen bottom sheet
+                if (_isRequestRunning) {
                   Get.bottomSheet(
                     DriverSearchingBottomSheet(
                       key: bottomSheetKey,
-                      statusText: "Searching for nearby drivers...",
+                      initialElapsed: _elapsedSeconds,
+                      totalDuration: 120,
+                      onCancelled: () {
+                        _isRequestRunning = false;
+                        _elapsedSeconds = 0;
+                      }, statusText: '',
+                    ),
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                  );
+                  return;
+                }
+
+                // ---------- VALIDATION ----------
+                if (selectedCar.value.isEmpty) {
+                  CommonFunctions().alertDialog("Alert","Please select a car before requesting a driver.","OK",()=>Get.back());
+                  return;
+                }
+                if (startDateTime.value == null) {
+                  CommonFunctions().alertDialog("Alert","Please select pickup date and time before requesting a driver.","OK",()=>Get.back());
+                  return;
+                }
+                if (isNavigator != true && endDateTime.value == null) {
+                  CommonFunctions().alertDialog("Alert","Please select drop date and time before requesting a driver.","OK",()=>Get.back());
+                  return;
+                }
+
+                // ✅ start global timer lock
+                _isRequestRunning = true;
+                _elapsedSeconds = 0;
+                _requestStartTime = DateTime.now();
+
+                _requestTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+                  _elapsedSeconds = DateTime.now().difference(_requestStartTime!).inSeconds;
+                  if (_elapsedSeconds >= 120) {
+                    t.cancel();
+                    _isRequestRunning = false;
+                    _elapsedSeconds = 0;
+                    // 🔥 auto cancel after 120 s
+                  /*  if (_activeBookingId != null) {
+                      SocketService().emitCancelRequest(_activeBookingId!);
+                      _activeBookingId = null;
+                    }*/
+                  }
+                });
+
+                // ---------- CREATE BOOKING ----------
+                userNme = ls.getStringValue(ls.fullName) ?? "";
+                email = ls.getStringValue(ls.email) ?? "";
+                phoneNumber = ls.getStringValue(ls.mobileNumber) ?? "";
+                String pickUp = sourceController.text;
+                String drop = isNavigator ? "" : destinationController.text;
+                String startDate = DateFormat("yyyy-MM-dd").format(startDateTime.value ?? DateTime.now());
+                String startTime = DateFormat("HH:mm:ss").format(startDateTime.value ?? DateTime.now());
+                int expectedEnd = int.parse(selectedHour.split(" ")[0]);
+
+                final bookingId = await homeController.createBookingApi(
+                  userNme, phoneNumber, email,
+                  isNavigator == true ? "hourly" : "outStation",
+                  pickUp, expectedEnd,
+                  paymentController.totalAmount.value,
+                  startDate, startTime,
+                  selectedCar.value, selectedTransmission.value,
+                );
+
+                if (bookingId != null) {
+                  _activeBookingId = bookingId.toString();
+                  SocketService().initSocket(baseUrl: 'https://docapi.nuke.co.in');
+                  SocketService().connect();
+                  SocketService().joinBookingRoom(bookingId: bookingId);
+
+                  Get.bottomSheet(
+                    DriverSearchingBottomSheet(
+                      key: bottomSheetKey,
+                      initialElapsed: _elapsedSeconds,
+                      totalDuration: 120,
+                      onCancelled: () {
+                        _isRequestRunning = false;
+                        _elapsedSeconds = 0;
+                      }, statusText: '',
                     ),
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
                   );
 
-                  // Listen for assignment
-                  SocketService().onDriverAssigned((eventData) {
-                    debugPrint("Driver assigned: $eventData");
-                    final driver = DriverInfo.fromMap(eventData);
+                  SocketService().onDriverAssigned((data) {
+                    _requestTimer?.cancel();
+                    _isRequestRunning = false;
+                    _elapsedSeconds = 0;
+                    final driver = DriverInfo.fromMap(data);
                     bottomSheetKey.currentState?.showAssignedDriver(driver);
                   });
                 } else {
-                  CommonFunctions().alertDialog(
-                    "Booking Failed",
-                    "Please try again later",
-                    "OK",
-                    () => Get.back(),
-                  );
+                  _isRequestRunning = false;
+                  CommonFunctions().alertDialog("Booking Failed","Please try again later","OK",()=>Get.back());
                 }
               },
+
               child: Text(
                 "Request for Driver",
                 style: TextStyle(fontSize: 16.sp, color: Colors.white),
@@ -1021,65 +1135,60 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
   }
 
   Widget _customTextField(TextEditingController controller) {
+    // detect whether it's pickup or drop field
+    final bool isPickup = controller == sourceController;
+
     return TextField(
       controller: controller,
       readOnly: true,
       style: TextStyle(fontSize: 14.sp, color: Colors.grey),
       decoration: InputDecoration(
+        suffixIcon: InkWell(
+          onTap: () {
+            // Add navigation logic same as map markers
+            Get.offNamed(
+              RouteHelper().getOneWayTripScreen(),
+              arguments: {
+                "isNavigator": isNavigator,
+                "editTarget": isPickup ? "source" : "destination",
+                "prefill": {
+                  "address": controller.text,
+                  "lat": isPickup
+                      ? sourceLocation.value?.latitude
+                      : destinationLocation.value?.latitude,
+                  "lng": isPickup
+                      ? sourceLocation.value?.longitude
+                      : destinationLocation.value?.longitude,
+                },
+                "existingDrop": (isPickup && destinationLocation.value != null)
+                    ? {
+                  "address": destinationController.text,
+                  "lat": destinationLocation.value?.latitude,
+                  "lng": destinationLocation.value?.longitude,
+                }
+                    : null,
+              },
+            );
+          },
+          child: const Icon(Icons.edit_location_alt_outlined,
+              color: Colors.redAccent),
+        ),
         contentPadding:
-            const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+        const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
         border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30),
-            borderSide: BorderSide(
-              color: Colors.grey,
-            )),
+          borderRadius: BorderRadius.circular(30),
+          borderSide: const BorderSide(color: Colors.grey),
+        ),
         focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30),
-            borderSide: BorderSide(
-              color: Colors.grey,
-            )),
+          borderRadius: BorderRadius.circular(30),
+          borderSide: const BorderSide(color: Colors.grey),
+        ),
       ),
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
         LengthLimitingTextInputFormatter(100),
       ],
     );
-  }
-
-  /// Get Current Location
-  Future<void> _getCurrentLocation() async {
-    LocationPermission permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
-      CommonFunctions().alertDialog(
-        "Alert",
-        "Location permission denied",
-        "Ok",
-        () => Get.back(),
-      );
-      return;
-    }
-
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-
-    currentLocation.value = LatLng(position.latitude, position.longitude);
-
-    if (mounted) {
-      setState(() {
-        markers.add(
-          Marker(
-            markerId: const MarkerId("currentLocation"),
-            position: currentLocation.value!,
-            infoWindow: const InfoWindow(title: "My Location"),
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueBlue,
-            ),
-          ),
-        );
-      });
-    }
   }
 
   /// Create Map with Polyline
@@ -1237,346 +1346,5 @@ class _OneWayTripDetailScreenState extends State<OneWayTripDetailScreen> {
       "total": total,
       "hours": hours,
     };
-  }
-
-  Future carDetailPopup() {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        String selectedTransmission = "Manual";
-        String selectedCar = "Xuv 700";
-
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              backgroundColor: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Center(
-                      child: Text(
-                        "Select Car & Transmission",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16.sp,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 2.h),
-                    Text(
-                      "Transmission",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 15.sp,
-                      ),
-                    ),
-                    SizedBox(height: 1.h),
-                    // Transmission section
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () =>
-                                setState(() => selectedTransmission = "Manual"),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 15),
-                              decoration: BoxDecoration(
-                                color: selectedTransmission == "Manual"
-                                    ? Colors.red.shade50
-                                    : Colors.grey.shade200,
-                                borderRadius: BorderRadius.circular(30),
-                                border: Border.all(
-                                  color: selectedTransmission == "Manual"
-                                      ? Colors.redAccent
-                                      : Colors.transparent,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  if (selectedTransmission == "Manual")
-                                    const Icon(Icons.check_circle,
-                                        color: Colors.redAccent, size: 20),
-                                  if (selectedTransmission == "Manual")
-                                    const SizedBox(width: 6),
-                                  Text(
-                                    "Manual",
-                                    style: TextStyle(
-                                      color: selectedTransmission == "Manual"
-                                          ? Colors.redAccent
-                                          : Colors.black54,
-                                      fontWeight:
-                                          selectedTransmission == "Manual"
-                                              ? FontWeight.bold
-                                              : FontWeight.normal,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => setState(
-                                () => selectedTransmission = "Automatic"),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 15),
-                              decoration: BoxDecoration(
-                                color: selectedTransmission == "Automatic"
-                                    ? Colors.red.shade50
-                                    : Colors.grey.shade200,
-                                borderRadius: BorderRadius.circular(30),
-                                border: Border.all(
-                                  color: selectedTransmission == "Automatic"
-                                      ? Colors.redAccent
-                                      : Colors.transparent,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  if (selectedTransmission == "Automatic")
-                                    const Icon(Icons.check_circle,
-                                        color: Colors.redAccent, size: 20),
-                                  if (selectedTransmission == "Automatic")
-                                    const SizedBox(width: 6),
-                                  Text(
-                                    "Automatic",
-                                    style: TextStyle(
-                                      color: selectedTransmission == "Automatic"
-                                          ? Colors.redAccent
-                                          : Colors.black54,
-                                      fontWeight:
-                                          selectedTransmission == "Automatic"
-                                              ? FontWeight.bold
-                                              : FontWeight.normal,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    SizedBox(height: 2.h),
-
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "My car",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 15.sp,
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: 1.h),
-
-                    // Car cards
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Car 1
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () =>
-                                setState(() => selectedCar = "Xuv 700"),
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              margin: const EdgeInsets.only(right: 10),
-                              decoration: BoxDecoration(
-                                color: selectedCar == "Xuv 700"
-                                    ? Colors.red.shade50
-                                    : Colors.grey.shade100,
-                                borderRadius: BorderRadius.circular(15),
-                                border: Border.all(
-                                  color: selectedCar == "Xuv 700"
-                                      ? Colors.redAccent
-                                      : Colors.transparent,
-                                ),
-                              ),
-                              child: Column(
-                                children: [
-                                  Stack(
-                                    children: [
-                                      Icon(Icons.directions_car,
-                                          size: 40,
-                                          color: selectedCar == "Xuv 700"
-                                              ? Colors.redAccent
-                                              : Colors.black45),
-                                      if (selectedCar == "Xuv 700")
-                                        Positioned(
-                                          top: 0,
-                                          right: 0,
-                                          child: Container(
-                                            padding: const EdgeInsets.all(2),
-                                            decoration: const BoxDecoration(
-                                              color: Colors.white,
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: const Icon(
-                                                Icons.check_circle,
-                                                size: 16,
-                                                color: Colors.redAccent),
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text("Xuv 700",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        color: selectedCar == "Xuv 700"
-                                            ? Colors.black
-                                            : Colors.black54,
-                                      )),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // Car 2
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => setState(() => selectedCar = "Ford"),
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              margin: const EdgeInsets.only(right: 8),
-                              decoration: BoxDecoration(
-                                color: selectedCar == "Ford"
-                                    ? Colors.red.shade50
-                                    : Colors.grey.shade100,
-                                borderRadius: BorderRadius.circular(15),
-                                border: Border.all(
-                                  color: selectedCar == "Ford"
-                                      ? Colors.redAccent
-                                      : Colors.transparent,
-                                ),
-                              ),
-                              child: Column(
-                                children: [
-                                  Stack(
-                                    children: [
-                                      Icon(Icons.directions_car,
-                                          size: 40,
-                                          color: selectedCar == "Ford"
-                                              ? Colors.redAccent
-                                              : Colors.black45),
-                                      if (selectedCar == "Ford")
-                                        Positioned(
-                                          top: 0,
-                                          right: 0,
-                                          child: Container(
-                                            padding: const EdgeInsets.all(2),
-                                            decoration: const BoxDecoration(
-                                              color: Colors.white,
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: const Icon(
-                                                Icons.check_circle,
-                                                size: 16,
-                                                color: Colors.redAccent),
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text("Ford",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        color: selectedCar == "Ford"
-                                            ? Colors.black
-                                            : Colors.black54,
-                                      )),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // Add button
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              // You can add your car adding logic here
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade100,
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              child: Column(
-                                children: const [
-                                  Icon(Icons.add,
-                                      size: 40, color: Colors.black45),
-                                  SizedBox(height: 6),
-                                  Text(
-                                    "Add",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black54),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    SizedBox(height: 3.h),
-
-                    // Confirm Button
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                                "Selected: $selectedTransmission - $selectedCar"),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        decoration: BoxDecoration(
-                          color: Colors.redAccent,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "Confirm",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16.sp),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 1.h),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
   }
 }
